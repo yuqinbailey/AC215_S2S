@@ -55,6 +55,6 @@ for i in range(start_index, end_index):
     with open(PROGRESS_FILE_PATH, 'w') as file:
         file.write(str(progress_id))
 
-print('Task Completed!')
+print('Finished downloaded specified video')
 
 
