@@ -10,8 +10,7 @@ from google.cloud import storage
 # Generate the inputs arguments parser
 parser = argparse.ArgumentParser(description="Command description.")
 
-gcp_project = "ac215-project"
-bucket_name = "s2s_data"
+GCS_BUCKET_NAME = os.environ["GCS_BUCKET_NAME"]
 input_videos = "processed_data"
 output_videos = "s2s_dataset"
 
@@ -27,7 +26,7 @@ def download():
     makedirs()
 
     client = storage.Client()
-    bucket = client.get_bucket(bucket_name)
+    bucket = client.get_bucket(GCS_BUCKET_NAME)
 
     blobs = bucket.list_blobs(prefix=input_videos + "/")
     for blob in blobs:
@@ -37,9 +36,10 @@ def download():
 
 def train_val_test_split(source_folder, train_percent, val_percent):
 
-    # Create lists to hold filenames
+    # Lists to hold filenames
     all_files = [f for f in os.listdir(source_folder) if os.path.isfile(os.path.join(source_folder, f))]
-    shuffle(all_files)  # Randomly shuffle the list
+    # Randomly shuffle the list
+    shuffle(all_files)  
 
     num_files = len(all_files)
     num_train = int(train_percent * num_files)
@@ -54,7 +54,7 @@ def train_val_test_split(source_folder, train_percent, val_percent):
     os.makedirs(os.path.join(output_videos, 'val'), exist_ok=True)
     os.makedirs(os.path.join(output_videos, 'test'), exist_ok=True)
 
-    # Function to copy files to respective directories
+    # Copy files to respective directories
     def move_files(file_list, target_dir):
         for f in file_list:
             shutil.copy(os.path.join(source_folder, f), os.path.join(output_videos, target_dir, f))
@@ -74,19 +74,21 @@ def main(args=None):
 
 if __name__ == "__main__":
     # Generate the inputs arguments parser
-    # if you type into the terminal 'python cli.py --help', it will provide the description
-    parser = argparse.ArgumentParser(description="Data Versioning CLI...")
+    # if you type into the terminal 'python data_split.py --help', it will provide the description
+    parser = argparse.ArgumentParser(description="Data Spliting CLI...")
 
     parser.add_argument(
         "-t",
         "--train_percent",
         default=0.7,
+        help="Percentage of data to be used for training. Should be a float value between 0 and 1. Default is 0.7."
     )
 
     parser.add_argument(
         "-v",
         "--val_percent",
         default=0.2,
+        help="Percentage of data to be used for validation. Should be a float value between 0 and 1. Default is 0.2."
     )
 
     args = parser.parse_args()
