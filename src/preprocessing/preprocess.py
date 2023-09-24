@@ -5,6 +5,7 @@ import shutil
 from google.cloud import storage
 from csv import reader
 from moviepy.editor import VideoFileClip
+import ffmpeg
 
 # Generate the inputs arguments parser
 parser = argparse.ArgumentParser(description="Command description.")
@@ -43,17 +44,27 @@ def cut_video():
     print("cut")
     makedirs()
 
-    video_files = os.listdir(input_videos)
-
     file = open('vggsound.csv',"r")
     lines = list(reader(file))
-    start_times = {x[0]:int(x[1]) for x in lines}
+    start_times = {}
+    for line in lines:
+        video_id = line[0]
+        if video_id not in start_times.keys():
+            start_times[video_id] = [int(line[1])]
+        else:
+            start_times[video_id].append(int(line[1]))
 
+    video_files = os.listdir(input_videos)
     for video_file in video_files:
-        clip = VideoFileClip(os.path.join(input_videos,video_file))
-        video_id = video_file.split('.')[0]
-        trimmed_clip = clip.subclip(start_times[video_id],start_times[video_id]+10)
-        trimmed_clip.write_videofile(os.path.join(output_videos,video_file))
+        if video_file.endswith('mp4'):
+            clip = VideoFileClip(os.path.join(input_videos,video_file))
+            video_id = video_file.split('.')[0]
+            for j, t in enumerate(start_times[video_id]):
+                trimmed_clip = clip.subclip(t,min(t+10,clip.duration))
+                trimmed_clip.write_videofile(os.path.join(output_videos,f'c_{video_id}_{j+1}.mp4'), audio_codec="aac")
+            clip.close()
+
+
 
 
 def upload():
@@ -101,7 +112,7 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "-c",
-        "--cut",
+        "--cut_video",
         action="store_true",
         help="Cut video files from GCS bucket",
     )
