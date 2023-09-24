@@ -1,0 +1,7 @@
+# misc
+.DS_Store
+/docker-volumes
+/s2s_dataset_prep
+/s2s_dataset
+*.mp4
+

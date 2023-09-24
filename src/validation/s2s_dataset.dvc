@@ -1,0 +1,6 @@
+outs:
+- md5: bc5dc99e23ea17c68f209624b3d64cbe.dir
+  size: 15652335
+  nfiles: 20
+  hash: md5
+  path: s2s_dataset
