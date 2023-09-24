@@ -11,8 +11,8 @@ parser = argparse.ArgumentParser(description="Command description.")
 
 gcp_project = "ac215-project"
 bucket_name = "s2s_data"
-input_videos = "input_videos"
-output_videos = "output_videos"
+input_videos = "raw_data"
+output_videos = "processed_data"
 
 
 def makedirs():
@@ -36,11 +36,12 @@ def download():
         if not blob.name.endswith("/"):
             blob.download_to_filename(blob.name)
 
+    blob = bucket.blob('vggsound.csv')
+    blob.download_to_filename(blob.name)
 
 def cut_video():
     print("cut")
     makedirs()
-
 
     video_files = os.listdir(input_videos)
 
@@ -64,10 +65,10 @@ def upload():
     bucket = storage_client.bucket(bucket_name)
 
     # Get the list of video file
-    text_files = os.listdir(output_videos)
+    video_files = os.listdir(output_videos)
 
-    for text_file in text_files:
-        file_path = os.path.join(output_videos, text_file)
+    for video_file in video_files:
+        file_path = os.path.join(output_videos, video_file)
 
         destination_blob_name = file_path
         blob = bucket.blob(destination_blob_name)
