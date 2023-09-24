@@ -63,7 +63,7 @@ def train_val_test_split(source_folder, train_percent, val_percent):
     move_files(val_files, 'val')
     move_files(test_files, 'test')
 
-    print("Files split into train, val, and test directories under s2s_dataset.")
+    print("Videos split into train, val, and test directories under s2s_dataset.")
 
 
 def main(args=None):
