@@ -5,7 +5,6 @@ import shutil
 from google.cloud import storage
 from csv import reader
 from moviepy.editor import VideoFileClip
-import ffmpeg
 
 # Generate the inputs arguments parser
 parser = argparse.ArgumentParser(description="Command description.")

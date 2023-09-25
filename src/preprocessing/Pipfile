@@ -10,7 +10,6 @@ google-cloud-storage = "*"
 pandas = "*"
 moviepy = "*"
 google = "*"
-ffmpeg = "*"
 
 [requires]
 python_version = "3.9"
