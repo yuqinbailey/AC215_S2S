@@ -1,4 +1,0 @@
-[core]
-    remote = s2s_dataset
-['remote "s2s_dataset"']
-    url = gs://s2s_data/dvc_store
