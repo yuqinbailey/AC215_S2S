@@ -42,8 +42,8 @@ def train_val_test_split(source_folder, train_percent, val_percent):
     shuffle(all_files)  
 
     num_files = len(all_files)
-    num_train = int(train_percent * num_files)
-    num_val = int(val_percent * num_files)
+    num_train = int(float(train_percent) * num_files)
+    num_val = int(float(val_percent) * num_files)
 
     train_files = all_files[:num_train]
     val_files = all_files[num_train:num_train + num_val]

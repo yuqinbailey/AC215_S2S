@@ -50,6 +50,10 @@ We aim to develop an application that generates ambient sounds from images or si
 
 ### Milestone2 ###
 
+```shell
+git clone https://github.com/yuqinbailey/AC215_S2S.git
+```
+
 
 **Data collection container**
 - Input
@@ -65,6 +69,13 @@ We aim to develop an application that generates ambient sounds from images or si
 
 (5) `src/data_collection/Pipfile` - 
 
+Step-by-step instructions to run the docker container - 
+
+```shell
+cd AC215_S2S/src/data_collection
+chmod +x docker-shell.sh
+./docker-shell.sh
+```
 
 **Preprocess container**
 - Input to this container is source and destincation GCS location, parameters for resizing, secrets needed - via docker
@@ -87,15 +98,17 @@ We aim to develop an application that generates ambient sounds from images or si
 
 (5) `src/preprocessing/Pipfile` - specifies the Python dependencies for the module.
 
-Step-by-step instructions to run the docker container - 
-
+To run Dockerfile - 
 ```shell
-git clone https://github.com/yuqinbailey/AC215_S2S.git
-cd AC215_S2S/src/preprocessing
+cd ../preprocessing
 chmod +x docker-shell.sh
 ./docker-shell.sh
 ```
 
+Inside the preprocessing container, to preprocess data - 
+```shell
+python preprocess.py -d -c -u
+```
 
 **Cross validation, data versioning container**
 - This container reads preprocessed dataset and creates validation split and uses dvc for versioning
@@ -113,6 +126,17 @@ chmod +x docker-shell.sh
 (5) `src/validation/Pipfile` - 
 
 To run Dockerfile - `Instructions here`
+```shell
+cd ../validation
+chmod +x docker-shell.sh
+./docker-shell.sh
+```
+
+Inside the validation container, to split data - 
+```shell
+python data_split.py
+```
+
 
 **Notebooks** 
 This folder contains code that is not part of container. 
