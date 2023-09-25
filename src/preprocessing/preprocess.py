@@ -56,12 +56,17 @@ def cut_video():
     video_files = os.listdir(input_videos)
     for video_file in video_files:
         if video_file.endswith('mp4'):
-            clip = VideoFileClip(os.path.join(input_videos,video_file))
-            video_id = video_file.split('.')[0]
-            for j, t in enumerate(start_times[video_id]):
-                trimmed_clip = clip.subclip(t,min(t+10,clip.duration))
-                trimmed_clip.write_videofile(os.path.join(output_videos,f'c_{video_id}_{j+1}.mp4'), audio_codec="aac")
-            clip.close()
+            try:
+                clip = VideoFileClip(os.path.join(input_videos,video_file))
+            except:
+                print("!!!! Exception when reading video input: ", video_file)
+            else:
+                video_id = video_file.split('.')[0]
+                for j, t in enumerate(start_times[video_id]):
+                    trimmed_clip = clip.subclip(t,min(t+10,clip.duration))
+                    trimmed_clip.write_videofile(os.path.join(output_videos,f'c_{video_id}_{j+1}.mp4'), audio_codec="aac")
+            finally:
+                clip.close()
 
 
 
