@@ -60,7 +60,7 @@ def download_from_youtube(args):
             video_url = video_stream.url
             response = requests.get(video_url)
             video_bytes = response.content
-            print(f"Finished downloading the video with id {id}")
+            print(f"Finished downloading the video with id {id}.")
             is_success = True
         except:
             print(f"[WARNING] Invalid Video. Give up the video with id {id}")
@@ -70,7 +70,7 @@ def download_from_youtube(args):
             blob = bucket.blob(os.path.join(raw_data, str(id) + ".mp4"))
             with blob.open('wb') as f:
                 f.write(video_bytes)
-            print(f"Pushed the video with id {id} to bucket")
+            print(f"\t Pushed {id} with counter {i}.")
 
         progress_id += 1
 
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     # Generate the inputs arguments parser
     parser = argparse.ArgumentParser(description="Transcribe audio file to text")
 
-    parser.add_argument('--nums_to_download', default=5,
+    parser.add_argument('--nums_to_download', default=5, type=int,
                     help="The number of videos to download from YouTube")
 
     args = parser.parse_args()
