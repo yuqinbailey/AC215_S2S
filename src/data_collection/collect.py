@@ -11,20 +11,14 @@ import requests
 # Generate the inputs arguments parser
 parser = argparse.ArgumentParser(description="Command description.")
 
-# TODO: some the variables are not used
+# TODO: some of the variables are not used
 # noqa
 YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v="
 gcp_project = "ac215-project"
 bucket_name = "s2s_data"
 raw_data = "raw_data"
-output_videos = "processed_data"
 vggsound_file = 'vggsound.csv'
 progress_file = 'progress.txt'
-
-
-def makedirs():
-    os.makedirs(raw_data, exist_ok=True)
-    os.makedirs(output_videos, exist_ok=True)
 
 
 def download_from_youtube(args):

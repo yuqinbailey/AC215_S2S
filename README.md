@@ -73,36 +73,38 @@ Create a locl secrets folder because we do not include any secure information in
 
 
 ### Data collection container
-- Input
-- Ouput
+- Input to this container is source and destination GCS location, parameters for resizing, and secrets needed - via docker. The program would pull the Youtube IDs from bucket
+- Output: The pushed videos in the bucket
 
-(1) `src/data_collection/collect.py` - `--nums_to_download`
+(1) `src/data_collection/collect.py` -
+- `download_from_youtube()`: download the videos that are specified in the dataset from YouTube and push the video to the bucket. We skip over the already invalid videos.
 
-(2) `src/data_collection/Dockerfile` - 
+(2) `src/data_collection/Dockerfile` - provides instructions for building the docker image for the data-preprocess service. The image is based on `python:3.9-slim-buster`. The working directory is set to `/app`.
 
-(3) `src/data_collection/docker-compose.yml` - 
+(3) `src/data_collection/docker-compose.yml` - specifies the data-preprocess service with the following configurations.
 - Image name: data-collection
 - Container name: data-collection
 - GCP environment variables
 
-(4) `src/data_collection/docker-shell.sh` - 
+(4) `src/data_collection/docker-shell.sh` -  set up and run the docker container.
 
-(5) `src/data_collection/Pipfile` - 
+(5) `src/data_collection/Pipfile` - specifies the Python dependencies for the module.
 
 Step-by-step instructions to run the docker container - 
 
 ```shell
 cd AC215_S2S/src/data_collection
 chmod +x docker-shell.sh
-./docker-shell.sh
+sh docker-shell.sh
 ```
 
+Inside the collection container, we can run the following example command to collect 10 more videos - 
 ```shell
-/app$ 
+/app$ python collect.py --nums_to_download 10
+/app$ exit
 ```
 
-
-### Preprocess container
+**Preprocess container**
 - Input to this container is source and destincation GCS location, parameters for resizing, secrets needed - via docker
 - Output from this container stored at GCS location
 
