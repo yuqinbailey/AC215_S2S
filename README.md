@@ -12,6 +12,7 @@ Project Organization
       ├── requirements.txt
       ├── setup.py
       └── src
+            ├── secrets
             ├── data_collection
             │   ├── Dockerfile
             │   ├── docker-compose.yml
@@ -32,7 +33,17 @@ Project Organization
                 ├── docker-shell.sh
                 ├── Pipfile
                 ├── Pipfile.lock
-                └── data_split.txt
+                └── data_split.py
+
+
+**GCP Bucket** 
+`s2s_data`
+```
+  ├── vggsound.csv
+  ├── raw_data
+  ├── processed_data
+  └── dvc_store
+```
 
 
 --------
@@ -48,22 +59,31 @@ S2S (*Silent to Sound*)
 
 We aim to develop an application that generates ambient sounds from images or silent videos leveraging computer vision and multimodal models. Our goal is to enrich the general user experience by creating a harmonized visual-audio ecosystem, and facilitate immersive multimedia interactions for individuals with visual impairments.
 
-### Milestone2 ###
+
+## Milestone2
 
 ```shell
 git clone https://github.com/yuqinbailey/AC215_S2S.git
 ```
 
 
-**Data collection container**
+### Local secrets folder
+
+Create a locl secrets folder because we do not include any secure information in Git. Add the GCP service account private key, `data-service-account.json`, to this folder.
+
+
+### Data collection container
 - Input
 - Ouput
 
-(1) `src/data_collection/collect.py` - 
+(1) `src/data_collection/collect.py` - `--nums_to_download`
 
 (2) `src/data_collection/Dockerfile` - 
 
 (3) `src/data_collection/docker-compose.yml` - 
+- Image name: data-collection
+- Container name: data-collection
+- GCP environment variables
 
 (4) `src/data_collection/docker-shell.sh` - 
 
@@ -77,7 +97,12 @@ chmod +x docker-shell.sh
 ./docker-shell.sh
 ```
 
-**Preprocess container**
+```shell
+/app$ 
+```
+
+
+### Preprocess container
 - Input to this container is source and destincation GCS location, parameters for resizing, secrets needed - via docker
 - Output from this container stored at GCS location
 
@@ -105,12 +130,14 @@ chmod +x docker-shell.sh
 ./docker-shell.sh
 ```
 
-Inside the preprocessing container, to preprocess data - 
+Inside the preprocessing container, to preprocess data and exit - 
 ```shell
-python preprocess.py -d -c -u
+/app$ python preprocess.py -d -c -u
+/app$ exit
 ```
 
-**Cross validation, data versioning container**
+
+### Cross validation, data versioning container
 - This container reads preprocessed dataset and creates validation split and uses dvc for versioning
 - Input to this container is source GCS location, parameters if any, secrets needed - via docker
 - Output is flat file with train, validation, and test splits
@@ -120,12 +147,15 @@ python preprocess.py -d -c -u
 (2) `src/validation/Dockerfile` - 
 
 (3) `src/validation/docker-compose.yml` - 
+- Image name: data-validation-version-cli
+- Container name: data-validation-version-cli
+- GCP environment variables
 
 (4) `src/validation/docker-shell.sh` - 
 
 (5) `src/validation/Pipfile` - 
 
-To run Dockerfile - `Instructions here`
+To run Dockerfile -
 ```shell
 cd ../validation
 chmod +x docker-shell.sh
@@ -134,9 +164,22 @@ chmod +x docker-shell.sh
 
 Inside the validation container, to split data - 
 ```shell
-python data_split.py
+/app$ python data_split.py
+/app$ exit
 ```
 
+### Docker cleanup
+To make sure we do not have any running containers and clear up unused images -
+* Run `docker container ls`
+* Stop any container that is running
+* Run `docker image ls`
+* Run `docker system prune`
 
-**Notebooks** 
+
+### Data visualization for sanity check
+- [Colab Notebook](https://colab.research.google.com/drive/16ipwKR76L_exSH5SqfNyQ7FJUOtNSwla?usp=sharing)
+
+
+### Notebooks
+
 This folder contains code that is not part of container. 
