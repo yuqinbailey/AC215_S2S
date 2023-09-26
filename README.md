@@ -181,11 +181,18 @@ Perform data-versioning -
 ```
 Notice that we run `dvc init` only for the first time to initialize DVC in the subdirectory.
 
+Commit DVC changes in the subdirectory
+```shell
+/app$ exit
+git add .
+git commit -m 'dataset changes'
+```
+
 Navigate one level up `cd ..`
 Add changes  `git add validation/`
-Commit changes `git commit -m 'DVC updates...`
+Commit changes `git commit -m 'Updates in the DVC subdirectory`
 Add a dataset tag `git tag -a 'dataset_v1' -m 'tag dataset`
-Push changes `git push --atomic origin milestone2 dataset_v1`
+Push changes to main git repo`git push --atomic origin milestone2 dataset_v1`
 
 ### Docker cleanup
 To make sure we do not have any running containers and clear up unused images -
