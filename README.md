@@ -143,6 +143,7 @@ Inside the preprocessing container, to preprocess data and exit -
 - This container reads preprocessed dataset and creates validation split and uses dvc for versioning
 - Input to this container is source GCS location, parameters if any, secrets needed - via docker
 - Output is flat file with train, validation, and test splits
+
   
 (1) `src/validation/collect.py` - `-t` for the percentage of data to be used for training, and `-v` for the percentage of data to be used for validation, and the rest of data will be used for test.
 
@@ -160,15 +161,31 @@ Inside the preprocessing container, to preprocess data and exit -
 To run Dockerfile -
 ```shell
 cd ../validation
+git init
 chmod +x docker-shell.sh
 ./docker-shell.sh
 ```
+Explanation: `dvc init` looks for the root of the Git repository and initializes there. In our case, we want DVC to work within a subdirectory, so we `git init` to initialize an empty git repository in this subdirectory.  
 
 Inside the validation container, to split data - 
 ```shell
 /app$ python data_split.py
-/app$ exit
 ```
+
+Perform data-versioning -
+```shell
+/app$ dvc init
+/app$ dvc remote add -d s2s_dataset gs://s2s_data/dvc_store
+/app$ dvc add s2s_dataset
+/app$ dvc push
+```
+Notice that we run `dvc init` only for the first time to initialize DVC in the subdirectory.
+
+Navigate one level up `cd ..`
+Add changes  `git add validation/`
+Commit changes `git commit -m 'DVC updates...`
+Add a dataset tag `git tag -a 'dataset_v1' -m 'tag dataset`
+Push changes `git push --atomic origin milestone2 dataset_v1`
 
 ### Docker cleanup
 To make sure we do not have any running containers and clear up unused images -
