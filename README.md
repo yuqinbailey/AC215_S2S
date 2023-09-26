@@ -50,7 +50,7 @@ Project Organization
 # AC215 - Milestone2 - Silent to Sound
 
 **Team Members**
-Yuqin (Bailey) Bai, Danning (Danni) Lai, Tiantong Li, Yong Zhang, Yujan Ting, and Hanlin Zhu
+Yuqin (Bailey) Bai, Danning (Danni) Lai, Tiantong Li, Yujan Ting, Yong Zhang, and Hanlin Zhu
 
 **Group Name**
 S2S (*Silent to Sound*)
@@ -76,8 +76,8 @@ Create a local secrets folder under `src` directory because we do not include an
 - Input to this container is source and destination GCS location, parameters for resizing, and secrets needed - via docker. The program would pull the Youtube IDs from bucket
 - Output: The pushed videos in the bucket
 
-(1) `src/data_collection/collect.py` -
-- `download_from_youtube()`: download the videos that are specified in the dataset from YouTube and push the video to the bucket. We skip over the already invalid videos.
+(1) `src/data_collection/collect.py` - `--nums_to_download` specifies the number of videos to download each time.
+- `download_from_youtube()`: downloads the videos that are specified in the dataset from YouTube and push the video to the bucket. We skip over the already invalid videos.
 
 (2) `src/data_collection/Dockerfile` - provides instructions for building the docker image for the data-preprocess service. The image is based on `python:3.9-slim-buster`. The working directory is set to `/app`.
 
@@ -142,57 +142,57 @@ Inside the preprocessing container, to preprocess data and exit -
 ### Cross validation, data versioning container
 - This container reads preprocessed dataset and creates validation split and uses dvc for versioning
 - Input to this container is source GCS location, parameters if any, secrets needed - via docker
-- Output is flat file with train, validation, and test splits
+- Output is flat file with train, validation, and test splits to DVC
 
   
 (1) `src/validation/collect.py` - `-t` for the percentage of data to be used for training, and `-v` for the percentage of data to be used for validation, and the rest of data will be used for test.
+- `download()`: downloads the preprocessed video clips from GCS.
+- `train_val_test_split()`: splits the videos into train, validation, and test sets based on provided ratio and stores them under correcsponding folders under `s2s_data/`.
 
-(2) `src/validation/Dockerfile` - 
+(2) `src/validation/Dockerfile` - provides instructions for building the docker image for the data-preprocess service. The image is based on `python:3.8-slim-buster`. The working directory is set to `/app`.
 
-(3) `src/validation/docker-compose.yml` - 
+(3) `src/validation/docker-compose.yml` - specifies the data-preprocess service with the following configurations. 
 - Image name: data-validation-version-cli
 - Container name: data-validation-version-cli
 - GCP environment variables
 
-(4) `src/validation/docker-shell.sh` - 
+(4) `src/validation/docker-shell.sh` - set up and run the docker container. 
 
-(5) `src/validation/Pipfile` - 
+(5) `src/validation/Pipfile` - specifies the Python dependencies for the module.
 
-To run Dockerfile -
+For data versioning, `dvc init` looks for the root of the Git repository and initializes there. In this case, we want DVC to work within the subdirectory, so we also need to initialize an empty git repository inside this subdirectory - 
 ```shell
 cd ../validation
 git init
+```
+
+To run Dockerfile -
+```shell
 chmod +x docker-shell.sh
 ./docker-shell.sh
 ```
-Explanation: `dvc init` looks for the root of the Git repository and initializes there. In our case, we want DVC to work within a subdirectory, so we `git init` to initialize an empty git repository in this subdirectory.  
 
 Inside the validation container, to split data - 
 ```shell
-/app$ python data_split.py
+/app$ python data_split.py -t .7 -v .2
 ```
 
-Perform data-versioning -
+We've already init dvc and set remote to `gs://s2s_data/dvc_store`. To perform data-versioning -
 ```shell
-/app$ dvc init
-/app$ dvc remote add -d s2s_dataset gs://s2s_data/dvc_store
 /app$ dvc add s2s_dataset
 /app$ dvc push
-```
-Notice that we run `dvc init` only for the first time to initialize DVC in the subdirectory.
-
-Commit DVC changes in the subdirectory
-```shell
 /app$ exit
-git add .
-git commit -m 'dataset changes'
 ```
 
-Navigate one level up `cd ..`
-Add changes  `git add validation/`
-Commit changes `git commit -m 'Updates in the DVC subdirectory`
-Add a dataset tag `git tag -a 'dataset_v1' -m 'tag dataset`
-Push changes to main git repo`git push --atomic origin milestone2 dataset_v1`
+To add, tag, and commit DVC changes tracked in the main git repo - 
+```shell
+cd ..
+git add validation/s2s_dataset.dvc
+git commit -m 'dataset changes'
+git tag -a 'dataset_v1' -m 'tag dataset'
+git push --atomic origin main dataset_v1
+```
+
 
 ### Docker cleanup
 To make sure we do not have any running containers and clear up unused images -
@@ -203,7 +203,7 @@ To make sure we do not have any running containers and clear up unused images -
 
 
 ### Data visualization for sanity check
-- [Colab Notebook](https://colab.research.google.com/drive/16ipwKR76L_exSH5SqfNyQ7FJUOtNSwla?usp=sharing)
+- [Colab Notebook](https://colab.research.google.com/drive/16ipwKR76L_exSH5SqfNyQ7FJUOtNSwla?usp=sharing) - facilitates the retrieval of various versions of our dataset managed by DVC, requiring GCP and GitHub authentication. It offers two functions, `dataset_metrics` and `show_examples`, to efficiently visualize dataset samples and display metrics, serving as sanity check for our data.
 
 
 ### Notebooks
