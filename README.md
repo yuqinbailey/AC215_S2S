@@ -69,7 +69,7 @@ git clone https://github.com/yuqinbailey/AC215_S2S.git
 
 ### Local secrets folder
 
-Create a locl secrets folder because we do not include any secure information in Git. Add the GCP service account private key, `data-service-account.json`, to this folder.
+Create a local secrets folder under `src` directory because we do not include any secure information in Git. Add the GCP service account private key, `data-service-account.json`, to this folder.
 
 
 ### Data collection container
