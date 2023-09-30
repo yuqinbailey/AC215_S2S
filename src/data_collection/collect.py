@@ -85,7 +85,7 @@ def main(args=None):
 
 if __name__ == "__main__":
     # Generate the inputs arguments parser
-    parser = argparse.ArgumentParser(description="Transcribe audio file to text")
+    parser = argparse.ArgumentParser(description="Download the YouTube videos")
 
     parser.add_argument('--nums_to_download', default=5, type=int,
                     help="The number of videos to download from YouTube")
