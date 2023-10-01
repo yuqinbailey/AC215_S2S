@@ -1,7 +1,7 @@
 Silent to Sound: Video Sound Generator
 ==============================
 
-AC215 - Milestone2
+AC215 - Milestone3
 
 Project Organization
 ------------
@@ -47,7 +47,7 @@ Project Organization
 
 
 --------
-# AC215 - Milestone2 - Silent to Sound
+# AC215 - Milestone3 - Silent to Sound
 
 **Team Members**
 Yuqin (Bailey) Bai, Danning (Danni) Lai, Tiantong Li, Yujan Ting, Yong Zhang, and Hanlin Zhu
@@ -60,16 +60,11 @@ S2S (*Silent to Sound*)
 We aim to develop an application that generates ambient sounds from images or silent videos leveraging computer vision and multimodal models. Our goal is to enrich the general user experience by creating a harmonized visual-audio ecosystem, and facilitate immersive multimedia interactions for individuals with visual impairments.
 
 
-## Milestone2
+## Milestone3
 
-```shell
-git clone https://github.com/yuqinbailey/AC215_S2S.git
-```
+**Experiment Tracking**
 
-
-### Local secrets folder
-
-Create a local secrets folder under `src` directory because we do not include any secure information in Git. Add the GCP service account private key, `data-service-account.json`, to this folder.
+**Serverless Training**
 
 
 ### Data collection container
@@ -145,7 +140,7 @@ Inside the preprocessing container, to preprocess data and exit -
 - Output is flat file with train, validation, and test splits to DVC
 
   
-(1) `src/validation/collect.py` - `-t` for the percentage of data to be used for training, and `-v` for the percentage of data to be used for validation, and the rest of data will be used for test.
+(1) `src/validation/data_split.py` - `-t` for the percentage of data to be used for training, and `-v` for the percentage of data to be used for validation, and the rest of data will be used for test.
 - `download()`: downloads the preprocessed video clips from GCS.
 - `train_val_test_split()`: splits the videos into train, validation, and test sets based on provided ratio and stores them under correcsponding folders under `s2s_data/`.
 
