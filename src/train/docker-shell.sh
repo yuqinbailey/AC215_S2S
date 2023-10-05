@@ -10,7 +10,9 @@ export GCP_PROJECT="ac215project-398818"
 
 
 # YONG: hard-coded just for now
-export WANDB_KEY="99a03eb53907038fc698b0421464ffea6c671e66"
+# export WANDB_KEY="99a03eb53907038fc698b0421464ffea6c671e66"
+# frank: hard-coded just for now
+# export WANDB_KEY="f41e521531bde36451c2adc9a1e7b2de8f2064fa"
 
 
 # Build the image based on the Dockerfile
