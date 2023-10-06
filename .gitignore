@@ -132,3 +132,8 @@ dmypy.json
 secrets/
 src/validation/.git/
 *.mp4
+
+
+src/train/package/trainer/data/
+src/train/package/trainer/ckpt/
+src/train/trainer.tar.gz

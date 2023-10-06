@@ -4,7 +4,7 @@ import random
 import numpy as np
 import torch
 import torch.utils.data
-from config import _C as config
+from trainer.config import _C as config
 
 
 class RegnetLoader(torch.utils.data.Dataset):

@@ -8,14 +8,14 @@ import time
 import torch
 from torch.utils.data import DataLoader
 import numpy as np
-from Recorder import Recorder
-from data_utils import RegnetLoader
-from logger import RegnetLogger
-from criterion import RegnetLoss
-from model import Regnet
+from trainer.Recorder import Recorder
+from trainer.data_utils import RegnetLoader
+from trainer.logger import RegnetLogger
+from trainer.criterion import RegnetLoss
+from trainer.model import Regnet
 # from test import test_checkpoint
 from contextlib import redirect_stdout
-from config import _C as config
+from trainer.config import _C as config
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -148,21 +148,22 @@ if __name__ == '__main__':
     if args.config_file:
         config.merge_from_file(args.config_file)
  
-    config.merge_from_list(args.opts)
+    # config.merge_from_list(args.opts)
     # config.freeze()
 
-    os.makedirs(config.save_dir, exist_ok=True)
-    with open(os.path.join(config.save_dir, 'opts.yml'), 'w') as f:
-        with redirect_stdout(f): 
-            print(config.dump())
-    f.close()
+    # os.makedirs(config.save_dir, exist_ok=True)
+    # with open(os.path.join(config.save_dir, 'opts.yml'), 'w') as f:
+    #     with redirect_stdout(f): 
+    #         print(config.dump())
+    # f.close()
 
-    recorder = Recorder(config.save_dir, config.exclude_dirs)
+    # recorder = Recorder(config.save_dir, config.exclude_dirs)
 
     torch.backends.cudnn.enabled = config.cudnn_enabled
     torch.backends.cudnn.benchmark = config.cudnn_benchmark
     print("Dynamic Loss Scaling:", config.dynamic_loss_scaling)
     print("cuDNN Enabled:", config.cudnn_enabled)
     print("cuDNN Benchmark:", config.cudnn_benchmark)
+    print("one line before train")
 
     train()

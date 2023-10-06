@@ -6,8 +6,8 @@ from torch import nn
 from torch.nn import functional as F
 from torch.nn import init
 from torch.optim import lr_scheduler
-from criterion import RegnetLoss
-from config import _C as config
+from trainer.criterion import RegnetLoss
+from trainer.config import _C as config
 
 def to_gpu(x, device):
     x = x.contiguous()

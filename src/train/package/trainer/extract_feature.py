@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 import torch.optim
 import torchvision
 from glob import glob
-from tsn.models import TSN
+# from tsn.models import TSN
 
 
 class GroupScale(object):

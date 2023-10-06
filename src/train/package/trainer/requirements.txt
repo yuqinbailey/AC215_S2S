@@ -6,7 +6,7 @@ matplotlib
 #opencv-python==3.4.4.19
 opencv-python
 #pillow==5.0
-pillow
+Pillow
 tqdm
 yacs
 future

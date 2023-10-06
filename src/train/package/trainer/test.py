@@ -5,16 +5,16 @@ import torch
 from torch.utils.data import DataLoader
 import numpy as np
 import librosa
-from data_utils import RegnetLoader
-from model import Regnet
-from config import _C as config
+from trainer.data_utils import RegnetLoader
+from trainer.model import Regnet
+from trainer.config import _C as config
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import soundfile as sf
 
-from wavenet_vocoder import builder
+from .wavenet_vocoder import builder
 
 def build_wavenet(checkpoint_path=None, device='cuda:0'):
     model = builder.wavenet(
