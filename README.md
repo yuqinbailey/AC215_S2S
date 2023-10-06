@@ -14,26 +14,26 @@ Project Organization
       └── src
             ├── secrets
             ├── data_collection
-            │   ├── Dockerfile
-            │   ├── docker-compose.yml
-            │   ├── docker-shell.sh
-            │   ├── Pipfile
-            │   ├── Pipfile.lock
+            │   ├── ...
             │   └── collect.py
             ├── preprocessing
+            │   ├── ...
+            │   └── preprocess.py
+            ├── validation          <- versioning
+            │   └── ...
+            ├── feature_extraction
             │   ├── Dockerfile
-            │   ├── docker-compose.yml
             │   ├── docker-shell.sh
             │   ├── Pipfile
             │   ├── Pipfile.lock
-            │   └── preprocess.py
-            └── validation
+            │   └── 
+            └── train
                 ├── Dockerfile
-                ├── docker-compose.yml
+                ├── docker-entrypoint.sh
                 ├── docker-shell.sh
                 ├── Pipfile
                 ├── Pipfile.lock
-                └── data_split.py
+                └── cli.sh
 
 
 **GCP Bucket** 
@@ -42,6 +42,7 @@ Project Organization
   ├── vggsound.csv
   ├── raw_data
   ├── processed_data
+  ├── features
   └── dvc_store
 ```
 
