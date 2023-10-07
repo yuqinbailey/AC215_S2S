@@ -94,6 +94,10 @@ Note: `gen_list.py` is used for train/test split.
 ### Training container
 This container is created for modeling training using Vertext.AI. 
 
+**RegNet Model** [<sup>[2]</sup>](references/README.md#2)
+
+![](images/regnet_chen_etal_2020.png)
+
 **Experiment Tracking**
 
 Below you can see the output from our Weights & Biases page. We used this tool to track several iterations of our model training. It was tracked using the `wandb` library we included inside of our `src/train/cli.sh` script.
@@ -110,11 +114,13 @@ Inside our training container, we used the Google Cloud SDK to launch training i
 To create a new serverless job we did the following commands - 
 
 * First, run container with `sh docker-shell.sh`.
-```shell
-/app$ sh package-trainer.sh
-/app$ sh cli.sh
-/app$ exit
-```
+* Inside the train container, run
+  ```shell
+  /app$ sh package-trainer.sh  # generate train.tar.gz
+  /app$ sh cli.sh              # submit the job to vertex ai
+  ```
+
+  ![running train docker screenshot](images/running_train_container.png)
 
 
 ### Docker cleanup
@@ -127,7 +133,9 @@ To make sure we do not have any running containers and clear up unused images -
 
 ### Data visualization for sanity check
 - [Colab Notebook](https://colab.research.google.com/drive/16ipwKR76L_exSH5SqfNyQ7FJUOtNSwla?usp=sharing) - facilitates the retrieval of various versions of our dataset managed by DVC, requiring GCP and GitHub authentication. It offers two functions, `dataset_metrics` and `show_examples`, to efficiently visualize dataset samples and display metrics, serving as sanity check for our data.
+  - dataset_v2 sample
 
+    ![sample video](images/dataset_v2_sample.mp4)
 
 ### Notebooks
 
