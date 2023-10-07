@@ -72,6 +72,7 @@ We aim to develop an application that generates ambient sounds from images or si
 
 
 ## Milestone3
+![pipeline](images/mega_pipeline.jpg)
 
 ### Data representation container
 This container is used for extracting Mel-spectrogram from audio, RGB feature, and optical flow features from the data.
