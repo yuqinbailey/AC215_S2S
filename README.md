@@ -77,12 +77,21 @@ Below you can see the output from our Weights & Biases page. We used this tool t
 **Serverless Training**
 
 
+### Data representation container
+This container is used for extracting Mel-spectrogram from audio, RGB feature, and optical flow features from the data.
+To run this:
+* `sh docker-shell.sh` to enter the environment.
+* Download data from bucket using `python download_data.py`.
+* `source data_preprocess.sh` to run all partial feature extractions and save in local `data/features` folder.
+* `upload_partial_feature.py` to upload the partial extracted_features back to GCP bucket for usage in `feature-extraction` container.
+
 ### Feature extraction container
-Steps:
-* `sh docker-shell.sh` enter the environment.
-* Download some data to `data` folder with  `python download_data.py`
-* `source data_prepross.sh` to run all feature extractions and save in local `data/features` folder.
-* `upload_feature.py` to upload the extracted_features back to GCP bucket for future usage.
+We put the second part of the feature extraction into this container so as to avoid conflicts in package dependencies.
+To run this:
+* `sh docker-shell.sh` to enter the environment.
+* Download some data to `data` folder with  `python download_partial_feature.py`
+* `source feature_extract.sh` to extract deeper features from data and save in local `data/features` folder.
+* `upload_feature.py` to upload the full extracted_features back to GCP bucket for future usage.
 
 Note: `gen_list.py` is used for train/test split.
 
