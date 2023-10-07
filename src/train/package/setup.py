@@ -11,6 +11,5 @@ setup(
     python_requires='>=3.6',
     install_requires=REQUIRED_PACKAGES,
     packages=find_packages(),
-    package_data={"":["filelists/processed_test.txt"]},
     description="S2S App Trainer Application"
 )

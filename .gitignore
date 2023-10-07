@@ -133,7 +133,10 @@ secrets/
 src/validation/.git/
 *.mp4
 
-
+# train dir
 src/train/package/trainer/data/
 src/train/package/trainer/ckpt/
+src/train/package/trainer/filelists/
+src/train/package/trainer/README.md
 src/train/trainer.tar.gz
+

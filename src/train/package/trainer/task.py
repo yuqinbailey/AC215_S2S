@@ -127,15 +127,15 @@ def train():
     # ================ MAIN TRAINNIG LOOP! ===================
     # for epoch in range(epoch_offset, config.epochs):
     wandb.init(
-    project = 'experiment_regnet_1',
+    project = args.experiment_name,
     entity="ac215-s2s-leo",
-    name = 'regnet_naive',
+    name = args.model_name,
     config = {
-      "learning_rate": model.optimizers[0].param_groups[0]['lr'],
-      "epochs": config.epochs,
-      "batch_size": config.batch_size
+      "learning_rate": args.lr,
+      "epochs": args.epochs,
+      "batch_size": args.batch_size
     })
-    for epoch in range(config.epochs):
+    for epoch in range(args.epochs):
         print("Epoch: {}".format(epoch))
         for i, batch in enumerate(train_loader):
             start = time.perf_counter()
@@ -172,7 +172,22 @@ if __name__ == '__main__':
                         help='file for configuration')
     parser.add_argument("opts", default=None, nargs=argparse.REMAINDER)
     parser.add_argument("--wandb_key", dest="wandb_key", default="16", type=str, help="WandB API Key")
+    parser.add_argument(
+    "--model_name",
+    dest="model_name",
+    default="RegNet",
+    type=str,
+    help="Model name")
+    parser.add_argument("--epochs", dest="epochs", default=50, type=int, help="Number of epochs.")
+    parser.add_argument("--batch_size", dest="batch_size", default=1, type=int, help="Size of a batch.")
+    parser.add_argument("--lr", dest="lr", default=0.0002, type=float, help="Learning rate.")
+    parser.add_argument("--experiment_name", dest="experiment_name", default='experiment_regnet', type=str, help="Experiment's name on W&B.")
     args = parser.parse_args()
+
+    # update config.py
+    config.epochs = args.epochs
+    config.batch_size = args.batch_size
+    config.lr = args.lr
 
     if args.config_file:
         config.merge_from_file(args.config_file)
