@@ -1,5 +1,7 @@
 from yacs.config import CfgNode as CN
 
+BASE_DATA_PATH = "/gcs/s2s_data/"
+
 _C  =  CN()
 # _C.epochs = 1000
 _C.epochs = 50
@@ -10,26 +12,30 @@ _C.dist_backend = "nccl"
 _C.dist_url = "tcp://localhost:54321"
 _C.cudnn_enabled = True
 _C.cudnn_benchmark = False
-_C.save_dir = 'ckpt/processed_data/'
+_C.save_dir = BASE_DATA_PATH + 'ckpt/processed_data/'
 _C.checkpoint_path = ''
 # _C.checkpoint_path = 'ckpt/processed_data/checkpoint_041000'
 _C.epoch_count = 0
 _C.exclude_dirs = ['ckpt', 'data']
 # _C.training_files = 'filelists/dog_train.txt'
 # _C.test_files = 'filelists/dog_test.txt'
-_C.training_files = 'filelists/processed_test.txt'
-_C.test_files = 'filelists/processed_test.txt'
+_C.training_files = BASE_DATA_PATH + 'filelists/processed_test.txt'
+_C.test_files = BASE_DATA_PATH + 'filelists/processed_test.txt'
 # _C.rgb_feature_dir = "data/features/dog/feature_rgb_bninception_dim1024_21.5fps"
 # _C.flow_feature_dir = "data/features/dog/feature_flow_bninception_dim1024_21.5fps"
 # _C.mel_dir = "data/features/dog/melspec_10s_22050hz"
-_C.rgb_feature_dir = "data/features/processed_data/feature_rgb_bninception_dim1024_21.5fps"
-_C.flow_feature_dir = "data/features/processed_data/feature_flow_bninception_dim1024_21.5fps"
-_C.mel_dir = "data/features/processed_data/melspec_10s_22050hz"
+# _C.rgb_feature_dir = BASE_TRAINER_PATH + "data/features/processed_data/feature_rgb_bninception_dim1024_21.5fps"
+# _C.flow_feature_dir = BASE_TRAINER_PATH + "data/features/processed_data/feature_flow_bninception_dim1024_21.5fps"
+# _C.mel_dir =BASE_TRAINER_PATH + "data/features/processed_data/melspec_10s_22050hz"
+_C.rgb_feature_dir = BASE_DATA_PATH + "/features/processed_data/feature_rgb_bninception_dim1024_21.5fps"
+_C.flow_feature_dir = BASE_DATA_PATH + "/features/processed_data/feature_flow_bninception_dim1024_21.5fps"
+_C.mel_dir =BASE_DATA_PATH + "/features/processed_data/melspec_10s_22050hz"
 _C.video_samples = 215
 _C.audio_samples = 10
 _C.mel_samples = 860
 _C.visual_dim = 2048
 _C.n_mel_channels = 80
+_C.wandb_api_key = "f41e521531bde36451c2adc9a1e7b2de8f2064fa"
 
 # Encoder parameters
 _C.random_z_dim = 512

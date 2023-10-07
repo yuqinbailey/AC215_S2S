@@ -3,13 +3,13 @@
 # https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
 
 export UUID=$(openssl rand -hex 6)
-export DISPLAY_NAME="s2s_training_job_$UUID"
+export DISPLAY_NAME="s2s_training_job_leo_$UUID"
 export MACHINE_TYPE="n1-standard-4"
 export REPLICA_COUNT=1
 #export EXECUTOR_IMAGE_URI="us-docker.pkg.dev/vertex-ai/training/tf-gpu.2-12.py310:latest"
 #export EXECUTOR_IMAGE_URI="asia-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-13.py310:latest"
 export EXECUTOR_IMAGE_URI="us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-13.py310:latest"
-export PYTHON_PACKAGE_URI=$GCS_BUCKET_URI/s2s-app-trainer.tar.gz
+export PYTHON_PACKAGE_URI=$GCS_BUCKET_URI/s2s.tar.gz
 export PYTHON_MODULE="trainer.task"
 export ACCELERATOR_TYPE="NVIDIA_TESLA_T4"
 export ACCELERATOR_COUNT=1

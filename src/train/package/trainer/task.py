@@ -20,12 +20,40 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import wandb
+import subprocess
+import site
 
+
+BASE_DATA_PATH = "/gcs/s2s_data/"
 
 def prepare_dataloaders():
     # Get data, data loaders and collate function ready
-    trainset = RegnetLoader(config.training_files)
-    valset = RegnetLoader(config.test_files)
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    base_path = BASE_DATA_PATH
+
+    # result = subprocess.run(['ls'], capture_output=True, text=True)
+    # print(f"result of ls: {result.stdout}")
+
+    # result = subprocess.run(['pwd'], capture_output=True, text=True)
+    # print(f"result of pwd: {result.stdout}")
+
+    # site_packages_path = site.getsitepackages()
+    # print(f"the path of the site-packages: {site_packages_path}")
+
+    # cmd = ['ls', '/root/.local/lib/python3.10/site-packages/trainer/']
+    # result = subprocess.run(cmd, capture_output=True, text=True)
+    # print(result.stdout)
+
+    # with open('/gcs/s2s_data/filelists/processed_test.txt', 'r') as f:
+    #     lines = f.readlines()
+    #     print(f"The file content is {lines}")
+
+    training_files_path = os.path.join(base_path, "filelists", "processed_test.txt")
+    test_files_path = os.path.join(base_path, "filelists", "processed_test.txt")
+    # trainset = RegnetLoader(config.training_files)
+    # valset = RegnetLoader(config.test_files)
+    trainset = RegnetLoader(training_files_path)
+    valset = RegnetLoader(test_files_path)
 
     train_loader = DataLoader(trainset, num_workers=4, shuffle=True,
                               batch_size=config.batch_size, pin_memory=False,
@@ -94,6 +122,7 @@ def train():
     config.epoch_count = epoch_offset
     model.setup()
 
+    wandb.login(key=config.wandb_api_key)
     model.train()
     # ================ MAIN TRAINNIG LOOP! ===================
     # for epoch in range(epoch_offset, config.epochs):

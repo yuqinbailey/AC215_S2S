@@ -6,7 +6,7 @@ REQUIRED_PACKAGES = ["wandb==0.15.12", "yacs", "soundfile==0.12.1", "librosa", "
                      "tensorboard","chardet","charset_normalizer","future","Pillow","numba"]
 
 setup(
-    name="s2s-app-trainer",
+    name="s2s",
     version="0.0.1",
     python_requires='>=3.6',
     install_requires=REQUIRED_PACKAGES,
