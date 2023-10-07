@@ -23,5 +23,5 @@ def upload_features(local_path,gcs_path):
    
 
 if __name__ == "__main__":
-   upload_features('filelists','filelists3')
-   upload_features('data/features','features3')
+   upload_features('filelists','filelists')
+   upload_features('data/features','features')
