@@ -15,27 +15,26 @@ Project Organization
             ├── secrets
             ├── data_collection
             │   ├── ...
-            │   └── collect.py
+            │   ├── collect.py
+            │   └── collect_mp.py          <- multi-processing
             ├── preprocessing
             │   ├── ...
             │   └── preprocess.py
             ├── data_representation
             │   ├── Dockerfile
-            │   └── 
+            │   ├── ...
+            │   └── data_preprocess.sh
             ├── feature_extraction
             │   ├── Dockerfile
-            │   ├── docker-shell.sh
-            │   └── 
+            │   ├── ...
+            │   └── feature_extract.sh
             └── train
                 ├── Dockerfile
-                ├── docker-entrypoint.sh
-                ├── docker-shell.sh
-                ├── Pipfile
-                ├── Pipfile.lock
+                ├── ...
                 ├── package-trainer.sh
                 ├── cli.sh
                 └── package
-                    ├── trainer
+                    ├── trainer            <- source code of regnet
                     ├── PKG-INFO
                     └── setup.py
                 
@@ -74,14 +73,6 @@ We aim to develop an application that generates ambient sounds from images or si
 
 ## Milestone3
 
-**Experiment Tracking**
-
-Below you can see the output from our Weights & Biases page. We used this tool to track several iterations of our model training. It was tracked using the `wandb` library we included inside of our `src/train/cli.sh` script.
-
-
-**Serverless Training**
-
-
 ### Data representation container
 This container is used for extracting Mel-spectrogram from audio, RGB feature, and optical flow features from the data.
 To run this - 
@@ -102,6 +93,22 @@ Note: `gen_list.py` is used for train/test split.
 
 ### Training container
 This container is created for modeling training using Vertext.AI. 
+
+**Experiment Tracking**
+
+Below you can see the output from our Weights & Biases page. We used this tool to track several iterations of our model training. It was tracked using the `wandb` library we included inside of our `src/train/cli.sh` script.
+
+![wandb charts](images/wandb_charts.png)
+![wandb system](images/wandb_system.png)
+
+**Serverless Training**
+
+Inside our training container, we used the Google Cloud SDK to launch training instances in the cloud. In the image below, you can see several runs of our model.
+
+![vertex ai runs](images/vertex_ai_runs.png)
+
+To create a new serverless job we did the following commands - 
+
 * First, run container with `sh docker-shell.sh`.
 ```shell
 /app$ sh package-trainer.sh
