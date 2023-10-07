@@ -15,7 +15,7 @@ python extract_mel_spectrogram.py \
     -o data/features/processed_data/melspec_10s_22050hz
 
 
-CUDA_VISIBLE_DEVICES=0 python extract_feature_ceci.py \
+CUDA_VISIBLE_DEVICES=0 python extract_feature.py \
     -t filelists/processed_train.txt \
     -m RGB \
     -i data/features/processed_data/OF_10s_21.5fps \
