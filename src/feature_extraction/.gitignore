@@ -1,4 +1,5 @@
 ckpt
+data/
 .vscode
 *.egg-info
 .ipynb_checkpoints/

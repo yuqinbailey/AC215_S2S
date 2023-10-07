@@ -5,7 +5,7 @@ networks:
         external: true
 services:
     feature-extraction:
-        image: feature-extraction 
+        image:  hzhu98/feature-extraction:latest
         container_name: feature-extraction
         volumes:
             - ../secrets:/secrets
