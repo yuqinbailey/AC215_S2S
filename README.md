@@ -35,6 +35,9 @@ Project Organization
                 ├── Pipfile.lock
                 └── cli.sh
 
+                
+                
+
 
 **GCP Bucket** 
 `s2s_data`
@@ -75,9 +78,21 @@ Below you can see the output from our Weights & Biases page. We used this tool t
 
 
 ### Feature extraction container
+Steps:
+* `sh docker-shell.sh` enter the environment.
+* Download some data to `data` folder with  `python download_data.py`
+* `source data_prepross.sh` to run all feature extractions and save in local `data/features` folder.
+* `upload_feature.py` to upload the extracted_features back to GCP bucket for future usage.
 
+Note: `gen_list.py` is used for train/test split.
 
 ### Training container
+This container is created for modeling training using Vertext.AI. 
+* First, run container with `sh docker-shell.sh`.
+* `sh docker-entrypoint.sh` to authenticates against GCP.
+* `cd package/trainer` 
+* Download the feature data from GCP with `python download_features.py`
+* Run `sh cli.sh` to create jobs and train on Vertext AI. 
 
 
 ### Docker cleanup
