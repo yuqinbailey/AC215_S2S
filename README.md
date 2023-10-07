@@ -19,13 +19,12 @@ Project Organization
             ├── preprocessing
             │   ├── ...
             │   └── preprocess.py
-            ├── validation          <- versioning
-            │   └── ...
+            ├── data_representation
+            │   ├── Dockerfile
+            │   └── 
             ├── feature_extraction
             │   ├── Dockerfile
             │   ├── docker-shell.sh
-            │   ├── Pipfile
-            │   ├── Pipfile.lock
             │   └── 
             └── train
                 ├── Dockerfile
@@ -33,9 +32,12 @@ Project Organization
                 ├── docker-shell.sh
                 ├── Pipfile
                 ├── Pipfile.lock
-                └── cli.sh
-
-                
+                ├── package-trainer.sh
+                ├── cli.sh
+                └── package
+                    ├── trainer
+                    ├── PKG-INFO
+                    └── setup.py
                 
 
 
@@ -45,11 +47,13 @@ Project Organization
   ├── vggsound.csv
   ├── raw_data                <- raw data scraped from youtube
   ├── processed_data          <- intermediate preprocessed data
+  ├── filelists               <- splited train and test sets
   ├── features                <- extracted features from preprocessed data
   │   └── processed_data
   │       ├── feature_flow_bninception_dim1024_21.5fps
   │       ├── feature_rgb_bninception_dim1024_21.5fps
   │       └── melspec_10s_22050hz          <- audio feature
+  ├── ckpt
   └── dvc_store
 ```
 
@@ -71,7 +75,8 @@ We aim to develop an application that generates ambient sounds from images or si
 ## Milestone3
 
 **Experiment Tracking**
-Below you can see the output from our Weights & Biases page. We used this tool to track several iterations of our model training. It was tracked using the `wandb` library we included inside of our `cli.sh` script.
+
+Below you can see the output from our Weights & Biases page. We used this tool to track several iterations of our model training. It was tracked using the `wandb` library we included inside of our `src/train/cli.sh` script.
 
 
 **Serverless Training**
@@ -79,7 +84,7 @@ Below you can see the output from our Weights & Biases page. We used this tool t
 
 ### Data representation container
 This container is used for extracting Mel-spectrogram from audio, RGB feature, and optical flow features from the data.
-To run this:
+To run this - 
 * `sh docker-shell.sh` to enter the environment.
 * Download data from bucket using `python download_data.py`.
 * `source data_preprocess.sh` to run all partial feature extractions and save in local `data/features` folder.
@@ -87,7 +92,7 @@ To run this:
 
 ### Feature extraction container
 We put the second part of the feature extraction into this container so as to avoid conflicts in package dependencies.
-To run this:
+To run this - 
 * `sh docker-shell.sh` to enter the environment.
 * Download some data to `data` folder with  `python download_partial_feature.py`
 * `source feature_extract.sh` to extract deeper features from data and save in local `data/features` folder.
@@ -98,10 +103,11 @@ Note: `gen_list.py` is used for train/test split.
 ### Training container
 This container is created for modeling training using Vertext.AI. 
 * First, run container with `sh docker-shell.sh`.
-* `sh docker-entrypoint.sh` to authenticates against GCP.
-* `cd package/trainer` 
-* Download the feature data from GCP with `python download_features.py`
-* Run `sh cli.sh` to create jobs and train on Vertext AI. 
+```shell
+/app$ sh package-trainer.sh
+/app$ sh cli.sh
+/app$ exit
+```
 
 
 ### Docker cleanup
