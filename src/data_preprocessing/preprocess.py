@@ -16,6 +16,7 @@ def makedirs(input_videos, output_videos):
 def clean_up(input_videos, output_videos):
     shutil.rmtree(input_videos, ignore_errors=True)
     shutil.rmtree(output_videos, ignore_errors=True)
+    shutil.rmtree(output_audios, ignore_errors=True)
 
 def get_all_videos(client, bucket_name, input_videos):
     blobs = client.get_bucket(bucket_name).list_blobs(prefix=f'{input_videos}/')
