@@ -38,7 +38,7 @@ def get_trim_info(client, bucket_name):
 
 def get_processed_videos(client, bucket_name, progress_file):
     bucket = client.get_bucket(bucket_name)
-    progress_blob = bucket.blob(f'{output_videos}/{progress_file}')
+    progress_blob = bucket.blob(progress_file)
     if progress_blob.exists():
         progress = set(progress_blob.download_as_text().splitlines())
     else:
@@ -101,7 +101,7 @@ def handle_video(bucket_name, video_id, input_videos, output_videos, output_audi
 
 def update_progress(client, bucket_name, progress_file, processed_videos):
     bucket = client.get_bucket(bucket_name)
-    progress_blob = bucket.blob(f'{output_videos}/{progress_file}')
+    progress_blob = bucket.blob(progress_file)
     new_progress = '\n'.join(processed_videos)
     progress_blob.upload_from_string(f'{new_progress}\n', content_type='text/plain', client=client)
 
@@ -114,7 +114,7 @@ def download_cut_upload(bucket_name, input_videos, output_videos, output_audios,
     processed_videos = get_processed_videos(client, bucket_name, progress_file)
     all_videos = get_all_videos(client, bucket_name, input_videos)
     remaining = all_videos - processed_videos
-    remaining = list(remaining)[:max(len(remaining),n)]
+    remaining = list(remaining)[:min(len(remaining),n)]
     
     processed = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=w) as executor:
@@ -148,6 +148,6 @@ if __name__ == "__main__":
     input_videos = "raw_data"
     output_videos= f"processed_data/video_10s_{fps}fps"
     output_audios= f"processed_data/audio_10s_{sr}hz"
-    progress_file = 'progress.txt'
+    progress_file = 'processed_data/progress.txt'
 
     download_cut_upload(bucket_name, input_videos, output_videos, output_audios, progress_file, n, w, sr, fps)
