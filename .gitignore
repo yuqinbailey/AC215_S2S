@@ -132,6 +132,7 @@ dmypy.json
 secrets/
 src/validation/.git/
 *.mp4
+*.wav
 
 # train dir
 src/train/package/trainer/data/

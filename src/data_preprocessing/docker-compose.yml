@@ -1,15 +1,15 @@
 version: "3.9"
 networks:
     default:
-        name: data-preprocess-network
+        name: data-preprocessing-network
         external: true
 services:
-    data-preprocess:
-        image: data-preprocess 
-        container_name: data-preprocess
+    data-preprocessing:
+        image: data-preprocessing 
+        container_name: data-preprocessing
         volumes:
             - ../secrets:/secrets
-            - ../preprocessing:/app
+            - ../data_preprocessing:/app
         environment:
             GOOGLE_APPLICATION_CREDENTIALS: ../secrets/data-service-account.json
             GCP_PROJECT: "ac215-project"
