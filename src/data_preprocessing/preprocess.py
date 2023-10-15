@@ -57,6 +57,7 @@ def handle_video(bucket_name, video_id, input_videos, output_videos, output_audi
         print(f"Failed to download or read video {video_file}: {e}")
         return []
     processed_video_ids = []
+    success = True
     for t in trim_info.get(video_id, []):
         clip_id = f'c_{video_id}_{t}'
         try:
@@ -71,7 +72,7 @@ def handle_video(bucket_name, video_id, input_videos, output_videos, output_audi
             # # Use ffmpeg to trim video and change video FPS
             # cmd_video = [
             #     'ffmpeg', '-ss', str(t), '-i', input_video_path, '-t', '10', '-vf',
-            #     f'fps={fps}', '-c:v', 'libx264', '-c:a', 'aac', '-strict', 'experimental',
+            #     '-r', f'{fps}', '-c:v', 'libx264', '-c:a', 'aac', '-strict', 'experimental',
             #     '-b:a', '98k', '-y', output_video_path
             # ]
             # os.system(cmd_video)
@@ -79,7 +80,7 @@ def handle_video(bucket_name, video_id, input_videos, output_videos, output_audi
             # # Use ffmpeg to change audio sample rate
             # cmd_audio = [
             #     'ffmpeg', '-i', output_video_path, '-ar', str(sr), '-ac', '1', '-c:a', 'aac', '-strict', 'experimental',
-            #     '-b:a', '98k', '-y', output_audio_path
+            #     '-ab', '16k', '-y', output_audio_path
             # ]
             # os.system(cmd_audio)
 
