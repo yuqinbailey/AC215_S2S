@@ -45,6 +45,7 @@ def get_processed_videos(client, bucket_name, progress_file):
     else:
         progress = set()
     return progress
+    
 
 def handle_video(bucket_name, video_id, input_videos, output_videos, output_audios, trim_info, sr, fps):
     client = storage.Client() 
@@ -129,6 +130,8 @@ def download_cut_upload(bucket_name, input_videos, output_videos, output_audios,
     # Update progress after all videos have been processed
     update_progress(client, bucket_name, progress_file, processed)
 
+
+    
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
@@ -153,3 +156,5 @@ if __name__ == "__main__":
     progress_file = 'processed_data/progress.txt'
 
     download_cut_upload(bucket_name, input_videos, output_videos, output_audios, progress_file, n, w, sr, fps)
+
+
