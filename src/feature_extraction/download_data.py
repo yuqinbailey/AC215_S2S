@@ -20,6 +20,14 @@ def download(bucket_name, target_dir):
         blob.download_to_filename(blob.name)
 
 if __name__ == "__main__":
-    download('s2s_data', f'processed_data')
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--prefix", required=True, choices=["test_prefix", "oboe", "playing_bongo", "badminton"])
+    args = parser.parse_args()
+    p = args.prefix
+
+    download('s2s_data', f'processed_data/{p}')
     download('s2s_data', f'filelists')
+    download('s2s_data', f'features/{p}/progress.txt')
+    
 

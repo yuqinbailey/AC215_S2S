@@ -17,10 +17,14 @@ while getopts "p:" opt; do
 done
 
 # Define input and output directories
-INPUT_VIDEO_DIR="processed_data/$PREFIX/videos_10s_21.5fps"
+INPUT_VIDEO_DIR="processed_data/$PREFIX/video_10s_21.5fps"
 OUTPUT_VIDEO_DIR="features/$PREFIX/OF_10s_21.5fps"
 INPUT_AUDIO_DIR="processed_data/$PREFIX/audio_10s_22050hz"
 OUTPUT_AUDIO_DIR="features/$PREFIX/melspec_10s_22050hz"
+PROGRESS_FILE="features/$PREFIX/progress.txt"
+
+# Check if progress.txt exists, if not, create it
+[ ! -f "$PROGRESS_FILE" ] && touch "$PROGRESS_FILE"
 
 # Extract RGB and Flow features
 python extract_rgb_flow.py \
@@ -63,3 +67,10 @@ CUDA_VISIBLE_DEVICES=0 python extract_feature.py \
   -m Flow \
   -i "$OUTPUT_VIDEO_DIR" \
   -o "features/$PREFIX/feature_flow_bninception_dim1024_21.5fps"
+
+FEATURES_DIR="features/$PREFIX/feature_flow_bninception_dim1024_21.5fps"
+
+for file in "$FEATURES_DIR"/*; do
+  base_name=$(basename "$file".pkl) # This gets the full filename including extension. Modify if you need just the name without the extension.
+  echo "$base_name" >> "$PROGRESS_FILE"
+done
