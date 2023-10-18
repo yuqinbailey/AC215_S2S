@@ -179,7 +179,7 @@ if __name__ == "__main__":
     parser.add_argument("-a", '--audio_sample_rate', default='22050', type=int)
     parser.add_argument("-v", '--video_fps', default='21.5', type=float)
     parser.add_argument("-w", '--num_workers', type=int, default=8)
-    parser.add_argument("-p", "--prefix", required=True, choices=["test_prefix", "oboe", "bongo", "badminton"])
+    parser.add_argument("-p", "--prefix", required=True, choices=["test_prefix", "oboe", "playing_bongo", "badminton"])
     parser.add_argument("-t", '--test_ratio', type=float, default=0.1)
 
     args = parser.parse_args()
