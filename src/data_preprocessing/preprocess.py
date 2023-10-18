@@ -6,6 +6,7 @@ from google.cloud import storage
 import concurrent.futures
 import shutil
 import argparse
+import random
 
 # make local directories
 def makedirs(input_videos, output_videos):
@@ -20,7 +21,7 @@ def clean_up(input_videos, output_videos):
 
 def get_all_videos(client, bucket_name, input_videos):
     blobs = client.get_bucket(bucket_name).list_blobs(prefix=f'{input_videos}/')
-    all_videos = set(blob.name.split('/')[-1].split('.')[0] for blob in blobs)
+    all_videos = set(blob.name.split('/')[-1].split('.')[0] for blob in blobs if blob.name.endswith('.mp4'))
     return all_videos
 
 def get_trim_info(client, bucket_name):
@@ -45,7 +46,6 @@ def get_processed_videos(client, bucket_name, progress_file):
     else:
         progress = set()
     return progress
-    
 
 def handle_video(bucket_name, video_id, input_videos, output_videos, output_audios, trim_info, sr, fps):
     client = storage.Client() 
@@ -101,14 +101,13 @@ def handle_video(bucket_name, video_id, input_videos, output_videos, output_audi
         processed_video_ids.append(video_id)
     return processed_video_ids
 
-
 def update_progress(client, bucket_name, progress_file, processed_videos):
     bucket = client.get_bucket(bucket_name)
     progress_blob = bucket.blob(progress_file)
     new_progress = '\n'.join(processed_videos)
     progress_blob.upload_from_string(f'{new_progress}\n', content_type='text/plain', client=client)
 
-def download_cut_upload(bucket_name, input_videos, output_videos, output_audios, progress_file,n,w,sr,fps):
+def preprocess(bucket_name, input_videos, output_videos, output_audios, progress_file,n,w,sr,fps):
     clean_up(input_videos, output_videos)
     client = storage.Client()
     trim_info = get_trim_info(client, bucket_name)  # Get trim_info using the new function
@@ -131,7 +130,48 @@ def download_cut_upload(bucket_name, input_videos, output_videos, output_audios,
     update_progress(client, bucket_name, progress_file, processed)
 
 
+def get_all_clips(client, output_videos, bucket_name):
+    blobs = client.list_blobs(bucket_name, prefix= output_videos)
+    clips = []
+    for blob in blobs:
+        clips.append(blob.name.split('/')[-1].split('.')[0])
+    return clips
+
+def update_train_test_split(output_videos, p, filelists, test_ratio):
+
+    client = storage.Client()
+    clips = get_all_clips(client, output_videos, bucket_name)
+    random.shuffle(clips)
     
+    if test_ratio < 0 or test_ratio > 1:
+        raise Exception("Invalid test_ratio")
+
+    total_num = len(clips)
+    test_num = int(total_num * test_ratio)
+    train_clips = clips[test_num:]
+    test_clips = clips[:test_num]
+
+    # Create string content for train and test filelists
+    train_content = "\n".join(train_clips)
+    test_content = "\n".join(test_clips)
+
+    # Upload train and test filelists to GCP bucket as strings, overwriting existing files
+    bucket = client.get_bucket(bucket_name)
+
+    # Delete existing blobs if they exist
+    train_blob = bucket.blob(os.path.join(filelists, f"{p}_train.txt"))
+    if train_blob.exists():
+        train_blob.delete()
+
+    test_blob = bucket.blob(os.path.join(filelists, f"{p}_test.txt"))
+    if test_blob.exists():
+        test_blob.delete()
+
+    # Upload the new content
+    train_blob.upload_from_string(train_content, content_type="text/plain")
+    test_blob.upload_from_string(test_content, content_type="text/plain")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
@@ -139,6 +179,8 @@ if __name__ == "__main__":
     parser.add_argument("-a", '--audio_sample_rate', default='22050', type=int)
     parser.add_argument("-v", '--video_fps', default='21.5', type=float)
     parser.add_argument("-w", '--num_workers', type=int, default=8)
+    parser.add_argument("-p", "--prefix", required=True, choices=["test_prefix", "oboe", "bongo", "badminton"])
+    parser.add_argument("-t", '--test_ratio', type=float, default=0.1)
 
     args = parser.parse_args()
 
@@ -146,15 +188,24 @@ if __name__ == "__main__":
     w = args.num_workers
     sr = args.audio_sample_rate
     fps = args.video_fps
+    p = args.prefix
+    t = args.test_ratio
 
     # Configurations
     gcp_project = "ac215-project"
     bucket_name = "s2s_data"
-    input_videos = "raw_data"
-    output_videos= f"processed_data/video_10s_{fps}fps"
-    output_audios= f"processed_data/audio_10s_{sr}hz"
-    progress_file = 'processed_data/progress.txt'
 
-    download_cut_upload(bucket_name, input_videos, output_videos, output_audios, progress_file, n, w, sr, fps)
+    raw_dir = "raw_data_new"
+    processed_dir = "processed_data_new"
+
+    input_videos = f"{raw_dir}/{p}"
+    output_videos= f"{processed_dir}/{p}/video_10s_{fps}fps"
+    output_audios= f"{processed_dir}/{p}/audio_10s_{sr}hz"
+    
+    progress_file = f"{processed_dir}/{p}/progress.txt"
+    filelists_dir = f"{processed_dir}/filelists"
+
+    preprocess(bucket_name, input_videos, output_videos, output_audios, progress_file, n, w, sr, fps)
+    update_train_test_split(output_videos, p, filelists_dir, test_ratio=t)
 
 
