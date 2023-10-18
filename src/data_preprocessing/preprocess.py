@@ -195,15 +195,15 @@ if __name__ == "__main__":
     gcp_project = "ac215-project"
     bucket_name = "s2s_data"
 
-    raw_dir = "raw_data_new"
-    processed_dir = "processed_data_new"
+    raw_dir = "raw_data"
+    processed_dir = "processed_data"
 
     input_videos = f"{raw_dir}/{p}"
     output_videos= f"{processed_dir}/{p}/video_10s_{fps}fps"
     output_audios= f"{processed_dir}/{p}/audio_10s_{sr}hz"
     
     progress_file = f"{processed_dir}/{p}/progress.txt"
-    filelists_dir = f"{processed_dir}/filelists"
+    filelists_dir = f"filelists"
 
     preprocess(bucket_name, input_videos, output_videos, output_audios, progress_file, n, w, sr, fps)
     update_train_test_split(output_videos, p, filelists_dir, test_ratio=t)
