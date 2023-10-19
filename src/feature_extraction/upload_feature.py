@@ -16,6 +16,8 @@ def upload_features(local_path, gcs_path):
    for local_file in glob.glob(local_path + '/**'):
       if not os.path.isfile(local_file):
          print(os.path.basename(local_file))
+         if "OF_10s_21.5fps" == os.path.basename(local_file):
+            continue
          upload_features(local_file, gcs_path + "/" + os.path.basename(local_file))
       else:
          remote_path = os.path.join(gcs_path, local_file[1 + len(local_path):])

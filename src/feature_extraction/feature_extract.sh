@@ -71,6 +71,6 @@ CUDA_VISIBLE_DEVICES=0 python extract_feature.py \
 FEATURES_DIR="features/$PREFIX/feature_flow_bninception_dim1024_21.5fps"
 
 for file in "$FEATURES_DIR"/*; do
-  base_name=$(basename "$file".pkl) # This gets the full filename including extension. Modify if you need just the name without the extension.
+  base_name=$(basename "${file%.*}") # This gets the full filename including extension. Modify if you need just the name without the extension.
   echo "$base_name" >> "$PROGRESS_FILE"
 done
