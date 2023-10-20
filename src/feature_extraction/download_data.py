@@ -2,8 +2,26 @@ import os
 from google.cloud import storage
 import argparse
 
+# only in this container, DO NOT PUSH TO GIT HUB
+
+from google.oauth2 import service_account
+import json
+SERVICE_ACCOUNT = json.loads()
+BUCKET = "s2s_data"
+
+credentials = service_account.Credentials.from_service_account_info(
+    SERVICE_ACCOUNT,
+    scopes=["https://www.googleapis.com/auth/cloud-platform"],
+)
+
+
 def get_exclusion_list(bucket_name, progress_file_path):
-    client = storage.Client()
+    #client = storage.Client()
+
+    client = storage.Client(
+    credentials=credentials,
+    project=credentials.project_id,)
+
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(progress_file_path)
 
@@ -17,16 +35,21 @@ def get_exclusion_list(bucket_name, progress_file_path):
             excluded_files = [line.strip() for line in f]
 
         os.remove(tmp_progress)
+        print(excluded_files)
         return excluded_files
     else:
         print(f"The file {progress_file_path} does not exist in the {bucket_name} bucket.")
         return []
 
+
 def download(bucket_name, target_dir, exclusion_list=None):
     if not os.path.exists(target_dir):
         os.makedirs(target_dir, exist_ok=True)
 
-    client = storage.Client()
+    # client = storage.Client()
+    client = storage.Client(
+    credentials=credentials,
+    project=credentials.project_id,)
     bucket = client.bucket(bucket_name)
     blobs = bucket.list_blobs(prefix=target_dir)
 
@@ -35,7 +58,8 @@ def download(bucket_name, target_dir, exclusion_list=None):
         if not os.path.exists(blob_folder_structure):
             os.makedirs(blob_folder_structure, exist_ok=True)
         # Only download if basename is not in the exclusion list
-        if os.path.basename(blob.name) not in (exclusion_list or []):
+        basename = os.path.basename(blob.name).split(".")[0]
+        if basename not in (exclusion_list or []) and basename != "progress" :
             try:
                 blob.download_to_filename(blob.name)
             except Exception as e:
