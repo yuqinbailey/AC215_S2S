@@ -2,7 +2,19 @@ from google.cloud import storage
 import os
 import glob
 
-BUCKET = "s2s_data"   
+BUCKET = "s2s_data"
+
+# only in this container, DO NOT PUSH TO GIT HUB
+
+from google.oauth2 import service_account
+import json
+SERVICE_ACCOUNT = json.loads()
+BUCKET = "s2s_data"
+
+credentials = service_account.Credentials.from_service_account_info(
+    SERVICE_ACCOUNT,
+    scopes=["https://www.googleapis.com/auth/cloud-platform"],
+)
 
 def upload_features(local_path, gcs_path):
 
@@ -10,7 +22,10 @@ def upload_features(local_path, gcs_path):
    os.makedirs(local_path, exist_ok=True)
    
    # Upload to bucket
-   storage_client = storage.Client()
+   # storage_client = storage.Client()
+   storage_client = client = storage.Client(
+   credentials=credentials,
+   project=credentials.project_id,)
    bucket = storage_client.bucket(BUCKET)
 
    for local_file in glob.glob(local_path + '/**'):

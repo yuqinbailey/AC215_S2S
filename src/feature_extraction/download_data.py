@@ -14,7 +14,6 @@ credentials = service_account.Credentials.from_service_account_info(
     scopes=["https://www.googleapis.com/auth/cloud-platform"],
 )
 
-
 def get_exclusion_list(bucket_name, progress_file_path):
     #client = storage.Client()
 
@@ -27,22 +26,24 @@ def get_exclusion_list(bucket_name, progress_file_path):
 
     if blob.exists():
         # Temporarily download the progress.txt file
-        tmp_progress = 'tmp_progress.txt'
-        blob.download_to_filename(tmp_progress)
+        blob_folder_structure = os.path.dirname(blob.name)
+        if not os.path.exists(blob_folder_structure):
+            os.makedirs(blob_folder_structure, exist_ok=True)
+        blob.download_to_filename(blob.name)
 
         # Read the exclusion list from the file
-        with open(tmp_progress, 'r') as f:
+        with open(blob.name, 'r') as f:
             excluded_files = [line.strip() for line in f]
-
-        os.remove(tmp_progress)
-        print(excluded_files)
         return excluded_files
     else:
         print(f"The file {progress_file_path} does not exist in the {bucket_name} bucket.")
         return []
 
 
-def download(bucket_name, target_dir, exclusion_list=None):
+def download(bucket_name, target_prefix, exclusion_list=None):
+
+    target_dir =  f'processed_data/{target_prefix}'
+
     if not os.path.exists(target_dir):
         os.makedirs(target_dir, exist_ok=True)
 
@@ -53,6 +54,7 @@ def download(bucket_name, target_dir, exclusion_list=None):
     bucket = client.bucket(bucket_name)
     blobs = bucket.list_blobs(prefix=target_dir)
 
+    downloaded = set()
     for blob in blobs:
         blob_folder_structure = os.path.dirname(blob.name)
         if not os.path.exists(blob_folder_structure):
@@ -64,6 +66,13 @@ def download(bucket_name, target_dir, exclusion_list=None):
                 blob.download_to_filename(blob.name)
             except Exception as e:
                 print(f"Error downloading {blob.name}: {e}")
+            else:
+                downloaded.add(basename)
+
+    os.makedirs('filelists', exist_ok=True)
+    with open(f'filelists/{p}_temp.txt', 'w') as file:
+        for file_name in downloaded:
+            file.write(file_name + '\n')
 
 if __name__ == "__main__":
 
@@ -75,5 +84,5 @@ if __name__ == "__main__":
     exclusion_list = get_exclusion_list('s2s_data', f'features/{p}/progress.txt')
 
     # Download audios and videos, excluding those in the exclusion list
-    download('s2s_data', f'processed_data/{p}', exclusion_list=exclusion_list)
-    download('s2s_data', f'filelists')
+    download('s2s_data', p , exclusion_list=exclusion_list)
+
