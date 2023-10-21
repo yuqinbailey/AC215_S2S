@@ -29,6 +29,8 @@ class RegnetLoader(torch.utils.data.Dataset):
         mel = self.get_mel(mel_path)
         feature = np.concatenate((im, flow), 1)
         feature = torch.FloatTensor(feature.astype(np.float32))
+        print("concatenated RGB and flow features: ",feature.shape)
+        print("mel: ", mel.shape)
         return (feature, mel, video_id)
 
     def get_mel(self, filename):

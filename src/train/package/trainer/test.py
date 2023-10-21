@@ -107,15 +107,17 @@ def test_model():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config_file', type=str, default='',
-                        help='file for configuration')
-    parser.add_argument("opts", default=None, nargs=argparse.REMAINDER)
+    # parser.add_argument('-c', '--config_file', type=str, default='',
+    #                     help='file for configuration')
+    parser.add_argument("--pretrained_regnet_path", type=str, default="", help="Path to the pretrained model")
+    # parser.add_argument("opts", default=None, nargs=argparse.REMAINDER)
     args = parser.parse_args()
 
-    if args.config_file:
-        config.merge_from_file(args.config_file)
+    config.checkpoint_path = args.pretrained_regnet_path
+    # if args.config_file:
+    #     config.merge_from_file(args.config_file)
  
-    config.merge_from_list(args.opts)
+    # config.merge_from_list(args.opts)
     # config.freeze()
 
     torch.backends.cudnn.enabled = config.cudnn_enabled
