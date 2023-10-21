@@ -8,3 +8,5 @@ __pycache__
 my_scripts/
 logs/
 libffi7_3.3-4_amd64.deb
+features/
+processed_data/
