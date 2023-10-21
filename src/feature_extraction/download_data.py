@@ -1,6 +1,7 @@
 import os
 from google.cloud import storage
 import argparse
+import shutil
 
 # only in this container, DO NOT PUSH TO GIT HUB
 
@@ -44,8 +45,11 @@ def download(bucket_name, target_prefix, exclusion_list=None):
 
     target_dir =  f'processed_data/{target_prefix}'
 
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir, exist_ok=True)
+    if os.path.exists(target_dir):
+        shutil.rmtree(dir)
+    else:
+        os.makedirs(target_dir)
+    
 
     # client = storage.Client()
     client = storage.Client(

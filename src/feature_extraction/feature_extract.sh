@@ -31,28 +31,28 @@ python extract_rgb_flow.py \
   -i "$INPUT_VIDEO_DIR" \
   -o "$OUTPUT_VIDEO_DIR"
 
-python extract_mel_spectrogram.py \
-  -i "$INPUT_AUDIO_DIR" \
-  -o "$OUTPUT_AUDIO_DIR"
+# python extract_mel_spectrogram.py \
+#   -i "$INPUT_AUDIO_DIR" \
+#   -o "$OUTPUT_AUDIO_DIR"
 
-# Install necessary Python packages
-pip install torch==1.4.0 torchvision==0.5.0 -f https://download.pytorch.org/whl/cu100/torch_stable.html
-pip install torchvision
-conda install pytorch torchvision cudatoolkit=10.0 -c pytorch
-conda install python=3.7.2
-pip install chardet
+# # Install necessary Python packages
+# pip install torch==1.4.0 torchvision==0.5.0 -f https://download.pytorch.org/whl/cu100/torch_stable.html
+# pip install torchvision
+# conda install pytorch torchvision cudatoolkit=10.0 -c pytorch
+# conda install python=3.7.2
+# pip install chardet
 
 # if does not work, try
 # pip uninstall torch torchvision
 # conda install -y pytorch==1.9 torchvision torchaudio cudatoolkit=11.1 -c pytorch -c nvidia
 # conda install pillow=6.1
 
-# Extract RGB features
-CUDA_VISIBLE_DEVICES=0 python extract_feature.py \
-  -t "filelists/${PREFIX}_temp.txt" \
-  -m RGB \
-  -i "$OUTPUT_VIDEO_DIR" \
-  -o "features/$PREFIX/feature_rgb_bninception_dim1024_21.5fps"
+# # Extract RGB features
+# CUDA_VISIBLE_DEVICES=0 python extract_feature.py \
+#   -t "filelists/${PREFIX}_temp.txt" \
+#   -m RGB \
+#   -i "$OUTPUT_VIDEO_DIR" \
+#   -o "features/$PREFIX/feature_rgb_bninception_dim1024_21.5fps"
 
 # Extract Flow features
 CUDA_VISIBLE_DEVICES=0 python extract_feature.py \
