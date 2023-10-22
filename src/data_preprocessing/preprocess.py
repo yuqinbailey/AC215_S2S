@@ -7,6 +7,7 @@ import concurrent.futures
 import shutil
 import argparse
 import random
+from multiprocessing import cpu_count
 
 # make local directories
 def makedirs(input_videos, output_videos):
@@ -113,9 +114,11 @@ def preprocess(bucket_name, input_videos, output_videos, output_audios, progress
     
     # Update progress after all videos have been processed
     update_progress(client, bucket_name, progress_file, processed)
-    return processed
 
-def update_train_test_split(newly_processed, p, filelists, test_ratio):
+def update_train_test_split(output_videos, p, filelists, test_ratio):
+
+    newly_processed_clips = [x.split('.')[0] for x in os.listdir(output_videos)]
+
     client = storage.Client()
     bucket = client.get_bucket(bucket_name)
     
@@ -126,16 +129,15 @@ def update_train_test_split(newly_processed, p, filelists, test_ratio):
     train_clips = train_blob.download_as_text().splitlines() if train_blob.exists() else []
     test_clips = test_blob.download_as_text().splitlines() if test_blob.exists() else []
 
-
     # Calculate the total number of clips and the number of clips required in the test set
-    total_num = len(train_clips) + len(test_clips) + len(newly_processed)
+    total_num = len(train_clips) + len(test_clips) + len(newly_processed_clips)
 
     required_test_num = int(total_num * test_ratio)
     new_test_num = required_test_num - len(test_clips)
 
     # If we need to move more clips to the test set, do so
-    test_clips.extend(newly_processed[:new_test_num])
-    train_clips.extend(newly_processed[new_test_num:])
+    test_clips.extend(newly_processed_clips[:min(new_test_num,len(newly_processed_clips))])
+    train_clips.extend(newly_processed_clips[min(new_test_num,len(newly_processed_clips)):])
 
     # Convert lists back to string content
     train_content = "\n".join(train_clips)
@@ -151,7 +153,7 @@ if __name__ == "__main__":
     parser.add_argument("-n", '--num_videos', default='100', type=int)
     parser.add_argument("-a", '--audio_sample_rate', default='22050', type=int)
     parser.add_argument("-v", '--video_fps', default='21.5', type=float)
-    parser.add_argument("-w", '--num_workers', type=int, default=8)
+    parser.add_argument("-w", '--num_workers', type=int, default=cpu_count())
     parser.add_argument("-p", "--prefix", required=True, choices=["test_prefix", "oboe", "playing_bongo", "badminton"])
     parser.add_argument("-t", '--test_ratio', type=float, default=0.1)
 
@@ -178,7 +180,7 @@ if __name__ == "__main__":
     progress_file = f"{processed_dir}/{p}/progress.txt"
     filelists_dir = f"{processed_dir}/filelists"
 
-    newly_processed = preprocess(bucket_name, input_videos, output_videos, output_audios, progress_file, n, w, sr, fps)
-    update_train_test_split(newly_processed , p, filelists_dir, test_ratio=t)
+    preprocess(bucket_name, input_videos, output_videos, output_audios, progress_file, n, w, sr, fps)
+    update_train_test_split(output_videos, p, filelists_dir, test_ratio=t)
 
 
