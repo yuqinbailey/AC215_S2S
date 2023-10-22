@@ -108,6 +108,14 @@ def train():
 
     model = Regnet()
 
+    # model = quantization.fuse_modules(model, [['conv', 'bn'], ['conv', 'bn', 'relu']], inplace=True)
+    
+    qconfig = quantization.get_default_qat_qconfig('fbgemm')
+    model.qconfig = qconfig
+    
+    # Prepare the model for QAT
+    model = quantization.prepare_qat(model, inplace=True)
+
     criterion = RegnetLoss(config.loss_type)
 
     logger = RegnetLogger(os.path.join(config.save_dir, 'logs'))
@@ -127,6 +135,7 @@ def train():
 
     wandb.login(key=config.wandb_api_key)
     model.train()
+    
     # ================ MAIN TRAINNIG LOOP! ===================
     # for epoch in range(epoch_offset, config.epochs):
     wandb.init(
@@ -173,6 +182,21 @@ def train():
         model.update_learning_rate()
     model_path = model.save_checkpoint(config.save_dir, iteration)
     wandb.run.finish()
+
+def quantize_model(model):
+    # Specify quantization configuration
+    # Fuse modules (convolution + batch normalization + ReLU)
+    model.fuse_model()
+    # Configure quantization
+    model.qconfig = torch.quantization.get_default_qconfig('fbgemm')
+    # Prepare for quantization
+    torch.quantization.prepare(model, inplace=True)
+    # Calibrate the model
+    # NOTE: This step requires a representative dataset for calibration
+    # ... calibration code here ...
+    # Convert to quantized model
+    torch.quantization.convert(model, inplace=True)
+    return model
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
