@@ -24,12 +24,12 @@ import subprocess
 import site
 
 
-BASE_DATA_PATH = "/gcs/s2s_data/"
+# BASE_DATA_PATH = "/gcs/s2s_data/"
 
 def prepare_dataloaders():
     # Get data, data loaders and collate function ready
     base_path = os.path.dirname(os.path.abspath(__file__))
-    base_path = BASE_DATA_PATH
+    base_path = config.BASE_DATA_PATH
 
     # result = subprocess.run(['ls'], capture_output=True, text=True)
     # print(f"result of ls: {result.stdout}")
@@ -48,10 +48,12 @@ def prepare_dataloaders():
     #     lines = f.readlines()
     #     print(f"The file content is {lines}")
 
-    training_files_path = os.path.join(base_path, "filelists", "processed_test.txt")
-    test_files_path = os.path.join(base_path, "filelists", "processed_test.txt")
+    # training_files_path = os.path.join(base_path, "filelists", "processed_test.txt")
+    # test_files_path = os.path.join(base_path, "filelists", "processed_test.txt")
     # trainset = RegnetLoader(config.training_files)
     # valset = RegnetLoader(config.test_files)
+    training_files_path = config.training_files
+    test_files_path = config.test_files
     trainset = RegnetLoader(training_files_path)
     valset = RegnetLoader(test_files_path)
 
@@ -131,9 +133,9 @@ def train():
     entity="ac215-s2s-leo",
     name = args.model_name,
     config = {
-      "learning_rate": args.lr,
-      "epochs": args.epochs,
-      "batch_size": args.batch_size
+      "learning_rate": config.lr,
+      "epochs": config.epochs,
+      "batch_size": config.batch_size
     })
     for epoch in range(args.epochs):
         print("Epoch: {}".format(epoch))

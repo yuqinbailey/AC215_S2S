@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 .DS_Store
-secrets/
+# secrets/
 src/validation/.git/
 *.mp4
 *.wav
@@ -140,4 +140,10 @@ src/train/package/trainer/ckpt/
 src/train/package/trainer/filelists/
 src/train/package/trainer/README.md
 src/train/trainer.tar.gz
+
+# train dir
+src/model-deployment/ckpt/
+src/model-deployment/data/
+src/model-deployment/images/
+src/model-deployment/model/
 
