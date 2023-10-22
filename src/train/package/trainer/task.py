@@ -155,9 +155,14 @@ def train():
                     epoch, i, reduced_loss, model.loss_G, model.loss_D, (model.pred_real - model.pred_fake).mean(), model.loss_G_silence, duration))
                 logger.log_training(model, reduced_loss, learning_rate, duration, iteration)
             iteration += 1
-        wandb.log({"reduced_loss": reduced_loss,
+
+            # YONG: moved the logging inside to make the WandB update more frequently
+            wandb.log({"reduced_loss": reduced_loss,
                    "loss_G": model.loss_G,
                    "loss_D": model.loss_D})
+        # wandb.log({"reduced_loss": reduced_loss,
+        #            "loss_G": model.loss_G,
+        #            "loss_D": model.loss_D})
         if epoch % config.num_epoch_save != 0:
             test_model(model, criterion, test_loader, epoch, logger)
         if epoch % config.num_epoch_save == 0:
