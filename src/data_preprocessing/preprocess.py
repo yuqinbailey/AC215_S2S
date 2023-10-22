@@ -71,21 +71,6 @@ def handle_video(bucket_name, video_id, input_videos, output_videos, output_audi
             trimmed_clip.write_videofile(output_video_path, fps = fps, threads = 8, logger = None, codec = "libx264", audio_codec="aac",ffmpeg_params=['-b:a','98k'])
             trimmed_clip.audio.write_audiofile(output_audio_path, fps = sr, logger = None, codec="aac", ffmpeg_params = ['-ac', '1','-ab', '16k'])
 
-            # # Use ffmpeg to trim video and change video FPS
-            # cmd_video = [
-            #     'ffmpeg', '-ss', str(t), '-i', input_video_path, '-t', '10', '-vf',
-            #     '-r', f'{fps}', '-c:v', 'libx264', '-c:a', 'aac', '-strict', 'experimental',
-            #     '-b:a', '98k', '-y', output_video_path
-            # ]
-            # os.system(cmd_video)
-
-            # # Use ffmpeg to change audio sample rate
-            # cmd_audio = [
-            #     'ffmpeg', '-i', output_video_path, '-ar', str(sr), '-ac', '1', '-c:a', 'aac', '-strict', 'experimental',
-            #     '-ab', '16k', '-y', output_audio_path
-            # ]
-            # os.system(cmd_audio)
-
             # Upload video and audio to storage
             blob_video = bucket.blob(f'{output_videos}/{clip_id}.mp4')
             blob_video.upload_from_filename(output_video_path)
@@ -128,49 +113,37 @@ def preprocess(bucket_name, input_videos, output_videos, output_audios, progress
     
     # Update progress after all videos have been processed
     update_progress(client, bucket_name, progress_file, processed)
+    return processed
 
-
-def get_all_clips(client, output_videos, bucket_name):
-    blobs = client.list_blobs(bucket_name, prefix= output_videos)
-    clips = []
-    for blob in blobs:
-        clips.append(blob.name.split('/')[-1].split('.')[0])
-    return clips
-
-def update_train_test_split(output_videos, p, filelists, test_ratio):
-
+def update_train_test_split(newly_processed, p, filelists, test_ratio):
     client = storage.Client()
-    clips = get_all_clips(client, output_videos, bucket_name)
-    random.shuffle(clips)
+    bucket = client.get_bucket(bucket_name)
     
-    if test_ratio < 0 or test_ratio > 1:
-        raise Exception("Invalid test_ratio")
+    # Fetch existing train/test clips from bucket
+    train_blob = bucket.blob(os.path.join(filelists, f"{p}_train.txt"))
+    test_blob = bucket.blob(os.path.join(filelists, f"{p}_test.txt"))
+    
+    train_clips = train_blob.download_as_text().splitlines() if train_blob.exists() else []
+    test_clips = test_blob.download_as_text().splitlines() if test_blob.exists() else []
 
-    total_num = len(clips)
-    test_num = int(total_num * test_ratio)
-    train_clips = clips[test_num:]
-    test_clips = clips[:test_num]
 
-    # Create string content for train and test filelists
+    # Calculate the total number of clips and the number of clips required in the test set
+    total_num = len(train_clips) + len(test_clips) + len(newly_processed)
+
+    required_test_num = int(total_num * test_ratio)
+    new_test_num = required_test_num - len(test_clips)
+
+    # If we need to move more clips to the test set, do so
+    test_clips.extend(newly_processed[:new_test_num])
+    train_clips.extend(newly_processed[new_test_num:])
+
+    # Convert lists back to string content
     train_content = "\n".join(train_clips)
     test_content = "\n".join(test_clips)
 
-    # Upload train and test filelists to GCP bucket as strings, overwriting existing files
-    bucket = client.get_bucket(bucket_name)
-
-    # Delete existing blobs if they exist
-    train_blob = bucket.blob(os.path.join(filelists, f"{p}_train.txt"))
-    if train_blob.exists():
-        train_blob.delete()
-
-    test_blob = bucket.blob(os.path.join(filelists, f"{p}_test.txt"))
-    if test_blob.exists():
-        test_blob.delete()
-
-    # Upload the new content
+    # Upload the updated train/test filelists to the bucket
     train_blob.upload_from_string(train_content, content_type="text/plain")
     test_blob.upload_from_string(test_content, content_type="text/plain")
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -203,9 +176,9 @@ if __name__ == "__main__":
     output_audios= f"{processed_dir}/{p}/audio_10s_{sr}hz"
     
     progress_file = f"{processed_dir}/{p}/progress.txt"
-    filelists_dir = f"filelists"
+    filelists_dir = f"{processed_dir}/filelists"
 
-    preprocess(bucket_name, input_videos, output_videos, output_audios, progress_file, n, w, sr, fps)
-    update_train_test_split(output_videos, p, filelists_dir, test_ratio=t)
+    newly_processed = preprocess(bucket_name, input_videos, output_videos, output_audios, progress_file, n, w, sr, fps)
+    update_train_test_split(newly_processed , p, filelists_dir, test_ratio=t)
 
 
