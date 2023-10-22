@@ -23,6 +23,7 @@ import wandb
 import subprocess
 import site
 
+import torch.quantization as quantization
 
 # BASE_DATA_PATH = "/gcs/s2s_data/"
 
