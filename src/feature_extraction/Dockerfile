@@ -33,7 +33,8 @@ RUN /opt/conda/envs/myenv/bin/pip install --no-cache-dir -r /requirements.txt
 RUN wget http://es.archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi7_3.3-4_amd64.deb && \
     dpkg -i libffi7_3.3-4_amd64.deb
 
-RUN conda install -y pytorch==1.9 torchvision torchaudio cudatoolkit=11.1 -c pytorch -c nvidia
+RUN conda install -n myenv -y pytorch==1.9 torchvision torchaudio cudatoolkit=11.1 -c pytorch -c nvidia && \
+    conda clean -a -y
 
 # Set working directory and copy app contents
 COPY . /app

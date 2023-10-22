@@ -15,7 +15,8 @@ credentials = service_account.Credentials.from_service_account_info(
     scopes=["https://www.googleapis.com/auth/cloud-platform"],
 )
 
-def get_exclusion_list(bucket_name, progress_file_path):
+def get_progress(bucket_name, progress_file_path):
+
     #client = storage.Client()
 
     client = storage.Client(
@@ -31,62 +32,95 @@ def get_exclusion_list(bucket_name, progress_file_path):
         if not os.path.exists(blob_folder_structure):
             os.makedirs(blob_folder_structure, exist_ok=True)
         blob.download_to_filename(blob.name)
-
-        # Read the exclusion list from the file
         with open(blob.name, 'r') as f:
-            excluded_files = [line.strip() for line in f]
-        return excluded_files
+            progress = [line.strip() for line in f]
+        return progress
     else:
         print(f"The file {progress_file_path} does not exist in the {bucket_name} bucket.")
         return []
 
 
-def download(bucket_name, target_prefix, exclusion_list=None):
-
-    target_dir =  f'processed_data/{target_prefix}'
-
-    if os.path.exists(target_dir):
-        shutil.rmtree(dir)
-    else:
-        os.makedirs(target_dir)
-    
+def download(bucket_name, target_prefix, num_clips, progress=None):
 
     # client = storage.Client()
     client = storage.Client(
     credentials=credentials,
     project=credentials.project_id,)
     bucket = client.bucket(bucket_name)
-    blobs = bucket.list_blobs(prefix=target_dir)
+
+    train_list_file = f'processed_data/filelists/{target_prefix}_train.txt'
+    test_list_file = f'processed_data/filelists/{target_prefix}_test.txt'
+
+    train_list_blob = bucket.blob(train_list_file)
+    if  train_list_blob.exists():
+        train_list = set(train_list_blob.download_as_text().splitlines())
+    else:
+        train_list = set()
+
+    test_list_blob = bucket.blob(test_list_file)
+    if  test_list_blob.exists():
+        test_list = set(test_list_blob.download_as_text().splitlines())
+    else:
+        test_list = set()
+
+    processed_data_dir =  f'processed_data/{target_prefix}'
+    blobs = bucket.list_blobs(prefix=processed_data_dir)
+    if os.path.exists(processed_data_dir):
+        shutil.rmtree(processed_data_dir)
+    os.makedirs(processed_data_dir)
 
     downloaded = set()
+
     for blob in blobs:
         blob_folder_structure = os.path.dirname(blob.name)
         if not os.path.exists(blob_folder_structure):
             os.makedirs(blob_folder_structure, exist_ok=True)
-        # Only download if basename is not in the exclusion list
         basename = os.path.basename(blob.name).split(".")[0]
-        if basename not in (exclusion_list or []) and basename != "progress" :
-            try:
-                blob.download_to_filename(blob.name)
-            except Exception as e:
-                print(f"Error downloading {blob.name}: {e}")
-            else:
-                downloaded.add(basename)
+        if basename not in (progress or []) and basename != "progress" :
+            if len(downloaded) < num_clips or basename in downloaded: 
+                try:
+                    blob.download_to_filename(blob.name)
+                except Exception as e:
+                    print(f"Error downloading {blob.name}: {e}")
+                else:
+                    downloaded.add(basename)
+    
+    if os.path.exists('features/filelists'):
+        shutil.rmtree('features/filelists')
+    os.makedirs('features/filelists')
 
-    os.makedirs('filelists', exist_ok=True)
-    with open(f'filelists/{p}_temp.txt', 'w') as file:
-        for file_name in downloaded:
-            file.write(file_name + '\n')
+    train_new = open(f'features/filelists/{p}_train_new.txt', 'w')
+    train_original = open(f'features/filelists/{p}_train.txt', 'w')
+
+    test_new = open(f'features/filelists/{p}_test_new.txt', 'w')
+    test_original = open(f'features/filelists/{p}_test.txt', 'w')
+
+    for file_name in train_list:
+        if file_name in downloaded:
+            train_new.write(file_name + '\n')
+        elif file_name in progress:
+            train_original.write(file_name + '\n')
+    for file_name in test_list:
+        if file_name in downloaded:
+            test_new.write(file_name + '\n')
+        elif file_name in progress:
+            test_original.write(file_name + '\n')
+    
+    train_new.close()
+    train_original.close()
+    test_new.close()
+    test_original.close()
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--prefix", required=True, choices=["test_prefix", "oboe", "playing_bongo", "badminton"])
+    parser.add_argument("-n", '--num_clips', default='10', type=int)
     args = parser.parse_args()
     p = args.prefix
+    n = args.num_clips
 
-    exclusion_list = get_exclusion_list('s2s_data', f'features/{p}/progress.txt')
-
-    # Download audios and videos, excluding those in the exclusion list
-    download('s2s_data', p , exclusion_list=exclusion_list)
+    progress = get_progress('s2s_data', f'features/{p}/progress.txt')
+    downloaded = download('s2s_data', p , n, progress=progress)
+    
 
