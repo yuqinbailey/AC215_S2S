@@ -40,7 +40,4 @@ def upload_features(local_path, gcs_path):
          blob.upload_from_filename(local_file)
 
 if __name__ == "__main__":
-   parser.add_argument("-p", "--prefix", required=True, choices=["test_prefix", "oboe", "playing_bongo", "badminton"])
-   args = parser.parse_args()
-   p = args.prefix
    upload_features('features','features')

@@ -98,4 +98,4 @@ for new_file in  "${new_files[@]}"; do
 done
 
 # upload feature
-python upload_feature.py -p "$PREFIX"
+python upload_feature.py 
