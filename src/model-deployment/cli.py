@@ -44,7 +44,18 @@ data_details = {
     "index2label": {0: "oyster", 1: "crimini", 2: "amanita"},
 }
 
+class CombinedModel(torch.nn.Module):
+    def __init__(self, regnet_model, wavenet_model):
+        super(CombinedModel, self).__init__()
+        self.regnet = regnet_model
+        self.wavenet = wavenet_model
 
+    def forward(self, x):
+        regnet_output = self.regnet(x)
+        wavenet_output = self.wavenet(regnet_output)
+        
+        return wavenet_output
+    
 def download_file(packet_url, base_path="", extract=False, headers=None):
     if base_path != "":
         if not os.path.exists(base_path):
@@ -119,11 +130,9 @@ def main(args=None):
         regnet_model = Regnet()
         regnet_model.load_checkpoint(f"ckpt/bongo/demo/{prefix}")
         regnet_model.to(device).eval()
-        
         wavenet_model = build_wavenet('ckpt/drum_wavenet/drum_checkpoint_step000160000_ema.pth', device)
         
-        # (Optional) Modify your model for a new serving signature here if needed.
-        # ... (This part requires more specific information about what changes you want)
+        combined_model = CombinedModel(regnet_model, wavenet_model).to(device).eval()
         
         # Save the model in TorchScript format
         batch_size = 4
@@ -131,23 +140,23 @@ def main(args=None):
         feature_dimension = 2048  # feature dimension per sequence
         dummy_input = torch.rand(batch_size, sequence_length, feature_dimension)
 
-        traced_model = trace(regnet_model, dummy_input)
-        traced_model.save("model/regnet/regnet_traced_model.pth")
+        traced_model = trace(combined_model, dummy_input)
+        traced_model.save("model/traced_model.pth")
         
         # Upload the TorchScript model back to GCS
-        blob = bucket.blob('model/regnet/regnet_traced_model.pth')
-        blob.upload_from_filename('model/regnet/regnet_traced_model.pth')
+        blob = bucket.blob('model/traced_model.pth')
+        blob.upload_from_filename('model/traced_model.pth')
     
         # Similarly, save and upload the Wavenet model if needed...
-        mel_features = 80  
-        time_steps = 860
-        dummy_input_wavenet = torch.rand(1, time_steps, mel_features)
+        # mel_features = 80  
+        # time_steps = 860
+        # dummy_input_wavenet = torch.rand(1, time_steps, mel_features)
 
-        traced_wavenet = trace(wavenet_model, dummy_input_wavenet)
-        traced_wavenet.save("model/wavenet/wavenet_traced_model.pth")
+        # traced_wavenet = trace(wavenet_model, dummy_input_wavenet)
+        # traced_wavenet.save("model/wavenet/wavenet_traced_model.pth")
 
-        blob = bucket.blob('model/wavenet/wavenet_traced_model.pth')
-        blob.upload_from_filename('model/wavenet/wavenet_traced_model.pth')
+        # blob = bucket.blob('model/wavenet/wavenet_traced_model.pth')
+        # blob.upload_from_filename('model/wavenet/wavenet_traced_model.pth')
        
 
         # # Preprocess Image
