@@ -108,6 +108,10 @@ def train():
 
     model = Regnet()
 
+    # torch.save(model.state_dict(), "/gcs/s2s_data/model/original_model_1023_v0")
+    # original_size = os.path.getsize("/gcs/s2s_data/model/original_model_1023_v0")
+    # print('===original_size===', original_size)
+
     # model = quantization.fuse_modules(model, [['conv', 'bn'], ['conv', 'bn', 'relu']], inplace=True)
     
     qconfig = quantization.get_default_qat_qconfig('fbgemm')
@@ -134,7 +138,13 @@ def train():
     model.setup()
 
     wandb.login(key=config.wandb_api_key)
+
+    # torch.save(model.state_dict(), "/gcs/s2s_data/model/quantized_model_1023_v0")
+    # quantized_size = os.path.getsize("/gcs/s2s_data/model/quantized_model_1023_v0")
+    # print('===quantized_size===', quantized_size)
+
     model.train()
+    
     
     # ================ MAIN TRAINNIG LOOP! ===================
     # for epoch in range(epoch_offset, config.epochs):
