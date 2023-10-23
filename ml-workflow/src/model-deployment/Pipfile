@@ -1,0 +1,30 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+# Development packages, e.g. linting and testing tools, go here.
+
+[packages]
+google-cloud-aiplatform = "*"
+torch = "*"
+torchvision = "*"
+numpy = "*"
+wandb = "*"
+Pillow = "*"
+matplotlib = "*"
+yacs = "*"
+soundfile = "0.12.1"
+librosa = "*"
+opencv-python = "*"
+tqdm = "*"
+tensorboard = "*"
+chardet = "*"
+charset_normalizer = "*"
+future = "*"
+numba = "*"
+protobuf = "*"
+
+[requires]
+python_version = "3.9"
