@@ -155,6 +155,8 @@ def train():
             model.parse_batch(batch)
             model.optimize_parameters()
             learning_rate = model.optimizers[0].param_groups[0]['lr']
+            print("##debug##")
+            print(model.fake_B.shape)
             loss = criterion((model.fake_B, model.fake_B_postnet), model.real_B)
             reduced_loss = loss.item()
 

@@ -19,6 +19,7 @@ from google.cloud import storage
 from google.cloud import aiplatform
 import torch
 from torch.jit import trace
+from tqdm import tqdm
 
 from model import Regnet
 from config import _C as config
@@ -28,21 +29,34 @@ from wavenet_vocoder import builder
 # import wandb
 # GCP_PROJECT = os.environ["GCP_PROJECT"]
 # GCS_MODELS_BUCKET_NAME = os.environ["GCS_MODELS_BUCKET_NAME"]
-# BEST_MODEL = "model-mobilenetv2_train_base_True.v74"
-# ARTIFACT_URI = f"gs://{GCS_MODELS_BUCKET_NAME}/{BEST_MODEL}"
+BEST_MODEL = "RegWaveNet"
 GCP_PROJECT = "ac215project-398818"
 GCS_MODELS_BUCKET_NAME = "s2s_data"
+ARTIFACT_URI = f"gs://{GCS_MODELS_BUCKET_NAME}/{BEST_MODEL}"
 
+########### only in this container, DO NOT PUSH TO GIT HUB ###########
 
-data_details = {
-    "image_width": 224,
-    "image_height": 224,
-    "num_channels": 3,
-    "num_classes": 3,
-    "labels": ["oyster", "crimini", "amanita"],
-    "label2index": {"oyster": 0, "crimini": 1, "amanita": 2},
-    "index2label": {0: "oyster", 1: "crimini", 2: "amanita"},
-}
+from google.oauth2 import service_account
+import json
+SERVICE_ACCOUNT = json.loads(r"""{
+    "type": "service_account",
+    "project_id": "ac215project-398818",
+    "private_key_id": "30a1b85791b1178f16bd1546f40b2c6131ca7a47",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC10F9XtSBx7z0A\nwcqZcGv9GdVyQfRIby9XAQc+KStmyroZQEoWk0akFHxBoVScgaoYTw9nXvfF9yGF\nCmvByCzrbfwAtEPVubWbhUMjEqQtldDQoLhSlWII0psAQBTeNyrxESiaEaimf7dh\niD1r7+Bv0aSj/zhjDcu903v7ed9TI906gxUIdOXm44SHwbouFlS+t5awr/Ep0Irn\nSKGSGm5x521hiBT/WdpY9Lr2bT+NsBVi1K9oKVN/JiJv2vh3mRtMVJMk0iGHqkLl\nMCHZsKI5xcGCkqEvnybLt38qh5Ea4uWf9RejFJiLUPMPwLossB5cYczJIYX4Su7t\nlFsunDoTAgMBAAECggEAESN/K/470eb/70zVTikt/NINGrQDP5AU5yoxJm0XasgB\nyp89UgB4axTam7iGCH95QHO0xi/1F65n9KnFUPiPh3KQNqQc4Djyg3ezRaCcZQcC\nLqXKik+2SeefII2/NIKrI8X+zPs3fy57ORCbMva4nOx8Yns3XlsEEYpYiHL2GC5D\nSjC/8gssQXeUYF/WRUI5T7FXUJijSREIwu1Fx7mchmzgykI6vjasvevgCqAUZfc2\nw/3VYzFHkzHE9BGI9hL8KaK07RRihVil5dqdmB29FYSVyD9YvgQuaN1KpZfSsCqK\nkrB6meqRfq4D79o6TkbXXdjzIaOlEBZ+yUVyFZTgfQKBgQDsTEPZL2NyU4uYng/0\nUiScy3ihlsEVx/Dq9BdTQD3tct4EH0KgSUaIVrXAKJHtq0avR4/O6YxqGYKYql6T\n5rpmsFssWJg+EfVqpafPQxjnr2pf6sVdfXuuHFfVk9wWT8+AdiplG0C9n+NUpD1s\nTuwoa7Ev7haRd75xIfnhlTFqNQKBgQDE+ShRz90qF6nPeWMmtC1k2w2ovVyHXwPN\nAk8wNTmVxq834tvA0LsQrVHl3SY/HilN/p/Bq5EXNVW8+3eHjJxk5bnvm9yHxkUG\n1PPCy0ZbHiPpCOALHEI+GJdpGeupwd+yminz0HgWH/xOsN/Ef16TViAFXBr0rdFj\nWLZpF4JcJwKBgHcVqEvX+gIv4HY1kkzK6PCsCktFMmHLtbpy8R5fjdYQwZrKNkWZ\nKBalvErvJzvjyWekZPEd+kmuOYa+tZNMADyoPAqJS5BcdJYejgeCBRcd7DoSkwye\npKoGVq2oKo6EAkr3Qj5aEbJ+1Y5ehyYCUDm+rDk/f9gnxK43NTteeNzRAoGACq6A\nUz90fO3flZK9n8GxnICMkxQByo2KhTmU1cZtIwQtSFiTFje7jUH46QA/LLkUAFjI\njRYiviF0TtVMPBuR957FoIrRQMOtxpsRxQSFAjf2NpL2o2Oa7AclXtu6/e+3k9Xs\nZH5vpLODWTkaSWum01KeVewSwiYS7tJGwhg2R40CgYAMvuGXH3BbUTP+KlL7Weh/\nEOhYO1lxQW41YSq6CPDmQOUJaf9tK512d/Fd9u7nZCQhXSiZHj9zUav6YTSZ+Wp/\n9Xz3tESvVYB8dvYI2F21J7iBvpF7Ludft7LqWx+X8Uelg1HKXmxkgWRHiRpfCKoG\nPBQM2JjpgdMgWaD1Y/rXqA==\n-----END PRIVATE KEY-----\n",
+    "client_email": "model-deployment@ac215project-398818.iam.gserviceaccount.com",
+    "client_id": "104802719843929809393",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/model-deployment%40ac215project-398818.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+  }""")
+
+credentials = service_account.Credentials.from_service_account_info(
+    SERVICE_ACCOUNT,
+    scopes=["https://www.googleapis.com/auth/cloud-platform"],
+)
+########################################################################
 
 class CombinedModel(torch.nn.Module):
     def __init__(self, regnet_model, wavenet_model):
@@ -50,31 +64,14 @@ class CombinedModel(torch.nn.Module):
         self.regnet = regnet_model
         self.wavenet = wavenet_model
 
-    def forward(self, x):
-        regnet_output = self.regnet(x)
-        wavenet_output = self.wavenet(regnet_output)
-        
-        return wavenet_output
-    
-def download_file(packet_url, base_path="", extract=False, headers=None):
-    if base_path != "":
-        if not os.path.exists(base_path):
-            os.mkdir(base_path)
-    packet_file = os.path.basename(packet_url)
-    with requests.get(packet_url, stream=True, headers=headers) as r:
-        r.raise_for_status()
-        with open(os.path.join(base_path, packet_file), "wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
-
-    if extract:
-        if packet_file.endswith(".zip"):
-            with zipfile.ZipFile(os.path.join(base_path, packet_file)) as zfile:
-                zfile.extractall(base_path)
-        else:
-            packet_name = packet_file.split(".")[0]
-            with tarfile.open(os.path.join(base_path, packet_file)) as tfile:
-                tfile.extractall(base_path)
+    def forward(self, *args):
+        with torch.no_grad():
+            inputs, real_B = args
+            fake_B, _ = self.regnet.netG(inputs, real_B)
+            fake_B = fake_B[0].data.cpu().numpy()
+            save_path = os.path.join(config.save_dir, "demo.wav")
+            waveform = gen_waveform(self.wavenet, save_path, fake_B, 'cuda:0')
+            return waveform
 
 def build_wavenet(checkpoint_path=None, device='cuda:0'):
     model = builder.wavenet(
@@ -107,21 +104,41 @@ def build_wavenet(checkpoint_path=None, device='cuda:0'):
     return model
 
 
+def gen_waveform(model, save_path, c, device):
+    initial_input = torch.zeros(1, 1, 1).to(device)
+    if c.shape[1] != config.n_mel_channels:
+        c = np.swapaxes(c, 0, 1)
+    length = c.shape[0] * 256
+    c = torch.FloatTensor(c.T).unsqueeze(0).to(device)
+    with torch.no_grad():
+        y_hat = model.incremental_forward(
+            initial_input, c=c, g=None, T=length, tqdm=tqdm, softmax=True, quantize=True,
+            log_scale_min=np.log(1e-14))
+    waveform = y_hat.view(-1).cpu().data.numpy()
+    # np.save('waveform.npy', waveform)
+    #librosa.output.write_wav(save_path, waveform, sr=22050)
+    # sf.write(save_path, waveform, samplerate=22050)
+    return waveform
+
+
 def main(args=None):
     if args.upload:
         print("Upload model to GCS")
-        
-        # Configure GCS client
-        storage_client = storage.Client(project=GCP_PROJECT)
+        storage_client = storage.Client(credentials=credentials, project=GCP_PROJECT)
         bucket = storage_client.get_bucket(GCS_MODELS_BUCKET_NAME)
         
         # Download the Regnet and Wavenet weights from GCS
+        if not os.path.exists("./ckpt/bongo/demo"):
+            os.makedirs("./ckpt/bongo/demo")
+
         prefix = 'checkpoint_001320'
         blob = bucket.blob(f"ckpt/bongo/demo/{prefix}_netG")
         blob.download_to_filename(f"./ckpt/bongo/demo/{prefix}_netG")
         blob = bucket.blob(f"ckpt/bongo/demo/{prefix}_netD")
         blob.download_to_filename(f"./ckpt/bongo/demo/{prefix}_netD")
 
+        if not os.path.exists("./ckpt/drum_wavenet"):
+            os.makedirs("./ckpt/drum_wavenet")
         blob = bucket.blob('ckpt/drum_wavenet/drum_checkpoint_step000160000_ema.pth')
         blob.download_to_filename('ckpt/drum_wavenet/drum_checkpoint_step000160000_ema.pth')
         
@@ -138,9 +155,14 @@ def main(args=None):
         batch_size = 4
         sequence_length = 215  # number of sequences or frames
         feature_dimension = 2048  # feature dimension per sequence
-        dummy_input = torch.rand(batch_size, sequence_length, feature_dimension)
+        mel_features = 80  
+        time_steps = 860
+        dummy_input = torch.rand(1, sequence_length, feature_dimension)
+        dummy_realB = torch.rand(1, mel_features, time_steps)
 
-        traced_model = trace(combined_model, dummy_input)
+        for module in combined_model.modules():
+            module._backward_hooks = {}
+        traced_model = trace(combined_model, (dummy_input,dummy_realB))
         traced_model.save("model/traced_model.pth")
         
         # Upload the TorchScript model back to GCS
