@@ -115,6 +115,47 @@ def preprocess(bucket_name, input_videos, output_videos, output_audios, progress
     # Update progress after all videos have been processed
     update_progress(client, bucket_name, progress_file, processed)
 
+def get_all_clips(client, output_videos, bucket_name):
+    blobs = client.list_blobs(bucket_name, prefix= output_videos)
+    clips = []
+    for blob in blobs:
+        clips.append(blob.name.split('/')[-1].split('.')[0])
+    return clips
+
+def reset_train_test_split(output_videos, p, filelists, test_ratio):
+
+    client = storage.Client()
+    clips = get_all_clips(client, output_videos, bucket_name)
+    random.shuffle(clips)
+    
+    if test_ratio < 0 or test_ratio > 1:
+        raise Exception("Invalid test_ratio")
+
+    total_num = len(clips)
+    test_num = int(total_num * test_ratio)
+    train_clips = clips[test_num:]
+    test_clips = clips[:test_num]
+
+    # Create string content for train and test filelists
+    train_content = "\n".join(train_clips)
+    test_content = "\n".join(test_clips)
+
+    # Upload train and test filelists to GCP bucket as strings, overwriting existing files
+    bucket = client.get_bucket(bucket_name)
+
+    # Delete existing blobs if they exist
+    train_blob = bucket.blob(os.path.join(filelists, f"{p}_train.txt"))
+    if train_blob.exists():
+        train_blob.delete()
+
+    test_blob = bucket.blob(os.path.join(filelists, f"{p}_test.txt"))
+    if test_blob.exists():
+        test_blob.delete()
+
+    # Upload the new content
+    train_blob.upload_from_string(train_content, content_type="text/plain")
+    test_blob.upload_from_string(test_content, content_type="text/plain")
+
 def update_train_test_split(output_videos, p, filelists, test_ratio):
 
     newly_processed_clips = [x.split('.')[0] for x in os.listdir(output_videos)]
@@ -136,8 +177,11 @@ def update_train_test_split(output_videos, p, filelists, test_ratio):
     new_test_num = required_test_num - len(test_clips)
 
     # If we need to move more clips to the test set, do so
-    test_clips.extend(newly_processed_clips[:min(new_test_num,len(newly_processed_clips))])
-    train_clips.extend(newly_processed_clips[min(new_test_num,len(newly_processed_clips)):])
+    if new_test_num > 0:
+        test_clips.extend(newly_processed_clips[:min(new_test_num,len(newly_processed_clips))])
+        train_clips.extend(newly_processed_clips[min(new_test_num,len(newly_processed_clips)):])
+    else:
+        train_clips.extend(newly_processed_clips)
 
     # Convert lists back to string content
     train_content = "\n".join(train_clips)
@@ -156,6 +200,8 @@ if __name__ == "__main__":
     parser.add_argument("-w", '--num_workers', type=int, default=cpu_count())
     parser.add_argument("-p", "--prefix", required=True, choices=["test_prefix", "oboe", "playing_bongo", "badminton"])
     parser.add_argument("-t", '--test_ratio', type=float, default=0.1)
+    parser.add_argument("-r", '--reset_train_test_split', type=bool, default=False)
+    
 
     args = parser.parse_args()
 
@@ -165,6 +211,7 @@ if __name__ == "__main__":
     fps = args.video_fps
     p = args.prefix
     t = args.test_ratio
+    reset = args.reset_train_test_split
 
     # Configurations
     gcp_project = "ac215-project"
@@ -181,6 +228,9 @@ if __name__ == "__main__":
     filelists_dir = f"{processed_dir}/filelists"
 
     preprocess(bucket_name, input_videos, output_videos, output_audios, progress_file, n, w, sr, fps)
-    update_train_test_split(output_videos, p, filelists_dir, test_ratio=t)
+    if reset:
+        reset_train_test_split(output_videos, p, filelists_dir, test_ratio=t)
+    else:
+        update_train_test_split(output_videos, p, filelists_dir, test_ratio=t)
 
 
