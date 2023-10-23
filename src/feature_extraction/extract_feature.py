@@ -11,13 +11,11 @@ import torchvision
 from glob import glob
 from tsn.models import TSN
 from tqdm import tqdm
-
+from torchvision.transforms import Resize, InterpolationMode
 
 class GroupScale(object):
-    def __init__(self, size, interpolation=Image.BILINEAR):
-        # self.worker = torchvision.transforms.Scale(size, interpolation)
-        self.worker = torchvision.transforms.Resize(size, interpolation)
-
+    def __init__(self, size, interpolation=InterpolationMode.BILINEAR):
+        self.worker = Resize(size, interpolation)
 
     def __call__(self, img_group):
         return [self.worker(img) for img in img_group]
@@ -65,7 +63,6 @@ class ToTorchFormatTensor(object):
             img = torch.ByteTensor(torch.ByteStorage.from_buffer(pic.tobytes()))
             img = img.view(pic.size[1], pic.size[0], len(pic.mode))
             # put it from HWC to CHW format
-            # yikes, this transpose takes 80% of the loading time/CPU
             img = img.transpose(0, 1).transpose(0, 2).contiguous()
         return img.float().div(255) if self.div else img.float()
 
@@ -113,8 +110,6 @@ def eval_video(data):
         length = 2
     else:
         raise ValueError("Unknown modality "+args.modality)
-    # input_var = torch.autograd.Variable(data.view(-1, length, data.size(2), data.size(3)),
-    #                                     volatile=True)
     with torch.no_grad():
         input_var = torch.autograd.Variable(data.view(-1, length, data.size(2), data.size(3)))
     baseout = np.squeeze(net(input_var).data.cpu().numpy().copy())
@@ -138,9 +133,11 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     net = TSN(args.modality,            
             consensus_type=args.crop_fusion_type,
-            dropout=args.dropout)
+            dropout=args.dropout).to(device)  # Move model to device
 
     cropping = torchvision.transforms.Compose([
         GroupScale((net.input_size, net.input_size)),
@@ -157,11 +154,10 @@ if __name__ == '__main__':
                     ])),
             batch_size=1, shuffle=False,
             num_workers=1, pin_memory=True)
-    print('data loaded')
-    # net = torch.nn.DataParallel(net).cuda()
-    if torch.cuda.is_available():
-        net = net.cuda()
-    print('net moved to cuda')
+
+    print('data loaded')  
+    print(f'Model is using: {device}')  # Informative print statement about the device being used
+
     net.eval()
     for i, (data, video_path) in enumerate(tqdm(data_loader, total=len(data_loader), desc="Processing")):
         os.makedirs(args.output_dir, exist_ok=True)
@@ -170,16 +166,9 @@ if __name__ == '__main__':
             length = 3
         elif args.modality == 'Flow':
             length = 2
-        # input_var = torch.autograd.Variable(data.view(-1, length, data.size(2), data.size(3)),
-        #                                     volatile=True)
-        # with torch.no_grad():
-        #     input_var = torch.autograd.Variable(data.view(-1, length, data.size(2), data.size(3)))
         with torch.no_grad():
-            input_var = data.view(-1, length, data.size(2), data.size(3))
-            if torch.cuda.is_available():
-                input_var = input_var.cuda()
+            input_var = data.view(-1, length, data.size(2), data.size(3)).to(device) 
             input_var = torch.autograd.Variable(input_var)
-        print('input data processed')
         rst = np.squeeze(net(input_var).data.cpu().numpy().copy())
         pkl.dump(rst, open(ft_path, "wb"))
         print('extracted features dumped')

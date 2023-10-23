@@ -3,26 +3,9 @@ from google.cloud import storage
 import argparse
 import shutil
 
-# only in this container, DO NOT PUSH TO GIT HUB
-
-from google.oauth2 import service_account
-import json
-SERVICE_ACCOUNT = json.loads()
-BUCKET = "s2s_data"
-
-credentials = service_account.Credentials.from_service_account_info(
-    SERVICE_ACCOUNT,
-    scopes=["https://www.googleapis.com/auth/cloud-platform"],
-)
-
 def get_progress(bucket_name, progress_file_path):
 
-    #client = storage.Client()
-
-    client = storage.Client(
-    credentials=credentials,
-    project=credentials.project_id,)
-
+    client = storage.Client()
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(progress_file_path)
 
@@ -42,10 +25,7 @@ def get_progress(bucket_name, progress_file_path):
 
 def download(bucket_name, target_prefix, num_clips, progress=None):
 
-    # client = storage.Client()
-    client = storage.Client(
-    credentials=credentials,
-    project=credentials.project_id,)
+    client = storage.Client()
     bucket = client.bucket(bucket_name)
 
     train_list_file = f'processed_data/filelists/{target_prefix}_train.txt'
@@ -116,6 +96,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--prefix", required=True, choices=["test_prefix", "oboe", "playing_bongo", "badminton"])
     parser.add_argument("-n", '--num_clips', default='10', type=int)
+    
     args = parser.parse_args()
     p = args.prefix
     n = args.num_clips
