@@ -10,9 +10,9 @@ def model_training(
     location: str = "",
     staging_bucket: str = "",
     bucket_name: str = "",
-    epochs: int = 15,
-    batch_size: int = 16,
-    model_name: str = "mobilenetv2",
+    epochs: int = 1,
+    batch_size: int = 4,
+    model_name: str = "RegNet_v1",
     train_base: bool = False,
 ):
     print("Model Training Job")
@@ -22,11 +22,12 @@ def model_training(
     # Initialize Vertex AI SDK for Python
     aip.init(project=project, location=location, staging_bucket=staging_bucket)
 
-    container_uri = "us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-12.py310:latest"
-    python_package_gcs_uri = f"{staging_bucket}/mushroom-app-trainer.tar.gz"
+    # We're using PyTorch
+    container_uri = "us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-13.py310:latest"
+    python_package_gcs_uri = f"{staging_bucket}/s2s-app-trainer.tar.gz"
 
     job = aip.CustomPythonPackageTrainingJob(
-        display_name="mushroom-app-training",
+        display_name="s2s-training",
         python_package_gcs_uri=python_package_gcs_uri,
         python_module_name="trainer.task",
         container_uri=container_uri,
@@ -63,42 +64,42 @@ def model_training(
     )
 
 
-# Define a Container Component
-@dsl.component(
-    base_image="python:3.10", packages_to_install=["google-cloud-aiplatform"]
-)
-def model_deploy(
-    bucket_name: str = "",
-):
-    print("Model Training Job")
+# # Define a Container Component
+# @dsl.component(
+#     base_image="python:3.10", packages_to_install=["google-cloud-aiplatform"]
+# )
+# def model_deploy(
+#     bucket_name: str = "",
+# ):
+#     print("Model Training Job")
 
-    import google.cloud.aiplatform as aip
+#     import google.cloud.aiplatform as aip
 
-    # List of prebuilt containers for prediction
-    # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers
-    serving_container_image_uri = (
-        "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-12:latest"
-    )
+#     # List of prebuilt containers for prediction
+#     # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers
+#     serving_container_image_uri = (
+#         "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-12:latest"
+#     )
 
-    display_name = "Mushroom App Model"
-    ARTIFACT_URI = f"gs://{bucket_name}/model"
+#     display_name = "Mushroom App Model"
+#     ARTIFACT_URI = f"gs://{bucket_name}/model"
 
-    # Upload and Deploy model to Vertex AI
-    # Reference: https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.Model#google_cloud_aiplatform_Model_upload
-    deployed_model = aip.Model.upload(
-        display_name=display_name,
-        artifact_uri=ARTIFACT_URI,
-        serving_container_image_uri=serving_container_image_uri,
-    )
-    print("deployed_model:", deployed_model)
-    # Reference: https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.Model#google_cloud_aiplatform_Model_deploy
-    endpoint = deployed_model.deploy(
-        deployed_model_display_name=display_name,
-        traffic_split={"0": 100},
-        machine_type="n1-standard-4",
-        accelerator_count=0,
-        min_replica_count=1,
-        max_replica_count=1,
-        sync=True,
-    )
-    print("endpoint:", endpoint)
+#     # Upload and Deploy model to Vertex AI
+#     # Reference: https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.Model#google_cloud_aiplatform_Model_upload
+#     deployed_model = aip.Model.upload(
+#         display_name=display_name,
+#         artifact_uri=ARTIFACT_URI,
+#         serving_container_image_uri=serving_container_image_uri,
+#     )
+#     print("deployed_model:", deployed_model)
+#     # Reference: https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.Model#google_cloud_aiplatform_Model_deploy
+#     endpoint = deployed_model.deploy(
+#         deployed_model_display_name=display_name,
+#         traffic_split={"0": 100},
+#         machine_type="n1-standard-4",
+#         accelerator_count=0,
+#         min_replica_count=1,
+#         max_replica_count=1,
+#         sync=True,
+#     )
+#     print("endpoint:", endpoint)

@@ -108,6 +108,18 @@ def train():
 
     model = Regnet()
 
+    # torch.save(model.state_dict(), "/gcs/s2s_data/model/original_model_1023_v0")
+    # original_size = os.path.getsize("/gcs/s2s_data/model/original_model_1023_v0")
+    # print('===original_size===', original_size)
+
+    # model = quantization.fuse_modules(model, [['conv', 'bn'], ['conv', 'bn', 'relu']], inplace=True)
+    
+    qconfig = quantization.get_default_qat_qconfig('fbgemm')
+    model.qconfig = qconfig
+    
+    # Prepare the model for QAT
+    model = quantization.prepare_qat(model, inplace=True)
+
     criterion = RegnetLoss(config.loss_type)
 
     logger = RegnetLogger(os.path.join(config.save_dir, 'logs'))
@@ -126,7 +138,14 @@ def train():
     model.setup()
 
     wandb.login(key=config.wandb_api_key)
+
+    # torch.save(model.state_dict(), "/gcs/s2s_data/model/quantized_model_1023_v0")
+    # quantized_size = os.path.getsize("/gcs/s2s_data/model/quantized_model_1023_v0")
+    # print('===quantized_size===', quantized_size)
+
     model.train()
+    
+    
     # ================ MAIN TRAINNIG LOOP! ===================
     # for epoch in range(epoch_offset, config.epochs):
     wandb.init(
@@ -146,6 +165,8 @@ def train():
             model.parse_batch(batch)
             model.optimize_parameters()
             learning_rate = model.optimizers[0].param_groups[0]['lr']
+            print("##debug##")
+            print(model.fake_B.shape)
             loss = criterion((model.fake_B, model.fake_B_postnet), model.real_B)
             reduced_loss = loss.item()
 
@@ -173,6 +194,21 @@ def train():
         model.update_learning_rate()
     model_path = model.save_checkpoint(config.save_dir, iteration)
     wandb.run.finish()
+
+def quantize_model(model):
+    # Specify quantization configuration
+    # Fuse modules (convolution + batch normalization + ReLU)
+    model.fuse_model()
+    # Configure quantization
+    model.qconfig = torch.quantization.get_default_qconfig('fbgemm')
+    # Prepare for quantization
+    torch.quantization.prepare(model, inplace=True)
+    # Calibrate the model
+    # NOTE: This step requires a representative dataset for calibration
+    # ... calibration code here ...
+    # Convert to quantized model
+    torch.quantization.convert(model, inplace=True)
+    return model
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

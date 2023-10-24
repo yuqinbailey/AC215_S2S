@@ -20,7 +20,7 @@ GCS_BUCKET_NAME = os.environ["GCS_BUCKET_NAME"]
 BUCKET_URI = f"gs://{GCS_BUCKET_NAME}"
 PIPELINE_ROOT = f"{BUCKET_URI}/pipeline_root/root"
 GCS_SERVICE_ACCOUNT = os.environ["GCS_SERVICE_ACCOUNT"]
-#GCS_PACKAGE_URI = os.environ["GCS_PACKAGE_URI"]
+GCS_PACKAGE_URI = os.environ["GCS_PACKAGE_URI"]
 #GCP_REGION = os.environ["GCP_REGION"]
 
 # DATA_COLLECTOR_IMAGE = "gcr.io/ac215-project/mushroom-app-data-collector"
@@ -157,6 +157,38 @@ def main(args=None):
 
         job.run(service_account=GCS_SERVICE_ACCOUNT)
 
+    if args.model_training:
+        print("Model Training")
+
+        # Define a Pipeline
+        @dsl.pipeline
+        def model_training_pipeline():
+            model_training(
+                project=GCP_PROJECT,
+                location=GCP_REGION,
+                staging_bucket=GCS_PACKAGE_URI,
+                bucket_name=GCS_BUCKET_NAME,
+            )
+
+        # Build yaml file for pipeline
+        compiler.Compiler().compile(
+            model_training_pipeline, package_path="model_training.yaml"
+        )
+
+        # Submit job to Vertex AI
+        aip.init(project=GCP_PROJECT, staging_bucket=BUCKET_URI)
+
+        job_id = generate_uuid()
+        DISPLAY_NAME = "mushroom-app-model-training-" + job_id
+        job = aip.PipelineJob(
+            display_name=DISPLAY_NAME,
+            template_path="model_training.yaml",
+            pipeline_root=PIPELINE_ROOT,
+            enable_caching=False,
+        )
+
+        job.run(service_account=GCS_SERVICE_ACCOUNT)
+
     if args.model_deploy:
         print("Model Deploy")
 
@@ -246,21 +278,21 @@ def main(args=None):
                 .set_display_name("Feature Extractor")
                 .after(data_preprocessor_task)
             )
-            # # Model Training
-            # model_training_task = (
-            #     model_training(
-            #         project=GCP_PROJECT,
-            #         location=GCP_REGION,
-            #         staging_bucket=GCS_PACKAGE_URI,
-            #         bucket_name=GCS_BUCKET_NAME,
-            #         epochs=15,
-            #         batch_size=16,
-            #         model_name="mobilenetv2",
-            #         train_base=False,
-            #     )
-            #     .set_display_name("Model Training")
-            #     .after(feature_extractor_task)
-            # )
+            # Model Training
+            model_training_task = (
+                model_training(
+                    project=GCP_PROJECT,
+                    location=GCP_REGION,
+                    staging_bucket=GCS_PACKAGE_URI,
+                    bucket_name=GCS_BUCKET_NAME,
+                    epochs=15,
+                    batch_size=16,
+                    model_name="mobilenetv2",
+                    train_base=False,
+                )
+                .set_display_name("Model Training")
+                .after(feature_extractor_task)
+            )
             # Model Deployment
             model_deploy_task = (
                 model_deploy(
