@@ -21,9 +21,8 @@ BUCKET_URI = f"gs://{GCS_BUCKET_NAME}"
 PIPELINE_ROOT = f"{BUCKET_URI}/pipeline_root/root"
 GCS_SERVICE_ACCOUNT = os.environ["GCS_SERVICE_ACCOUNT"]
 GCS_PACKAGE_URI = os.environ["GCS_PACKAGE_URI"]
-#GCP_REGION = os.environ["GCP_REGION"]
+GCP_REGION = os.environ["GCP_REGION"]
 
-# DATA_COLLECTOR_IMAGE = "gcr.io/ac215-project/mushroom-app-data-collector"
 DATA_COLLECTOR_IMAGE = "lildanni/data-collection"
 DATA_PROCESSOR_IMAGE = "lildanni/data-preprocessing"
 FEATURE_EXTRACTION_IMAGE = "lildanni/feature-extraction"
@@ -179,7 +178,7 @@ def main(args=None):
         aip.init(project=GCP_PROJECT, staging_bucket=BUCKET_URI)
 
         job_id = generate_uuid()
-        DISPLAY_NAME = "mushroom-app-model-training-" + job_id
+        DISPLAY_NAME = "s2s-model-training-" + job_id
         job = aip.PipelineJob(
             display_name=DISPLAY_NAME,
             template_path="model_training.yaml",
@@ -189,34 +188,34 @@ def main(args=None):
 
         job.run(service_account=GCS_SERVICE_ACCOUNT)
 
-    if args.model_deploy:
-        print("Model Deploy")
+    # if args.model_deploy:
+    #     print("Model Deploy")
 
-        # Define a Pipeline
-        @dsl.pipeline
-        def model_deploy_pipeline():
-            model_deploy(
-                bucket_name=GCS_BUCKET_NAME,
-            )
+    #     # Define a Pipeline
+    #     @dsl.pipeline
+    #     def model_deploy_pipeline():
+    #         model_deploy(
+    #             bucket_name=GCS_BUCKET_NAME,
+    #         )
 
-        # Build yaml file for pipeline
-        compiler.Compiler().compile(
-            model_deploy_pipeline, package_path="model_deploy.yaml"
-        )
+    #     # Build yaml file for pipeline
+    #     compiler.Compiler().compile(
+    #         model_deploy_pipeline, package_path="model_deploy.yaml"
+    #     )
 
-        # Submit job to Vertex AI
-        aip.init(project=GCP_PROJECT, staging_bucket=BUCKET_URI)
+    #     # Submit job to Vertex AI
+    #     aip.init(project=GCP_PROJECT, staging_bucket=BUCKET_URI)
 
-        job_id = generate_uuid()
-        DISPLAY_NAME = "s2s-model-deploy-" + job_id
-        job = aip.PipelineJob(
-            display_name=DISPLAY_NAME,
-            template_path="model_deploy.yaml",
-            pipeline_root=PIPELINE_ROOT,
-            enable_caching=False,
-        )
+    #     job_id = generate_uuid()
+    #     DISPLAY_NAME = "s2s-model-deploy-" + job_id
+    #     job = aip.PipelineJob(
+    #         display_name=DISPLAY_NAME,
+    #         template_path="model_deploy.yaml",
+    #         pipeline_root=PIPELINE_ROOT,
+    #         enable_caching=False,
+    #     )
 
-        job.run(service_account=GCS_SERVICE_ACCOUNT)
+    #     job.run(service_account=GCS_SERVICE_ACCOUNT)
 
     if args.pipeline:
         # Define a Container Component for data collector
@@ -285,21 +284,22 @@ def main(args=None):
                     location=GCP_REGION,
                     staging_bucket=GCS_PACKAGE_URI,
                     bucket_name=GCS_BUCKET_NAME,
-                    epochs=15,
-                    batch_size=16,
-                    model_name="mobilenetv2",
+                    epochs=1,
+                    batch_size=4,
+                    model_name="RegNet_v1",
                     train_base=False,
                 )
                 .set_display_name("Model Training")
                 .after(feature_extractor_task)
             )
+
             # Model Deployment
             model_deploy_task = (
                 model_deploy(
                     bucket_name=GCS_BUCKET_NAME,
                 )
                 .set_display_name("Model Deploy")
-                .after(feature_extractor_task)
+                .after(model_training_task)
             )
 
         # Build yaml file for pipeline
@@ -309,7 +309,7 @@ def main(args=None):
         aip.init(project=GCP_PROJECT, staging_bucket=BUCKET_URI)
 
         job_id = generate_uuid()
-        DISPLAY_NAME = "mushroom-app-pipeline-" + job_id
+        DISPLAY_NAME = "s2s-pipeline-" + job_id
         job = aip.PipelineJob(
             display_name=DISPLAY_NAME,
             template_path="pipeline.yaml",
@@ -346,6 +346,13 @@ if __name__ == "__main__":
         help="Run just the Feature Extractor",
     )
 
+    parser.add_argument(
+        "-t",
+        "--model_training",
+        action="store_true",
+        help="Run just Model Training",
+    )
+    
     parser.add_argument(
         "-d",
         "--model_deploy",
