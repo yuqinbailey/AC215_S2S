@@ -9,25 +9,28 @@ Project Organization
       ├── README.md
       ├── notebooks
       ├── references
-      ├── requirements.txt
       ├── setup.py
       └── src
             ├── secrets
             ├── data_collection
+            │   ├── Dockerfile
             │   ├── ...
             │   ├── collect.py
+            │   ├── collect_single.py
             │   └── collect_mp.py          <- multi-processing
-            ├── preprocessing
+            ├── data_preprocessing
+            │   ├── Dockerfile
             │   ├── ...
             │   └── preprocess.py
-            ├── data_representation
-            │   ├── Dockerfile
-            │   ├── ...
-            │   └── data_preprocess.sh
             ├── feature_extraction
-            │   ├── Dockerfile
+            │   ├── Dockerfile
             │   ├── ...
             │   └── feature_extract.sh
+            ├── model-deployment
+            │   ├── Dockerfile
+            │   ├── ...
+            │   ├── cli.py
+            │   └── wavenet_vocoder
             └── train
                 ├── Dockerfile
                 ├── ...
@@ -46,9 +49,9 @@ Project Organization
   ├── vggsound.csv
   ├── raw_data                <- raw data scraped from youtube
   ├── processed_data          <- intermediate preprocessed data
-  ├── filelists               <- splited train and test sets
   ├── features                <- extracted features from preprocessed data
-  │   └── processed_data
+  │   ├── filelists               <- splited train and test sets
+  │   └── playing_bingo
   │       ├── feature_flow_bninception_dim1024_21.5fps
   │       ├── feature_rgb_bninception_dim1024_21.5fps
   │       └── melspec_10s_22050hz          <- audio feature
@@ -71,7 +74,7 @@ S2S (*Silent to Sound*)
 We aim to develop an application that generates ambient sounds from images or silent videos leveraging computer vision and multimodal models. Our goal is to enrich the general user experience by creating a harmonized visual-audio ecosystem, and facilitate immersive multimedia interactions for individuals with visual impairments.
 
 
-## Milestone3
+## Milestone4
 ![pipeline](images/mega_pipeline.jpg)
 
 ### Data representation container
