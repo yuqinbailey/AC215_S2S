@@ -90,10 +90,23 @@ def handle_video(bucket_name, video_id, input_videos, output_videos, output_audi
     return processed_video_ids
 
 def update_progress(client, bucket_name, progress_file, processed_videos):
+
+    # Fetch previously processed videos
+    previously_processed_videos = get_processed_videos(client, bucket_name, progress_file)
+    
+    # Combine the two lists
+    combined_videos = list(previously_processed_videos) + processed_videos
+    
+    # Convert combined list to a newline-separated string
+    progress = '\n'.join(combined_videos)
+
     bucket = client.get_bucket(bucket_name)
     progress_blob = bucket.blob(progress_file)
-    new_progress = '\n'.join(processed_videos)
-    progress_blob.upload_from_string(f'{new_progress}\n', content_type='text/plain', client=client)
+
+    if progress_blob.exists():
+        progress_blob.delete()
+
+    progress_blob.upload_from_string(f'{progress}\n', content_type='text/plain', client=client)
 
 def preprocess(bucket_name, input_videos, output_videos, output_audios, progress_file,n,w,sr,fps):
     clean_up(input_videos, output_videos)
