@@ -189,6 +189,12 @@ def update_train_test_split(output_videos, p, filelists, test_ratio):
     train_content = "\n".join(train_clips)
     test_content = "\n".join(test_clips)
 
+    if test_blob.exists():
+        test_blob.delete()
+
+    if test_blob.exists():
+        test_blob.delete()
+
     # Upload the updated train/test filelists to the bucket
     train_blob.upload_from_string(train_content, content_type="text/plain")
     test_blob.upload_from_string(test_content, content_type="text/plain")
