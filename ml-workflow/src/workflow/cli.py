@@ -26,6 +26,7 @@ GCS_SERVICE_ACCOUNT = os.environ["GCS_SERVICE_ACCOUNT"]
 # DATA_COLLECTOR_IMAGE = "gcr.io/ac215-project/mushroom-app-data-collector"
 DATA_COLLECTOR_IMAGE = "lildanni/data-collection"
 DATA_PROCESSOR_IMAGE = "lildanni/data-preprocessing"
+FEATURE_EXTRACTION_IMAGE = "lildanni/feature-extraction"
 
 def generate_uuid(length: int = 8) -> str:
     return "".join(random.choices(string.ascii_lowercase + string.digits, k=length))
@@ -75,7 +76,7 @@ def main(args=None):
     if args.data_preprocessor:
         print("Data Preprocessor")
 
-        # Define a Container Component for data processor
+        # Define a Container Component for data preprocessor
         @dsl.container_component
         def data_preprocessor():
             container_spec = dsl.ContainerSpec(
@@ -117,16 +118,17 @@ def main(args=None):
     if args.feature_extractor:
         print("Feature Extractor")
 
-        # Define a Container Component for data processor
+        # Define a Container Component for feature extractor
         @dsl.container_component
-        def data_processor():
+        def feature_extractor():
             container_spec = dsl.ContainerSpec(
-                image=DATA_PROCESSOR_IMAGE,
+                image=FEATURE_EXTRACTION_IMAGE,
                 command=[],
                 args=[
-                    "cli.py",
-                    #"-p playing_bongo",
-                    #"-n 10",
+                    "./feature_extract.sh",
+                    "-p",
+                    "playing_bongo",
+                    "-n 1",
                 ],
             )
             return container_spec
@@ -155,50 +157,137 @@ def main(args=None):
 
         job.run(service_account=GCS_SERVICE_ACCOUNT)
 
-    if args.sample1:
-        print("Sample Pipeline 1")
-
-        # Define Component
-        @dsl.component
-        def square(x: float) -> float:
-            return x**2
-
-        # Define Component
-        @dsl.component
-        def add(x: float, y: float) -> float:
-            return x + y
-
-        # Define Component
-        @dsl.component
-        def square_root(x: float) -> float:
-            return x**0.5
+    if args.model_deploy:
+        print("Model Deploy")
 
         # Define a Pipeline
         @dsl.pipeline
-        def sample_pipeline(a: float = 3.0, b: float = 4.0) -> float:
-            a_sq_task = square(x=a)
-            b_sq_task = square(x=b)
-            sum_task = add(x=a_sq_task.output, y=b_sq_task.output)
-            return square_root(x=sum_task.output).output
+        def model_deploy_pipeline():
+            model_deploy(
+                bucket_name=GCS_BUCKET_NAME,
+            )
 
         # Build yaml file for pipeline
         compiler.Compiler().compile(
-            sample_pipeline, package_path="sample-pipeline1.yaml"
+            model_deploy_pipeline, package_path="model_deploy.yaml"
         )
 
         # Submit job to Vertex AI
         aip.init(project=GCP_PROJECT, staging_bucket=BUCKET_URI)
 
         job_id = generate_uuid()
-        DISPLAY_NAME = "sample-pipeline-" + job_id
+        DISPLAY_NAME = "s2s-model-deploy-" + job_id
         job = aip.PipelineJob(
             display_name=DISPLAY_NAME,
-            template_path="sample-pipeline1.yaml",
+            template_path="model_deploy.yaml",
             pipeline_root=PIPELINE_ROOT,
             enable_caching=False,
         )
 
         job.run(service_account=GCS_SERVICE_ACCOUNT)
+
+    if args.pipeline:
+        # Define a Container Component for data collector
+        @dsl.container_component
+        def data_collector():
+            container_spec = dsl.ContainerSpec(
+                image=DATA_COLLECTOR_IMAGE,
+                command=[],
+                args=[
+                    "cli.py",
+                    "--num_workers 4",
+                                    ],
+            )
+            return container_spec
+
+        # Define a Container Component for data preprocessor
+        @dsl.container_component
+        def data_preprocessor():
+            container_spec = dsl.ContainerSpec(
+                image=DATA_PROCESSOR_IMAGE,
+                command=[],
+                args=[
+                    "cli.py",
+                    "-p playing_bongo",
+                    "-n 10",
+                ],
+            )
+            return container_spec
+
+        # Define a Container Component for feature extractor
+        @dsl.container_component
+        def feature_extractor():
+            container_spec = dsl.ContainerSpec(
+                image=FEATURE_EXTRACTION_IMAGE,
+                command=[],
+                args=[
+                    "./feature_extract.sh",
+                    "-p",
+                    "playing_bongo",
+                    "-n 1",
+                ],
+            )
+            return container_spec
+
+        # Define a Pipeline
+        @dsl.pipeline
+        def ml_pipeline():
+            # Data Collector
+            data_collector_task = data_collector().set_display_name("Data Collector")
+            # Data Processor
+            data_preprocessor_task = (
+                data_preprocessor()
+                .set_display_name("Data Processor")
+                .after(data_collector_task)
+            )
+            # Feature Extractor
+            feature_extractor_task = (
+                feature_extractor()
+                .set_display_name("Feature Extractor")
+                .after(data_preprocessor_task)
+            )
+            # # Model Training
+            # model_training_task = (
+            #     model_training(
+            #         project=GCP_PROJECT,
+            #         location=GCP_REGION,
+            #         staging_bucket=GCS_PACKAGE_URI,
+            #         bucket_name=GCS_BUCKET_NAME,
+            #         epochs=15,
+            #         batch_size=16,
+            #         model_name="mobilenetv2",
+            #         train_base=False,
+            #     )
+            #     .set_display_name("Model Training")
+            #     .after(feature_extractor_task)
+            # )
+            # Model Deployment
+            model_deploy_task = (
+                model_deploy(
+                    bucket_name=GCS_BUCKET_NAME,
+                )
+                .set_display_name("Model Deploy")
+                .after(feature_extractor_task)
+            )
+
+        # Build yaml file for pipeline
+        compiler.Compiler().compile(ml_pipeline, package_path="pipeline.yaml")
+
+        # Submit job to Vertex AI
+        aip.init(project=GCP_PROJECT, staging_bucket=BUCKET_URI)
+
+        job_id = generate_uuid()
+        DISPLAY_NAME = "mushroom-app-pipeline-" + job_id
+        job = aip.PipelineJob(
+            display_name=DISPLAY_NAME,
+            template_path="pipeline.yaml",
+            pipeline_root=PIPELINE_ROOT,
+            enable_caching=False,
+        )
+
+        job.run(service_account=GCS_SERVICE_ACCOUNT)
+
+    
 
 
 if __name__ == "__main__":
@@ -224,29 +313,18 @@ if __name__ == "__main__":
         action="store_true",
         help="Run just the Feature Extractor",
     )
-    parser.add_argument(
-        "-t",
-        "--model_training",
-        action="store_true",
-        help="Run just Model Training",
-    )
+
     parser.add_argument(
         "-d",
         "--model_deploy",
         action="store_true",
-        help="Run just Model Deployment",
+        help="Run just Model Deploy",
     )
     parser.add_argument(
         "-w",
         "--pipeline",
         action="store_true",
-        help="Mushroom App Pipeline",
-    )
-    parser.add_argument(
-        "-s1",
-        "--sample1",
-        action="store_true",
-        help="Sample Pipeline 1",
+        help="S2S Pipeline",
     )
 
     args = parser.parse_args()
