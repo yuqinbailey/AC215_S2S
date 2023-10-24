@@ -8,6 +8,7 @@ import shutil
 import argparse
 import random
 from multiprocessing import cpu_count
+from moviepy.editor import AudioFileClip
 
 # make local directories
 def makedirs(input_videos, output_videos):
@@ -68,9 +69,10 @@ def handle_video(bucket_name, video_id, input_videos, output_videos, output_audi
             output_audio_path = os.path.join(output_audios, f'{clip_id}.wav')
 
             trimmed_clip = clip.subclip(t, min(t + 10, clip.duration))
+            audio_clip = trimmed_clip.audio
 
             trimmed_clip.write_videofile(output_video_path, fps = fps, threads = 8, logger = None, codec = "libx264", audio_codec="aac",ffmpeg_params=['-b:a','98k'])
-            trimmed_clip.audio.write_audiofile(output_audio_path, fps = sr, logger = None, codec="aac", ffmpeg_params = ['-ac', '1','-ab', '16k'])
+            audio_clip.write_audiofile(output_audio_path, fps = sr, logger = None, ffmpeg_params = ['-ac', '1','-ab', '16k']) # codec="aac",
 
             # Upload video and audio to storage
             blob_video = bucket.blob(f'{output_videos}/{clip_id}.mp4')
