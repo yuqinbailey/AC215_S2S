@@ -25,7 +25,7 @@ while getopts "p:f:n:" opt; do
 done
 
 # download data
-# python download_data.py -p "$PREFIX" -n "$N"
+python download_data.py -p "$PREFIX" -n "$N"
 
 # Define input and output directories
 INPUT_VIDEO_DIR="processed_data/$PREFIX/video_10s_${FPS}fps"
@@ -37,14 +37,14 @@ PROGRESS_FILE="features/$PREFIX/progress.txt"
 # Check if progress.txt exists, if not, create it
 [ ! -f "$PROGRESS_FILE" ] && touch "$PROGRESS_FILE"
 
-# # Extract RGB and Flow features
-# python extract_rgb_flow.py \
-#   -i "$INPUT_VIDEO_DIR" \
-#   -o "$OUTPUT_VIDEO_DIR"
+# Extract RGB and Flow features
+python extract_rgb_flow.py \
+  -i "$INPUT_VIDEO_DIR" \
+  -o "$OUTPUT_VIDEO_DIR"
 
-# python extract_mel_spectrogram.py \
-#   -i "$INPUT_AUDIO_DIR" \
-#   -o "$OUTPUT_AUDIO_DIR"
+python extract_mel_spectrogram.py \
+  -i "$INPUT_AUDIO_DIR" \
+  -o "$OUTPUT_AUDIO_DIR"
 
 # Extract RGB features
 CUDA_VISIBLE_DEVICES=0 python extract_feature.py \
