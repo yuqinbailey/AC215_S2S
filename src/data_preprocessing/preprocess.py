@@ -197,6 +197,9 @@ def update_train_test_split(output_videos, p, filelists, test_ratio):
         train_clips.extend(newly_processed_clips[min(new_test_num,len(newly_processed_clips)):])
     else:
         train_clips.extend(newly_processed_clips)
+    
+    train_clips = list(set(train_clips))
+    test_clips = list(set(test_clips))
 
     # Convert lists back to string content
     train_content = "\n".join(train_clips)
