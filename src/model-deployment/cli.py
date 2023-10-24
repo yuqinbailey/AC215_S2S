@@ -68,10 +68,22 @@ class CombinedModel(torch.nn.Module):
         with torch.no_grad():
             inputs, real_B = args
             fake_B, _ = self.regnet.netG(inputs, real_B)
-            fake_B = fake_B[0].data.cpu().numpy()
-            save_path = os.path.join(config.save_dir, "demo.wav")
-            waveform = gen_waveform(self.wavenet, save_path, fake_B, 'cuda:0')
-            return waveform
+            # fake_B = fake_B[0].data.cpu().numpy()
+            fake_B = fake_B[0].data
+            # save_path = os.path.join(config.save_dir, "demo.wav")
+            # waveform = gen_waveform(self.wavenet, save_path, fake_B, 'cuda:0')
+            return fake_B
+
+
+class RegnetWrapper(Regnet):
+    def __init__(self, *args, **kwargs):
+        super(RegnetWrapper, self).__init__(*args, **kwargs)
+
+    def forward(self, input, mel):
+        self.parse_batch((input, mel, None))
+        super(RegnetWrapper, self).forward()
+        return self.fake_B, self.fake_B_postnet
+
 
 def build_wavenet(checkpoint_path=None, device='cuda:0'):
     model = builder.wavenet(
@@ -122,7 +134,20 @@ def gen_waveform(model, save_path, c, device):
 
 
 def main(args=None):
-    if args.upload:
+    if args.trace:
+        print("Trace model")
+
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        prefix = 'checkpoint_001320'
+        regnet_model = RegnetWrapper()
+        regnet_model.load_checkpoint(f"ckpt/bongo/demo/{prefix}")
+        regnet_model.to(device).eval()
+        example_input_tensor_1 = torch.randn(1, 215, 2048)
+        example_input_tensor_2 = torch.randn(1, 80, 860)
+        traced_model = trace(regnet_model, (example_input_tensor_1, example_input_tensor_2))
+        traced_model.save("model/traced_regnet_model.pth")
+
+    elif args.upload:
         print("Upload model to GCS")
         storage_client = storage.Client(credentials=credentials, project=GCP_PROJECT)
         bucket = storage_client.get_bucket(GCS_MODELS_BUCKET_NAME)
@@ -163,6 +188,7 @@ def main(args=None):
         for module in combined_model.modules():
             module._backward_hooks = {}
         traced_model = trace(combined_model, (dummy_input,dummy_realB))
+        print("check progress")
         traced_model.save("model/traced_model.pth")
         
         # Upload the TorchScript model back to GCS
@@ -308,6 +334,12 @@ if __name__ == "__main__":
         "--test",
         action="store_true",
         help="Test deployment to Vertex AI",
+    )
+    parser.add_argument(
+        "-z",
+        "--trace",
+        action="store_true",
+        help="Make prediction using the endpoint from Vertex AI",
     )
 
     args = parser.parse_args()

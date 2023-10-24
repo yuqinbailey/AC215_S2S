@@ -321,7 +321,7 @@ class GANLoss(nn.Module):
 def init_net(net, device, init_type='normal', init_gain=0.02):
     assert (torch.cuda.is_available())
     net.to(device)
-    net = torch.nn.DataParallel(net, range(torch.cuda.device_count()))
+    # net = torch.nn.DataParallel(net, range(torch.cuda.device_count()))
     init_weights(net, init_type, gain=init_gain)
     return net
 
