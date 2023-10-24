@@ -1,0 +1,14 @@
+numba
+librosa
+matplotlib
+opencv-python
+opencv-contrib-python
+Pillow
+tqdm
+yacs
+future
+numpy
+scipy
+scikit-learn
+tensorboard
+google-cloud-storage

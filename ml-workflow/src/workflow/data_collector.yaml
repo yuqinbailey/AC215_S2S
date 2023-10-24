@@ -1,0 +1,27 @@
+# PIPELINE DEFINITION
+# Name: data-collector-pipeline
+components:
+  comp-data-collector:
+    executorLabel: exec-data-collector
+deploymentSpec:
+  executors:
+    exec-data-collector:
+      container:
+        args:
+        - cli.py
+        - --num_workers 4
+        image: lildanni/data-collection
+pipelineInfo:
+  name: data-collector-pipeline
+root:
+  dag:
+    tasks:
+      data-collector:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-data-collector
+        taskInfo:
+          name: data-collector
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.3.0
