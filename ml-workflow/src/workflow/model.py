@@ -81,7 +81,7 @@ def model_deploy(
         "us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-13.py310:latest"
     )
 
-    display_name = "Mushroom App Model"
+    display_name = "Silence to Sound Model"
     ARTIFACT_URI = f"gs://{bucket_name}/model"
 
     # Upload and Deploy model to Vertex AI
