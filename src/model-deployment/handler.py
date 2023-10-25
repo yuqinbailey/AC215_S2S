@@ -6,10 +6,7 @@ import argparse
 from glob import glob
 import numpy as np
 import base64
-from google.cloud import storage
-from google.cloud import aiplatform
 import torch
-from torch.jit import trace
 from tqdm import tqdm
 
 from model import Regnet
@@ -79,7 +76,7 @@ class RegNetHandler(BaseHandler):
         #                         truncation=True,
         #      
         inputs = torch.tensor(data[0]['data']).reshape(1, 215, 2048).to(self.device)
-        real_B = torch.tensor(data[1]['data']).reshape(1, 80, 860).to(self.device)                   return_tensors = "pt")
+        real_B = torch.tensor(data[1]['data']).reshape(1, 80, 860).to(self.device)                 
         return inputs, real_B
 
     def inference(self, inputs):

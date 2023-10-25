@@ -1,7 +1,6 @@
 FROM pytorch/torchserve:latest-gpu
 
 # Add any additional dependencies your model or handler needs
-# For example:
 COPY ./requirements.txt /home/model-server/
 RUN pip3 install -r /home/model-server/requirements.txt
 
@@ -10,7 +9,6 @@ COPY ./handler.py /home/model-server/
 COPY ./config.py /home/model-server/
 COPY ./criterion.py /home/model-server/
 COPY ./model.py /home/model-server/
-# Adjust the model directory if needed
 COPY ./model/RegNet/ /home/model-server/
 COPY ./wavenet_vocoder/ /home/model-server/
 
