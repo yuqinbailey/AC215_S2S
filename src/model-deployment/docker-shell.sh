@@ -32,7 +32,7 @@ set -e
 docker network inspect model-deployment-network >/dev/null 2>&1 || docker network create model-deployment-network
 
 # Build the image based on the Dockerfile
-docker build -t model-deployment-cli --platform=linux/arm64/v8 -f Dockerfile .
+docker build -t model-deployment-cli --platform=linux/arm64/v8 -f Dockerfile_main .
 
 # Run All Containers
 docker-compose run --rm --name model-deployment -ti -v "$(pwd)":/app model-deployment /bin/bash
