@@ -1,7 +1,7 @@
 Silent to Sound: Video Sound Generator
 ==============================
 
-AC215 - Milestone3
+AC215 - Milestone4
 
 Project Organization
 ------------
@@ -61,7 +61,7 @@ Project Organization
 
 
 --------
-# AC215 - Milestone3 - Silent to Sound
+# AC215 - Milestone4 - Silent to Sound
 
 **Team Members**
 Yuqin (Bailey) Bai, Danning (Danni) Lai, Tiantong Li, Yujan Ting, Yong Zhang, and Hanlin Zhu

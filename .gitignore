@@ -130,8 +130,8 @@ dmypy.json
 
 .DS_Store
 # secrets/
+**/secrets/
 src/secrets/
-src/validation/.git/
 *.mp4
 *.wav
 
@@ -152,5 +152,3 @@ src/model-deployment/Pipfile.lock
 src/model-deployment/Pipfile.lock.amd
 src/model-deployment/Pipfile.lock.arm
 src/model-deployment/docker-entrypoint.sh
-
-
