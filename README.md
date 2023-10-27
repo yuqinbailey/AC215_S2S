@@ -66,12 +66,12 @@ Project Organization
   │       └── melspec_10s_22050hz          <- audio feature
   ├── dvc_store               <- data registry: yuqinbailey/s2s-dvcrepo
   ├── ckpt
-  └── model
+  └── model                   <- saved model + update signitures
 ```
 
 
 --------
-# AC215 - Milestone4 - Silent to Sound
+# AC215 - Milestone4 - Silence to Sound
 
 **Team Members**
 Yuqin (Bailey) Bai, Danning (Danni) Lai, Tiantong Li, Yujan Ting, Yong Zhang, and Hanlin Zhu
@@ -93,7 +93,7 @@ sh docker-shell.sh
 python cli.py --pipeline
 ```
 
-For reference, we have these Docker images on Docker Hub:
+For reference, we have the calleble Docker images on Docker Hub:
 `lildanni/data-collection`, 
 `lildanni/data-preprocessing`, 
 `lildanni/feature-extraction`.
@@ -113,22 +113,43 @@ python cli.py -p playing_bongo -n 10
 # run python cli.py --feature_extractor
 # feature_extraction
 ./feature_extract.sh -p playing_bongo -n 10
+
+# run pyhon cli.py --model_training
+# train
+./cli.sh --epochs 1 --batch_size 4 --model_name 'RegNet_v1'
+
+# run python cli.py --model_deploy
+# model_deployment
+python cli.py --upload
+python cli.py --deploy
+python cli.py --predict
 ```
 
+### Kubeflow
+
+<img src='images/kubeflow.png' width='400'>
+
 ### Training container
-This container is created for modeling training using Vertext.AI. 
+This container is created for modeling training using Vertex AI. 
 
 **RegNet Model** [<sup>[2]</sup>](references/README.md#2)
 
 ![](images/regnet_chen_etal_2020.png)
 
-**Experiment Tracking**
 
-Below you can see the output from our Weights & Biases page and the loss is decreasing. We used this tool to track several iterations of our model training. It was tracked using the `wandb` library we included inside of our `src/train/cli.sh` script.
+#### **Quantization**
+We employ **quantization aware training**, which is often better for model accuracy compared to post-training quantization.
+This reduces model size and will enable deployment in resource-constrained environments.
 
-![wandb charts](images/wandb_charts.png)
 
-**Serverless Training**
+#### **Experiment Tracking**
+
+Below you can see the output from our Weights & Biases page and the loss is decreasing. We used this tool to track several iterations of our model training. It was tracked using the `wandb` library we included inside of our `cli.sh` script.
+
+<img src='images/wandb_charts.png' width='400'>
+
+
+#### **Serverless Training**
 
 Inside our training container, we used the Google Cloud SDK to launch training instances in the cloud. In the image below, you can see several runs of our model.
 
@@ -136,8 +157,9 @@ Inside our training container, we used the Google Cloud SDK to launch training i
 
 To create a new serverless job we did the following commands - 
 
-* First, run container with `sh docker-shell.sh`.
-* Inside the train container, run
+* First, navigate to `ml-workflow/src/train` directory.
+* Run the train container with `sh docker-shell.sh`.
+* Inside the container, run
   ```shell
   /app$ sh package-trainer.sh  # generate train.tar.gz
   /app$ sh cli.sh              # submit the job to vertex ai
@@ -145,11 +167,28 @@ To create a new serverless job we did the following commands -
 
   ![running train docker screenshot](images/running_train_container.png)
 
+
 ### Model deployment container
+To deploy our PyTorch model on Vertex AI, inside `ml-workflow/src/model_deployment` directory - 
 
-Our Docker uploaded to artifact registry: 
-
-`us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet`
+```shell
+python cli.py --upload
+```
+* Download the trained model artifacts from GCS `gs://s2s_data/model/`.
+* Combine RegNet & WaveNet and create a custom model handler to handle prediction requests.
+```shell
+./docker-shell_pred.sh
+```
+* Create custom container image with TorchServe to serve predictions.
+* Build and push the custom container image to artifact registry: 
+`us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet`.
+```shell
+python cli.py --deploy
+```
+* Deploying the serving container to Vertex Endpoint:
+  * Upload model to Vertex AI.
+  * Create endpoint.
+  * Deploy the model to endpoint.
 
 
 ### Docker cleanup
@@ -162,11 +201,6 @@ To make sure we do not have any running containers and clear up unused images -
 
 ### Data visualization for sanity check
 - [Colab Notebook](https://colab.research.google.com/drive/16ipwKR76L_exSH5SqfNyQ7FJUOtNSwla?usp=sharing) - facilitates the retrieval of various versions of our dataset managed by DVC, requiring GCP and GitHub authentication. It offers two functions, `dataset_metrics` and `show_examples`, to efficiently visualize dataset samples and display metrics, serving as sanity check for our data.
-  - [dataset_v2 sample video](images/dataset_v2_sample.mp4)
-
-### Notebooks
-
-This folder contains code that is not part of container. For example, Jupyter notebooks for EDA and model testing.
 
 
 ### [References](references/README.md)
