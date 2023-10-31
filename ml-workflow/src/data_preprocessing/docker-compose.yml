@@ -1,0 +1,17 @@
+version: "3.9"
+networks:
+    default:
+        name: data-preprocessing-network
+        external: true
+services:
+    data-preprocessing:
+        image: data-preprocessing 
+        container_name: data-preprocessing
+        volumes:
+            - ../secrets:/secrets
+            - ../data_preprocessing:/app
+        environment:
+            GOOGLE_APPLICATION_CREDENTIALS: ../secrets/data-service-account.json
+            GCP_PROJECT: "ac215-project"
+            GCP_ZONE: "us-central1-a"
+            GCS_BUCKET_NAME: "s2s_data"
