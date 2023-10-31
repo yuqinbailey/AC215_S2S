@@ -85,7 +85,7 @@ We aim to develop an application that generates ambient sounds from images or si
 
 
 ## Milestone4
-![pipeline](images/mega_pipeline.jpg)
+![pipeline](/images/mega_pipeline.jpg)
 
 ```shell
 cd ml-workflow/src/workflow
@@ -127,14 +127,14 @@ python cli.py --predict
 
 ### Kubeflow
 
-<img src='images/kubeflow.png' width='400'>
+<img src='/images/kubeflow.png' width='400'>
 
 ### Training container
 This container is created for modeling training using Vertex AI. 
 
 **RegNet Model** [<sup>[2]</sup>](references/README.md#2)
 
-![](images/regnet_chen_etal_2020.png)
+![](/images/regnet_chen_etal_2020.png)
 
 
 #### **Quantization**
@@ -146,14 +146,14 @@ This reduces model size and will enable deployment in resource-constrained envir
 
 Below you can see the output from our Weights & Biases page and the loss is decreasing. We used this tool to track several iterations of our model training. It was tracked using the `wandb` library we included inside of our `cli.sh` script.
 
-<img src='images/wandb_charts.png' width='400'>
+<img src='/images/wandb_charts.png' width='400'>
 
 
 #### **Serverless Training**
 
 Inside our training container, we used the Google Cloud SDK to launch training instances in the cloud. In the image below, you can see several runs of our model.
 
-![vertex ai runs](images/vertex_ai_runs.png)
+![vertex ai runs](/images/vertex_ai_runs.png)
 
 To create a new serverless job we did the following commands - 
 
@@ -165,7 +165,7 @@ To create a new serverless job we did the following commands -
   /app$ sh cli.sh              # submit the job to vertex ai
   ```
 
-  ![running train docker screenshot](images/running_train_container.png)
+  ![running train docker screenshot](/images/running_train_container.png)
 
 
 ### Model deployment container

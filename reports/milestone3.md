@@ -72,7 +72,7 @@ We aim to develop an application that generates ambient sounds from images or si
 
 
 ## Milestone3
-![pipeline](images/mega_pipeline.jpg)
+![pipeline](/images/mega_pipeline.jpg)
 
 ### Data representation container
 This container is used for extracting Mel-spectrogram from audio, RGB feature, and optical flow features from the data.
@@ -97,20 +97,20 @@ This container is created for modeling training using Vertext.AI.
 
 **RegNet Model** [<sup>[2]</sup>](references/README.md#2)
 
-![](images/regnet_chen_etal_2020.png)
+![](/images/regnet_chen_etal_2020.png)
 
 **Experiment Tracking**
 
 Below you can see the output from our Weights & Biases page. We used this tool to track several iterations of our model training. It was tracked using the `wandb` library we included inside of our `src/train/cli.sh` script.
 
-![wandb charts](images/wandb_charts.png)
-![wandb system](images/wandb_system.png)
+![wandb charts](/images/wandb_charts.png)
+![wandb system](/images/wandb_system.png)
 
 **Serverless Training**
 
 Inside our training container, we used the Google Cloud SDK to launch training instances in the cloud. In the image below, you can see several runs of our model.
 
-![vertex ai runs](images/vertex_ai_runs.png)
+![vertex ai runs](/images/vertex_ai_runs.png)
 
 To create a new serverless job we did the following commands - 
 
@@ -121,7 +121,7 @@ To create a new serverless job we did the following commands -
   /app$ sh cli.sh              # submit the job to vertex ai
   ```
 
-  ![running train docker screenshot](images/running_train_container.png)
+  ![running train docker screenshot](/images/running_train_container.png)
 
 
 ### Docker cleanup
@@ -136,7 +136,7 @@ To make sure we do not have any running containers and clear up unused images -
 - [Colab Notebook](https://colab.research.google.com/drive/16ipwKR76L_exSH5SqfNyQ7FJUOtNSwla?usp=sharing) - facilitates the retrieval of various versions of our dataset managed by DVC, requiring GCP and GitHub authentication. It offers two functions, `dataset_metrics` and `show_examples`, to efficiently visualize dataset samples and display metrics, serving as sanity check for our data.
   - dataset_v2 sample
 
-    ![sample video](images/dataset_v2_sample.mp4)
+    ![sample video](/images/dataset_v2_sample.mp4)
 
 ### Notebooks
 
