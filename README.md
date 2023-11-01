@@ -11,7 +11,7 @@ Project Organization
       ├── notebooks
       ├── references
       ├── setup.py
-      └── ml-workflow/src
+      └── src
             ├── secrets
             ├── workflow
             │   ├── Dockerfile
@@ -43,7 +43,7 @@ Project Organization
             │   │   └── setup.py
             │   ├── package-trainer.sh
             │   ├── cli.sh
-            └── model-deployment
+            └── model_deployment
                 ├── Dockerfile
                 ├── requirments.txt
                 ├── ...
@@ -88,7 +88,7 @@ We aim to develop an application that generates ambient sounds from images or si
 ![pipeline](images/mega_pipeline.jpg)
 
 ```shell
-cd ml-workflow/src/workflow
+cd src/workflow
 sh docker-shell.sh
 python cli.py --pipeline
 ```
@@ -157,7 +157,7 @@ Inside our training container, we used the Google Cloud SDK to launch training i
 
 To create a new serverless job we did the following commands - 
 
-* First, navigate to `ml-workflow/src/train` directory.
+* First, navigate to `src/train` directory.
 * Run the train container with `sh docker-shell.sh`.
 * Inside the container, run
   ```shell
@@ -169,7 +169,7 @@ To create a new serverless job we did the following commands -
 
 
 ### Model deployment container
-To deploy our PyTorch model on Vertex AI, inside `ml-workflow/src/model_deployment` directory - 
+To deploy our PyTorch model on Vertex AI, inside `src/model_deployment` directory - 
 
 ```shell
 python cli.py --upload
