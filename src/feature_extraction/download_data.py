@@ -101,7 +101,7 @@ if __name__ == "__main__":
     p = args.prefix
     n = args.num_clips
 
-    progress = get_progress('s2s_data', f'features/{p}/progress.txt')
-    downloaded = download('s2s_data', p , n, progress=progress)
+    progress = get_progress('s2s_data_new', f'features/{p}/progress.txt')
+    downloaded = download('s2s_data_new', p , n, progress=progress)
     
 
