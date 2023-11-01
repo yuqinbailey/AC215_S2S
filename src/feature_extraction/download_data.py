@@ -94,7 +94,7 @@ def download(bucket_name, target_prefix, num_clips, progress=None):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--prefix", required=True, choices=["test_prefix", "oboe", "playing_bongo", "badminton"])
+    parser.add_argument("-p", "--prefix", required=True, choices=[ "playing_bongo", "dog_barking"])
     parser.add_argument("-n", '--num_clips', default='10', type=int)
     
     args = parser.parse_args()
