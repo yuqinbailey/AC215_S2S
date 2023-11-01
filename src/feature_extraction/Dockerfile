@@ -37,18 +37,15 @@ RUN conda install -n myenv -y pytorch==1.9 torchvision torchaudio cudatoolkit=11
     conda clean -a -y
 
 # Copy the entrypoint script into the image
-COPY entrypoint.sh /entrypoint.sh
+COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 # Set permissions for the entrypoint script
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 # Set working directory and copy app contents
 COPY . /app
 WORKDIR /app
 
 # Set the entrypoint script as the ENTRYPOINT
-ENTRYPOINT ["/entrypoint.sh"]
-
-# Set a default CMD
-CMD ["/bin/bash"]
+ENTRYPOINT ["/bin/bash", "./docker-entrypoint.sh"]
 
