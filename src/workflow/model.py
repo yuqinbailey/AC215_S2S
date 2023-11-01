@@ -24,7 +24,7 @@ def model_training(
 
     # We're using PyTorch
     container_uri = "us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-13.py310:latest"
-    python_package_gcs_uri = f"{staging_bucket}/s2s-app-trainer.tar.gz"
+    python_package_gcs_uri = f"{staging_bucket}/s2s.tar.gz"
 
     job = aip.CustomPythonPackageTrainingJob(
         display_name="s2s-training",
@@ -44,7 +44,7 @@ def model_training(
         CMDARGS.append("--train_base")
 
     MODEL_DIR = staging_bucket
-    TRAIN_COMPUTE = "n1-standard-4"
+    TRAIN_COMPUTE = "e2-standard-4"
     TRAIN_GPU = "NVIDIA_TESLA_T4"
     TRAIN_NGPU = 1
 

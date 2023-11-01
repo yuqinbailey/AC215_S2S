@@ -74,15 +74,15 @@ deploymentSpec:
           \ Vertex AI SDK for Python\n    aip.init(project=project, location=location,\
           \ staging_bucket=staging_bucket)\n\n    # We're using PyTorch\n    container_uri\
           \ = \"us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-13.py310:latest\"\
-          \n    python_package_gcs_uri = f\"{staging_bucket}/s2s-app-trainer.tar.gz\"\
-          \n\n    job = aip.CustomPythonPackageTrainingJob(\n        display_name=\"\
-          s2s-training\",\n        python_package_gcs_uri=python_package_gcs_uri,\n\
-          \        python_module_name=\"trainer.task\",\n        container_uri=container_uri,\n\
-          \        project=project,\n    )\n\n    CMDARGS = [\n        f\"--epochs={epochs}\"\
-          ,\n        f\"--batch_size={batch_size}\",\n        f\"--model_name={model_name}\"\
-          ,\n        f\"--bucket_name={bucket_name}\",\n    ]\n    if train_base:\n\
+          \n    python_package_gcs_uri = f\"{staging_bucket}/s2s.tar.gz\"\n\n    job\
+          \ = aip.CustomPythonPackageTrainingJob(\n        display_name=\"s2s-training\"\
+          ,\n        python_package_gcs_uri=python_package_gcs_uri,\n        python_module_name=\"\
+          trainer.task\",\n        container_uri=container_uri,\n        project=project,\n\
+          \    )\n\n    CMDARGS = [\n        f\"--epochs={epochs}\",\n        f\"\
+          --batch_size={batch_size}\",\n        f\"--model_name={model_name}\",\n\
+          \        f\"--bucket_name={bucket_name}\",\n    ]\n    if train_base:\n\
           \        CMDARGS.append(\"--train_base\")\n\n    MODEL_DIR = staging_bucket\n\
-          \    TRAIN_COMPUTE = \"n1-standard-4\"\n    TRAIN_GPU = \"NVIDIA_TESLA_T4\"\
+          \    TRAIN_COMPUTE = \"e2-standard-4\"\n    TRAIN_GPU = \"NVIDIA_TESLA_T4\"\
           \n    TRAIN_NGPU = 1\n\n    print(python_package_gcs_uri)\n\n    # Run the\
           \ training job on Vertex AI\n    # sync=True, # If you want to wait for\
           \ the job to finish\n    job.run(\n        model_display_name=None,\n  \
@@ -104,7 +104,7 @@ root:
           parameters:
             bucket_name:
               runtimeValue:
-                constant: s2s-ml-workflow
+                constant: s2s_data_new
             location:
               runtimeValue:
                 constant: us-east1
@@ -113,7 +113,7 @@ root:
                 constant: ac215project-398818
             staging_bucket:
               runtimeValue:
-                constant: gs://s2s_data
+                constant: gs://s2s_data_new
         taskInfo:
           name: model-training
 schemaVersion: 2.1.0

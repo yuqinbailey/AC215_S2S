@@ -42,7 +42,7 @@ def main(args=None):
                 image=DATA_COLLECTOR_IMAGE,
                 command=[],
                 args=[
-                    "cli.py",
+                    "collect_single.py",
                     "--num_workers 4",
                                     ],
             )
@@ -82,7 +82,7 @@ def main(args=None):
                 image=DATA_PROCESSOR_IMAGE,
                 command=[],
                 args=[
-                    "cli.py",
+                    "preprocess.py",
                     "-p playing_bongo",
                     "-n 10",
                 ],

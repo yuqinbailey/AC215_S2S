@@ -4,15 +4,15 @@ export IMAGE_NAME="s2s-workflow"
 export BASE_DIR=$(pwd)
 export SECRETS_DIR=$(pwd)/../../../secrets/
 export GCP_PROJECT="ac215project-398818" 
-export GCS_BUCKET_NAME="s2s-ml-workflow" 
+export GCS_BUCKET_NAME="s2s_data_new" 
 export GCS_SERVICE_ACCOUNT="ml-workflow@ac215project-398818.iam.gserviceaccount.com"
 export GCP_REGION="us-east1"
-export GCS_PACKAGE_URI="gs://s2s_data"
+export GCS_PACKAGE_URI="gs://s2s_data_new"
 
 # Build the image based on the Dockerfile
 docker build -t $IMAGE_NAME -f Dockerfile .
 #docker build -t $IMAGE_NAME --platform=linux/amd64 -f Dockerfile .
-
+5
 
 # Run Container
 docker run --rm --name $IMAGE_NAME -ti \

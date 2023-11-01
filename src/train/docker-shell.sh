@@ -5,7 +5,7 @@ set -e
 export IMAGE_NAME=model-training-cli
 export BASE_DIR=$(pwd)
 export SECRETS_DIR=$(pwd)/../secrets/
-export GCS_BUCKET_URI="gs://s2s_data"
+export GCS_BUCKET_URI="gs://s2s_data_new"
 export GCP_PROJECT="ac215project-398818"
 
 
