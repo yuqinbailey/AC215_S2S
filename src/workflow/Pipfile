@@ -1,0 +1,24 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+google-cloud-aiplatform = "*"
+click = ">=8.0.0,<9"
+docstring-parser = ">=0.7.3,<1"
+kfp-pipeline-spec = "==0.2.2"
+kfp-server-api = ">=2.0.0,<2.1.0"
+kubernetes = ">=8.0.0,<27"
+PyYAML = ">=5.3,<7"
+requests-toolbelt = ">=0.8.0,<1"
+tabulate = ">=0.8.6,<1"
+protobuf = ">=3.13.0,<4"
+urllib3 = ">=1.0.0,<2.0.0"
+kfp = "*"
+
+
+[requires]
+python_version = "3.9"

@@ -94,14 +94,14 @@ def download(bucket_name, target_prefix, num_clips, progress=None):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--prefix", required=True, choices=["test_prefix", "oboe", "playing_bongo", "badminton"])
+    parser.add_argument("-p", "--prefix", required=True, choices=[ "playing_bongo", "dog_barking"])
     parser.add_argument("-n", '--num_clips', default='10', type=int)
     
     args = parser.parse_args()
     p = args.prefix
     n = args.num_clips
 
-    progress = get_progress('s2s_data', f'features/{p}/progress.txt')
-    downloaded = download('s2s_data', p , n, progress=progress)
+    progress = get_progress('s2s_data_new', f'features/{p}/progress.txt')
+    downloaded = download('s2s_data_new', p , n, progress=progress)
     
 

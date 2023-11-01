@@ -23,4 +23,4 @@ def upload_to_GCP(bucket_name, local_path, gcs_path):
          blob.upload_from_filename(local_file)
 
 if __name__ == "__main__":
-   upload_to_GCP("s2s_data",'features','features')
+   upload_to_GCP("s2s_data_new",'features','features')
