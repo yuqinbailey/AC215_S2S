@@ -33,10 +33,10 @@ from io import BytesIO
 # import wandb
 # GCP_PROJECT = os.environ["GCP_PROJECT"]
 # GCS_MODELS_BUCKET_NAME = os.environ["GCS_MODELS_BUCKET_NAME"]
-BEST_MODEL = "traced_regnet_model_test_v1.pth"
+BEST_MODEL = "traced_regnet_model_test.pth"
 GCP_PROJECT = "ac215project-398818"
 GCS_MODELS_BUCKET_NAME = "s2s_data_new"
-ARTIFACT_URI = f"gs://{GCS_MODELS_BUCKET_NAME}/model/"
+ARTIFACT_URI = f"gs://{GCS_MODELS_BUCKET_NAME}/model/RegNet/"
 
 ########### only in this container, DO NOT PUSH TO GIT HUB ###########
 
@@ -177,11 +177,11 @@ def main(args=None):
 
 
         print("succesfully constructed the model")
-        traced_model.save("model/RegNet/traced_regnet_model_test_v1.pth")
+        traced_model.save("model/RegNet/traced_regnet_model_test.pth")
         print('successfully saved')
 
         # Upload the model file to the GCS bucket
-        model_gcs_path = "model/RegNet/traced_regnet_model_test_v1.pth" 
+        model_gcs_path = "model/RegNet/traced_regnet_model_test.pth" 
         blob = bucket.blob(model_gcs_path)
         blob.upload_from_filename(model_gcs_path)
 
@@ -197,28 +197,76 @@ def main(args=None):
         # )
 
         serving_container_image_uri = (
-            "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet:bkui_pred"
+            "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet"
         )
 
-        # Upload and Deploy model to Vertex AI
-        # Reference: https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.Model#google_cloud_aiplatform_Model_upload
-        deployed_model = aiplatform.Model.upload(
-            display_name=BEST_MODEL,
-            artifact_uri=ARTIFACT_URI,
-            serving_container_image_uri=serving_container_image_uri,
+
+        # # Upload and Deploy model to Vertex AI
+        # # Reference: https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.Model#google_cloud_aiplatform_Model_upload
+        # deployed_model = aiplatform.Model.upload(
+        #     display_name=BEST_MODEL,
+        #     artifact_uri=ARTIFACT_URI,
+        #     serving_container_image_uri=serving_container_image_uri,
+        # )
+        # print("deployed_model:", deployed_model)
+        # # Reference: https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.Model#google_cloud_aiplatform_Model_deploy
+        # endpoint = deployed_model.deploy(
+        #     deployed_model_display_name=BEST_MODEL,
+        #     traffic_split={"0": 100},
+        #     machine_type="n1-standard-4",
+        #     accelerator_count=1,
+        #     min_replica_count=2,
+        #     max_replica_count=5,
+        #     sync=False,
+        # )
+        # print("endpoint:", endpoint)
+
+        VERSION = 1
+        CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet"
+        APP_NAME = "regnet"
+        model_display_name = f"{APP_NAME}-v{VERSION}"
+        model_description = "PyTorch based regnet with custom container"
+
+        MODEL_NAME = APP_NAME
+        health_route = "/ping"
+        predict_route = f"/predictions/{MODEL_NAME}"
+        serving_container_ports = [7080]
+
+        model = aiplatform.Model.upload(
+            display_name=model_display_name,
+            description=model_description,
+            serving_container_image_uri=CUSTOM_PREDICTOR_IMAGE_URI,
+            serving_container_predict_route=predict_route,
+            serving_container_health_route=health_route,
+            serving_container_ports=serving_container_ports,
         )
-        print("deployed_model:", deployed_model)
-        # Reference: https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.Model#google_cloud_aiplatform_Model_deploy
-        endpoint = deployed_model.deploy(
-            deployed_model_display_name=BEST_MODEL,
-            traffic_split={"0": 100},
-            machine_type="n1-standard-4",
-            accelerator_count=1,
-            min_replica_count=2,
-            max_replica_count=5,
-            sync=False,
+
+        model.wait()
+
+        print("Successfully uploaded the model")
+        print(model.display_name)
+        print(model.resource_name)
+
+        endpoint_display_name = f"{APP_NAME}-endpoint"
+        endpoint = aiplatform.Endpoint.create(display_name=endpoint_display_name)
+
+        traffic_percentage = 100
+        machine_type = "n1-standard-4"
+        deployed_model_display_name = model_display_name
+        min_replica_count = 1
+        max_replica_count = 3
+        sync = True
+
+        model.deploy(
+            endpoint=endpoint,
+            deployed_model_display_name=deployed_model_display_name,
+            machine_type=machine_type,
+            traffic_percentage=traffic_percentage,
+            sync=sync,
         )
-        print("endpoint:", endpoint)
+
+        print("Successfully deployed the model")
+        model.wait()
 
     elif args.predict:
         print("Predict using endpoint")
