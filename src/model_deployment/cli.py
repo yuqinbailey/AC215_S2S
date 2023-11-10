@@ -195,12 +195,9 @@ def main(args=None):
         # serving_container_image_uri = (
         #     "us-docker.pkg.dev/vertex-ai/prediction/pytorch/torchserve:latest-gpu"
         # )
-
-        serving_container_image_uri = (
-            "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet"
-        )
-
-
+        # serving_container_image_uri = (
+        #     "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet"
+        # )
         # # Upload and Deploy model to Vertex AI
         # # Reference: https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.Model#google_cloud_aiplatform_Model_upload
         # deployed_model = aiplatform.Model.upload(
@@ -222,7 +219,7 @@ def main(args=None):
         # print("endpoint:", endpoint)
 
         VERSION = 1
-        CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet"
+        CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/regnet_deploy_gpu"
         APP_NAME = "regnet"
         model_display_name = f"{APP_NAME}-v{VERSION}"
         model_description = "PyTorch based regnet with custom container"
