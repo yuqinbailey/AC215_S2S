@@ -3,7 +3,7 @@
 # https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
 
 export UUID=$(openssl rand -hex 6)
-export DISPLAY_NAME="s2s_training_job_leo_$UUID"
+export DISPLAY_NAME="s2s_training_job_frank_$UUID"
 export MACHINE_TYPE="n1-standard-4"
 export REPLICA_COUNT=1
 #export EXECUTOR_IMAGE_URI="us-docker.pkg.dev/vertex-ai/training/tf-gpu.2-12.py310:latest"
@@ -16,7 +16,7 @@ export ACCELERATOR_COUNT=1
 export GCP_REGION="us-east1" # Adjust region based on you approved quotas for GPUs
 #export PATH=$PATH:/root/.local/bin
 
-export CMDARGS="--experiment_name=experiment_RegNet,--model_name=RegNet_v1,--epochs=30,--lr=0.0002,--wandb_key=$WANDB_KEY"
+export CMDARGS="--experiment_name=experiment_RegNet,--model_name=RegNet_bongo_frank_1114,--epochs=100,--batch_size=16,--lr=0.0002,--wandb_key=$WANDB_KEY"
 #export CMDARGS="--model_name=mobilenetv2,--train_base,--epochs=30,--batch_size=32,--wandb_key=$WANDB_KEY"
 #export CMDARGS="--model_name=tfhub_mobilenetv2,--epochs=30,--batch_size=32,--wandb_key=$WANDB_KEY"
 #export CMDARGS="--model_name=tfhub_mobilenetv2,--train_base,--epochs=30,--batch_size=32,--wandb_key=$WANDB_KEY"
