@@ -1,6 +1,6 @@
 # FROM pytorch/torchserve:latest-gpu
-# FROM pandaczm/torchserve_m1:transformers_4.10.0
-FROM ppalmes/torchserve:p2.0
+FROM pandaczm/torchserve_m1:transformers_4.10.0
+# FROM ppalmes/torchserve:p2.0
 
 # Add any additional dependencies your model or handler needs
 COPY ./requirements.txt /home/model-server/
@@ -16,18 +16,23 @@ RUN pip3 install -r /home/model-server/requirements.txt
 COPY . /home/model-server/
 WORKDIR /home/model-server/
 
-# Create TorchServe configuration
 USER root
+
+# ENV PYTHONPATH="${PYTHONPATH}:/home/model-server/wavenet_vocoder"
+# COPY wavenet_vocoder wavenet_vocoder
+RUN pip install /home/model-server/wavenet_vocoder
+
+# Create TorchServe configuration
 RUN printf "\nservice_envelope=json" >> /home/model-server/config.properties
 RUN printf "\ninference_address=http://0.0.0.0:7080" >> /home/model-server/config.properties
 RUN printf "\nmanagement_address=http://0.0.0.0:7081" >> /home/model-server/config.properties
 
-# Create the user model-server
-RUN useradd -ms /bin/bash model-server
-# Set the directory permissions
-RUN chown -R model-server:model-server /home/model-server/
+# # Create the user model-server
+# RUN useradd -ms /bin/bash model-server
+# # Set the directory permissions
+# RUN chown -R model-server:model-server /home/model-server/
 
-USER model-server
+# USER model-server
 
 # Expose health and prediction listener ports
 EXPOSE 7080

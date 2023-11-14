@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from model import Regnet
 from config import _C as config
-from wavenet_vocoder import builder
+# from wavenet_vocoder import builder
 from ts.torch_handler.base_handler import BaseHandler
 
 class RegNetHandler(BaseHandler):
@@ -41,7 +41,7 @@ class RegNetHandler(BaseHandler):
             raise RuntimeError("Missing the model.pt or pytorch_model.bin file")
         
         # Load model
-        self.model = torch.jit.load(f"model/traced_regnet_model.pt", map_location=self.device)
+        self.model = torch.jit.load(f"/home/model-server/model/RegNet/traced_regnet_model_test.pth", map_location=self.device)
         self.model.eval()
         self.initialized = True
         
@@ -74,24 +74,34 @@ class RegNetHandler(BaseHandler):
         #                         padding='max_length',
         #                         max_length=128,
         #                         truncation=True,
-        #      
-        inputs = torch.tensor(data[0]['data']).reshape(1, 215, 2048).to(self.device)
-        real_B = torch.tensor(data[1]['data']).reshape(1, 80, 860).to(self.device)                 
+        #                         return_tensors = "pt")
+        
+        sequence_length = 215  # number of sequences or frames
+        feature_dimension = 2048  # feature dimension per sequence
+        mel_features = 80  
+        time_steps = 860
+        dummy_input = torch.rand(1, sequence_length, feature_dimension)
+        dummy_realB = torch.rand(1, mel_features, time_steps)
+        
+        # inputs = torch.tensor(data[0]['data']).reshape(1, 215, 2048).to(self.device)
+        # real_B = torch.tensor(data[1]['data']).reshape(1, 80, 860).to(self.device)
+        inputs = dummy_input
+        real_B = dummy_realB
+        print(f"preprocess input {inputs}")
+        print(f"preprocess real_B {real_B}")
         return inputs, real_B
 
+
     def inference(self, inputs):
-        """ Predict the class of a text using a trained transformer model.
-        """
+        # """ Predict the class of a text using a trained transformer model.
+        # """
         inputs, real_B = inputs
-        with torch.no_grad():
-            fake_B, _ = self.model(inputs, real_B)
-        # prediction = self.model(inputs['input_ids'].to(self.device))[0].argmax().item()
-
-        # if self.mapping:
-        #     prediction = self.mapping[str(prediction)]
-
-        # logger.info("Model predicted: '%s'", prediction)
-        return [fake_B.cpu().numpy()]
+        # with torch.no_grad():
+        #     fake_B, _ = self.model(inputs, real_B)
+        # return [fake_B.cpu().numpy()]
+        print(f"inference input {inputs}")
+        print(f"inference real_B {real_B}")
+        return ["Testing the inference side - Leo"]
 
     def postprocess(self, inference_output):
         return inference_output

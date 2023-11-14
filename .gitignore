@@ -130,9 +130,10 @@ dmypy.json
 
 .DS_Store
 # secrets/
-**.tar.gz
 **/secrets/
 src/secrets/
+
+**.tar.gz
 *.mp4
 *.wav
 
@@ -153,3 +154,5 @@ src/model_deployment/Pipfile.lock
 src/model_deployment/Pipfile.lock.amd
 src/model_deployment/Pipfile.lock.arm
 src/model_deployment/docker-entrypoint.sh
+
+persistent_folder/

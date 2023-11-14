@@ -11,7 +11,7 @@ services:
             - ../secrets:/secrets
             - ../model-deployment:/app
         environment:
-            GOOGLE_APPLICATION_CREDENTIALS: ./model-deployment.json
+            GOOGLE_APPLICATION_CREDENTIALS: ./model-deployment-leo.json
             GCP_PROJECT: "ac215-project"
             GCP_ZONE: "us-central1-a"
-            GCS_BUCKET_NAME: "s2s_data"
+            GCS_BUCKET_NAME: "s2s_data_new"
