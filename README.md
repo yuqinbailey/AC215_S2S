@@ -84,45 +84,19 @@ We aim to develop an application that generates ambient sounds from images or si
 ## Milestone5
 ![pipeline](images/mega_pipeline.jpg)
 
-```shell
-cd src/workflow
-sh docker-shell.sh
-python cli.py --pipeline
+### Code Structure
+
+The following are the folders from the previous milestones:
+```
+- data_collection
+- data_preprocessing
+- feature_extraction
+- train
+- model_deployment
+- workflow
 ```
 
-For reference, we have the calleble Docker images on Docker Hub:
-`lildanni/data-collection`, 
-`lildanni/data-preprocessing`, 
-`lildanni/feature-extraction`.
-
-```shell
-# Function calls integrated in workflow/cli.py
-# equivalent to running the following commands in *corresponding* containers
-
-# run python cli.py --data_colletor
-# data_collection
-python cli.py —num_workers 2 --target_topic 'playing bongo'
-
-# run python cli.py --data_preprocessor
-# data_preprocessing
-python cli.py -p playing_bongo -n 10 
-
-# run python cli.py --feature_extractor
-# feature_extraction
-./feature_extract.sh -p playing_bongo -n 10
-
-# run pyhon cli.py --model_training
-# train
-./cli.sh --epochs 1 --batch_size 4 --model_name 'RegNet_v1'
-
-# run python cli.py --model_deploy
-# model_deployment
-python cli.py --upload
-python cli.py --deploy
-python cli.py --predict
-```
-
-### Kubeflow
+### ML workflow: Kubeflow
 
 <img src='images/kubeflow.png' width='400'>
 
