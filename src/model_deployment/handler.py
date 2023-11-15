@@ -15,9 +15,22 @@ from config import _C as config
 from ts.torch_handler.base_handler import BaseHandler
 from io import BytesIO
 import os
+from moviepy.editor import VideoFileClip
 
 
 TARGET_MODEL_NAME = "traced_regnet_model_test.pth"
+fps = 21.5
+prefix = "playing_bongo"
+t = 0  # trimming from the beginning
+
+temp_video_file = '/home/model-server/temp_video.mp4'
+input_video_path = temp_video_file  # Define this
+test = "giao" # name of user input video
+sr = 22050  # Sample rate for audio
+
+PROCESSED_VIDEO_DIR = f"/home/model-server/processed_data/{prefix}/video_10s_{fps}fps"
+PROCESSED_AUDIO_DIR = f"/home/model-server/processed_data/{prefix}/audio_10s_{sr}hz"
+FEATURE_DIR = f"/home/model-server/features/{prefix}"
 
 class RegNetHandler(BaseHandler):
     """
@@ -54,17 +67,33 @@ class RegNetHandler(BaseHandler):
     def preprocess(self, data):
         # read the video data
         base64_video = data[0].get("data")
-        print(f"input data video bytes: {base64_video}")
+        # print(f"input data video bytes: {base64_video}")
         video_buffer = BytesIO(base64_video)
 
         # save it as a temporary mp4 file
-        temp_video_file = '/home/model-server/temp_video.mp4'
         with open(temp_video_file, 'wb') as f:
             f.write(video_buffer.getbuffer())
 
-        # TODO: start to do the preprocess and feature extraction
+        # start to do the preprocess and feature extraction
+        os.makedirs(PROCESSED_VIDEO_DIR, exist_ok=True)
+        os.makedirs(PROCESSED_AUDIO_DIR, exist_ok=True)
+        os.makedirs(FEATURE_DIR, exist_ok=True)
 
+        # preprocess
+        clip = VideoFileClip(input_video_path)
 
+        output_video_path = os.path.join(PROCESSED_VIDEO_DIR, f'{test}.mp4')
+        output_audio_path = os.path.join(PROCESSED_AUDIO_DIR, f'{test}.wav')
+
+        trimmed_clip = clip.subclip(t, min(t + 10, clip.duration))
+        audio_clip = trimmed_clip.audio
+
+        trimmed_clip.write_videofile(output_video_path, fps=fps, threads=8, logger=None, codec="libx264", audio_codec="aac", ffmpeg_params=['-b:a', '98k'])
+        audio_clip.write_audiofile(output_audio_path, fps=sr, logger=None, ffmpeg_params=['-ac', '1', '-ab', '16k'])
+
+        # feature extractions
+        os.system(f"python extract_rgb_flow.py -i {PROCESSED_VIDEO_DIR} -o {os.path.join(FEATURE_DIR, 'OF_10s_{fps}fps')}")
+        os.system(f"python extract_mel_spectrogram.py -i {PROCESSED_AUDIO_DIR} -o {os.path.join(FEATURE_DIR, 'melspec_10s_{sr}hz')}")
 
 
 
