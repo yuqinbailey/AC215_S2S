@@ -13,6 +13,24 @@ from model import Regnet
 from config import _C as config
 # from wavenet_vocoder import builder
 from ts.torch_handler.base_handler import BaseHandler
+from io import BytesIO
+import os
+from moviepy.editor import VideoFileClip
+
+
+TARGET_MODEL_NAME = "traced_regnet_model_test.pth"
+fps = 21.5
+prefix = "playing_bongo"
+t = 0  # trimming from the beginning
+
+temp_video_file = '/home/model-server/temp_video.mp4'
+input_video_path = temp_video_file  # Define this
+test = "giao" # name of user input video
+sr = 22050  # Sample rate for audio
+
+PROCESSED_VIDEO_DIR = f"/home/model-server/processed_data/{prefix}/video_10s_{fps}fps"
+PROCESSED_AUDIO_DIR = f"/home/model-server/processed_data/{prefix}/audio_10s_{sr}hz"
+FEATURE_DIR = f"/home/model-server/features/{prefix}"
 
 class RegNetHandler(BaseHandler):
     """
@@ -41,41 +59,50 @@ class RegNetHandler(BaseHandler):
             raise RuntimeError("Missing the model.pt or pytorch_model.bin file")
         
         # Load model
-        self.model = torch.jit.load(f"/home/model-server/model/RegNet/traced_regnet_model_test.pth", map_location=self.device)
+        self.model = torch.jit.load(f"/home/model-server/model/RegNet/{TARGET_MODEL_NAME}", map_location=self.device)
         self.model.eval()
         self.initialized = True
-        
-        # Ensure to use the same tokenizer used during training
-        # self.tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
-
-        # Read the mapping file, index to object name
-        # mapping_file_path = os.path.join(model_dir, "index_to_name.json")
-
-        # if os.path.isfile(mapping_file_path):
-        #     with open(mapping_file_path) as f:
-        #         self.mapping = json.load(f)
-        # else:
-        #     logger.warning('Missing the index_to_name.json file. Inference output will not include class name.')
 
 
     def preprocess(self, data):
-        # """ Preprocessing input request by tokenizing
-        #     Extend with your own preprocessing steps as needed
-        # """
-        # text = data[0].get("data")
-        # if text is None:
-        #     text = data[0].get("body")
-        # sentences = text.decode('utf-8')
-        # logger.info("Received text: '%s'", sentences)
+        # read the video data
+        base64_video = data[0].get("data")
+        # print(f"input data video bytes: {base64_video}")
+        video_buffer = BytesIO(base64_video)
 
-        # # Tokenize the texts
-        # tokenizer_args = ((sentences,))
-        # inputs = self.tokenizer(*tokenizer_args,
-        #                         padding='max_length',
-        #                         max_length=128,
-        #                         truncation=True,
-        #                         return_tensors = "pt")
-        
+        # save it as a temporary mp4 file
+        with open(temp_video_file, 'wb') as f:
+            f.write(video_buffer.getbuffer())
+
+        # start to do the preprocess and feature extraction
+        os.makedirs(PROCESSED_VIDEO_DIR, exist_ok=True)
+        os.makedirs(PROCESSED_AUDIO_DIR, exist_ok=True)
+        os.makedirs(FEATURE_DIR, exist_ok=True)
+
+        # preprocess
+        clip = VideoFileClip(input_video_path)
+
+        output_video_path = os.path.join(PROCESSED_VIDEO_DIR, f'{test}.mp4')
+        output_audio_path = os.path.join(PROCESSED_AUDIO_DIR, f'{test}.wav')
+
+        trimmed_clip = clip.subclip(t, min(t + 10, clip.duration))
+        audio_clip = trimmed_clip.audio
+
+        trimmed_clip.write_videofile(output_video_path, fps=fps, threads=8, logger=None, codec="libx264", audio_codec="aac", ffmpeg_params=['-b:a', '98k'])
+        audio_clip.write_audiofile(output_audio_path, fps=sr, logger=None, ffmpeg_params=['-ac', '1', '-ab', '16k'])
+
+        # feature extractions
+        os.system(f"python extract_rgb_flow.py -i {PROCESSED_VIDEO_DIR} -o {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')}")
+        os.system(f"python extract_mel_spectrogram.py -i {PROCESSED_AUDIO_DIR} -o {os.path.join(FEATURE_DIR, f'melspec_10s_{sr}hz')}")
+
+        # Extract RGB features
+        # os.system(f"CUDA_VISIBLE_DEVICES=0 python extract_feature.py  -f {test} -m RGB -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_rgb_bninception_dim1024_{fps}fps')}")
+
+        # Extract Flow features
+        # os.system(f"CUDA_VISIBLE_DEVICES=0 python extract_feature.py  -f {test} -m Flow -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_flow_bninception_dim1024_{fps}fps')}")
+
+
+        # the rest of this part is yet to be deleted
         sequence_length = 215  # number of sequences or frames
         feature_dimension = 2048  # feature dimension per sequence
         mel_features = 80  
@@ -87,8 +114,8 @@ class RegNetHandler(BaseHandler):
         # real_B = torch.tensor(data[1]['data']).reshape(1, 80, 860).to(self.device)
         inputs = dummy_input
         real_B = dummy_realB
-        print(f"preprocess input {inputs}")
-        print(f"preprocess real_B {real_B}")
+        # print(f"preprocess input {inputs}")
+        # print(f"preprocess real_B {real_B}")
         return inputs, real_B
 
 
@@ -96,11 +123,11 @@ class RegNetHandler(BaseHandler):
         # """ Predict the class of a text using a trained transformer model.
         # """
         inputs, real_B = inputs
+        # print(f"inference input {inputs}")
+        # print(f"inference real_B {real_B}")
         # with torch.no_grad():
         #     fake_B, _ = self.model(inputs, real_B)
         # return [fake_B.cpu().numpy()]
-        print(f"inference input {inputs}")
-        print(f"inference real_B {real_B}")
         return ["Testing the inference side - Leo"]
 
     def postprocess(self, inference_output):
