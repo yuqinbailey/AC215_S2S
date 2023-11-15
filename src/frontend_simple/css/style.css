@@ -78,7 +78,7 @@ body, html {
     min-height: 400px; 
     width: 90%; 
     height: auto; 
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 
     /* Position adjustments */
     position: relative; 
@@ -102,4 +102,22 @@ body, html {
 
 #generateButton:hover {
     background-color: #4d6a7d;
+}
+
+
+.svg-container {
+    position: absolute;
+    left: 51.5%; /* Adjust this value */
+    top: 75%; /* Adjust this value */
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+#arrowhead polygon {
+    fill: #2ebede; 
+}
+
+
+.col-6 {
+    z-index: 1;
 }

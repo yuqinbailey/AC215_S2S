@@ -19,3 +19,5 @@ chardet
 charset_normalizer
 protobuf
 moviepy
+google
+pandas

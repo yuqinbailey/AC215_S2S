@@ -19,7 +19,7 @@ docker build -t $IMAGE_NAME --platform=linux/arm64/v8 -f Dockerfile .
 
 # Run the container
 docker run --rm --name $IMAGE_NAME -ti \
--v "$BASE_DIR":/app \
+-v "$BASE_DIR":/app 
 -v "$SECRETS_DIR":/secrets \
 -v "$PERSISTENT_DIR":/persistent \
 -p 9000:9000 \
