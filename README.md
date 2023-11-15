@@ -1,7 +1,7 @@
 Silence to Sound: Generate Visually Aligned Sound for Videos
 ==============================
 
-AC215 - Milestone4
+AC215 - Milestone5
 
 Project Organization
 ------------
@@ -21,39 +21,36 @@ Project Organization
             │   ├── pipeline.yaml
             │   ├── model.py
             │   └── cli.py
-            ├── data_collection
-            │   ├── Dockerfile
-            │   ├── ...
-            │   ├── collect_single.py
-            │   └── collect_mp.py          <- multi-processing
-            ├── data_preprocessing
-            │   ├── Dockerfile
-            │   ├── ...
-            │   └── preprocess.py
-            ├── feature_extraction
-            │   ├── Dockerfile
-            │   ├── ...
-            │   └── feature_extract.sh
-            ├── train
-            │   ├── Dockerfile
-            │   ├── ...
+            ├── data_collection            <- Scripts for dataset creation
+            │   └── ...
+            ├── data_preprocessing         <- Code for data processing
+            │   └── ...
+            ├── feature_extraction         <- Code for video feature extracion
+            │   └── ...
+            ├── train                      <- Model training, evaluation, and prediction code
             │   ├── package
-            │   │   ├── trainer            <- source code of regnet
+            │   │   ├── trainer
             │   │   ├── PKG-INFO
             │   │   └── setup.py
-            │   ├── package-trainer.sh
-            │   ├── cli.sh
-            └── model_deployment
+            │   └── ...
+            ├── model_deployment           <- Model deployment
+            │   ├── wavenet_vocoder
+            │   └── ...
+            ├── api_service                <- Code for App backend APIs
+            │   ├── api
+            │   ├── Dockerfile
+            │   ├── docker-entrypoint.sh
+            │   ├── docker-shell.sh
+            │   ├── Pipfile
+            │   └── Pipfile.lock
+            └── frontend_simple            <- Code for App frontend
+                ├── js
+                ├── index.html
                 ├── Dockerfile
-                ├── requirments.txt
-                ├── ...
-                ├── wavenet_vocoder
-                ├── model.py
-                └── cli.py
-
+                └── docker-shell.sh
 
 **GCP Bucket** 
-`s2s_data`
+`s2s_data_new`
 ```
   ├── vggsound.csv
   ├── raw_data                <- raw data scraped from youtube
@@ -71,7 +68,7 @@ Project Organization
 
 
 --------
-# AC215 - Milestone4 - Silence to Sound
+# AC215 - Milestone5 - Silence to Sound
 
 **Team Members**
 Yuqin (Bailey) Bai, Danning (Danni) Lai, Tiantong Li, Yujan Ting, Yong Zhang, and Hanlin Zhu
@@ -84,7 +81,7 @@ S2S (*Silence to Sound*)
 We aim to develop an application that generates ambient sounds from images or silent videos leveraging computer vision and multimodal models. Our goal is to enrich the general user experience by creating a harmonized visual-audio ecosystem, and facilitate immersive multimedia interactions for individuals with visual impairments.
 
 
-## Milestone4
+## Milestone5
 ![pipeline](images/mega_pipeline.jpg)
 
 ```shell
@@ -129,66 +126,16 @@ python cli.py --predict
 
 <img src='images/kubeflow.png' width='400'>
 
-### Training container
-This container is created for modeling training using Vertex AI. 
 
 **RegNet Model** [<sup>[2]</sup>](references/README.md#2)
 
 ![](images/regnet_chen_etal_2020.png)
 
 
-#### **Quantization**
-We employ **quantization aware training**, which is often better for model accuracy compared to post-training quantization.
-This reduces model size and will enable deployment in resource-constrained environments.
+### App backend API container
 
 
-#### **Experiment Tracking**
-
-Below you can see the output from our Weights & Biases page and the loss is decreasing. We used this tool to track several iterations of our model training. It was tracked using the `wandb` library we included inside of our `cli.sh` script.
-
-<img src='images/wandb_charts.png' width='400'>
-
-
-#### **Serverless Training**
-
-Inside our training container, we used the Google Cloud SDK to launch training instances in the cloud. In the image below, you can see several runs of our model.
-
-![vertex ai runs](images/vertex_ai_runs.png)
-
-To create a new serverless job we did the following commands - 
-
-* First, navigate to `src/train` directory.
-* Run the train container with `sh docker-shell.sh`.
-* Inside the container, run
-  ```shell
-  /app$ sh package-trainer.sh  # generate train.tar.gz
-  /app$ sh cli.sh              # submit the job to vertex ai
-  ```
-
-  ![running train docker screenshot](images/running_train_container.png)
-
-
-### Model deployment container
-To deploy our PyTorch model on Vertex AI, inside `src/model_deployment` directory - 
-
-```shell
-python cli.py --upload
-```
-* Download the trained model artifacts from GCS `gs://s2s_data/model/`.
-* Combine RegNet & WaveNet and create a custom model handler to handle prediction requests.
-```shell
-./docker-shell_pred.sh
-```
-* Create custom container image with TorchServe to serve predictions.
-* Build and push the custom container image to artifact registry: 
-`us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet`.
-```shell
-python cli.py --deploy
-```
-* Deploying the serving container to Vertex Endpoint:
-  * Upload model to Vertex AI.
-  * Create endpoint.
-  * Deploy the model to endpoint.
+### App frontend container
 
 
 ### Docker cleanup
