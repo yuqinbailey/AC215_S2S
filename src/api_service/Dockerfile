@@ -20,6 +20,7 @@ ENV PYTHONUNBUFFERED=1
 # create a user so we don't run the app as root
 RUN set -ex; \
     for i in $(seq 1 8); do mkdir -p "/usr/share/man/man${i}"; done && \
+    apt-get clean && \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends $DEBIAN_PACKAGES && \

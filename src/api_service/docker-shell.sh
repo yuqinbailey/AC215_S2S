@@ -2,16 +2,18 @@
 
 # exit immediately if a command exits with a non-zero status
 set -e
+set -x
 
 # Define some environment variables
-export IMAGE_NAME="s2s-app-api-service"
+export IMAGE_NAME="mushroom-app-api-service"
 export BASE_DIR=$(pwd)
 export SECRETS_DIR=$(pwd)/../secrets/
-export PERSISTENT_DIR=$(pwd)/../../persistent-folder/
-export GCS_BUCKET_NAME="s2s_data_new"
+export PERSISTENT_DIR=$(pwd)/../persistent-folder/
+export GCS_BUCKET_NAME="mushroom-app-models"
 
 # Build the image based on the Dockerfile
-#docker build -t $IMAGE_NAME -f Dockerfile .
+# docker build -t $IMAGE_NAME -f Dockerfile .
+
 # M1/2 chip macs use this line
 docker build -t $IMAGE_NAME --platform=linux/arm64/v8 -f Dockerfile .
 

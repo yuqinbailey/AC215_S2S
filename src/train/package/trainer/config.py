@@ -3,19 +3,16 @@ from yacs.config import CfgNode as CN
 
 
 _C  =  CN()
-_C.BASE_DATA_PATH = "/gcs/s2s_data/"
-# _C.epochs = 1000
-# _C.epochs = 50
-# _C.num_epoch_save = 10
-_C.epochs = 2
-_C.num_epoch_save = 2
+_C.BASE_DATA_PATH = "/gcs/s2s_data_new/"
+_C.epochs = 100
+_C.num_epoch_save = 10
 _C.seed = 123
 _C.dynamic_loss_scaling = True
 _C.dist_backend = "nccl"
 _C.dist_url = "tcp://localhost:54321"
 _C.cudnn_enabled = True
 _C.cudnn_benchmark = False
-_C.save_dir = _C.BASE_DATA_PATH + 'ckpt/processed_data/'
+_C.save_dir = _C.BASE_DATA_PATH + 'ckpt/bongo/'
 _C.checkpoint_path = ''
 # _C.checkpoint_path = 'ckpt/processed_data/checkpoint_041000'
 _C.epoch_count = 0
@@ -64,7 +61,7 @@ _C.loss_type = "MSE"
 _C.weight_decay = 1e-6
 _C.grad_clip_thresh = 1.0
 # _C.batch_size = 64
-_C.batch_size = 4
+_C.batch_size = 16
 _C.lr = 0.0002
 _C.beta1 = 0.5
 _C.continue_train = False
