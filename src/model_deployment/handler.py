@@ -8,10 +8,28 @@ import numpy as np
 import base64
 import torch
 from tqdm import tqdm
-
+import sys
 from model import Regnet
 from config import _C as config
-# from wavenet_vocoder import builder
+
+package_path = '/home/model-server/wavenet_vocoder'
+sys.path.insert(0, package_path)
+
+# os.system(f"pip install /home/model-server/wavenet_vocoder")
+print("*" * 50)
+os.system(f"pwd")
+# Get the absolute path of the current file
+current_file_path = os.path.abspath(__file__)
+
+# Get the directory name of the current file
+current_directory = os.path.dirname(current_file_path)
+print(current_directory)
+print("*" * 50)
+
+os.system(f"tar -xvf tsn.tar -C {current_directory}")
+os.system(f"tar -xvf wavenet_vocoder.tar -C {current_directory}")
+
+from wavenet_vocoder import builder
 from ts.torch_handler.base_handler import BaseHandler
 from io import BytesIO
 import os
@@ -90,13 +108,23 @@ class RegNetHandler(BaseHandler):
 
         trimmed_clip.write_videofile(output_video_path, fps=fps, threads=8, logger=None, codec="libx264", audio_codec="aac", ffmpeg_params=['-b:a', '98k'])
         audio_clip.write_audiofile(output_audio_path, fps=sr, logger=None, ffmpeg_params=['-ac', '1', '-ab', '16k'])
+        
+        print("*" * 50)
+        os.system(f"pwd")
+        # Get the absolute path of the current file
+        current_file_path = os.path.abspath(__file__)
+
+        # Get the directory name of the current file
+        current_directory = os.path.dirname(current_file_path)
+        print(current_directory)
+        print("*" * 50)
 
         # feature extractions
         os.system(f"python extract_rgb_flow.py -i {PROCESSED_VIDEO_DIR} -o {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')}")
         os.system(f"python extract_mel_spectrogram.py -i {PROCESSED_AUDIO_DIR} -o {os.path.join(FEATURE_DIR, f'melspec_10s_{sr}hz')}")
 
         # Extract RGB features
-        # os.system(f"CUDA_VISIBLE_DEVICES=0 python extract_feature.py  -f {test} -m RGB -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_rgb_bninception_dim1024_{fps}fps')}")
+        os.system(f"CUDA_VISIBLE_DEVICES=0 python extract_feature.py  -f {test} -m RGB -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_rgb_bninception_dim1024_{fps}fps')}")
 
         # Extract Flow features
         # os.system(f"CUDA_VISIBLE_DEVICES=0 python extract_feature.py  -f {test} -m Flow -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_flow_bninception_dim1024_{fps}fps')}")

@@ -17,13 +17,17 @@ COPY . /home/model-server/
 COPY ./extract_feature.py /home/model-server/
 COPY ./extract_mel_spectrogram.py /home/model-server/
 COPY ./extract_rgb_flow.py /home/model-server/
+COPY ./tsn.tar /home/model-server/
+COPY ./wavenet_vocoder.tar /home/model-server/
+COPY ./extract_rgb_flow.py /home/model-server/
+COPY ./wavenet_vocoder/ /home/model-server/wavenet_vocoder/
 WORKDIR /home/model-server/
 
 USER root
 
 # ENV PYTHONPATH="${PYTHONPATH}:/home/model-server/wavenet_vocoder"
-# COPY wavenet_vocoder wavenet_vocoder
-RUN pip install /home/model-server/wavenet_vocoder
+# # COPY wavenet_vocoder wavenet_vocoder
+# RUN pip install /home/model-server/wavenet_vocoder
 
 # Create TorchServe configuration
 RUN printf "\nservice_envelope=json" >> /home/model-server/config.properties
@@ -66,7 +70,7 @@ RUN torch-model-archiver -f \
   --version=1.0 \
   --serialized-file=/home/model-server/model/RegNet/traced_regnet_model_test.pth \
   --handler=/home/model-server/handler.py \
-  --extra-files /home/model-server/config.py,/home/model-server/criterion.py,/home/model-server/model.py,/home/model-server/wavenet_vocoder/__init__.py,/home/model-server/wavenet_vocoder/builder.py,/home/model-server/wavenet_vocoder/conv.py,/home/model-server/wavenet_vocoder/mixture.py,/home/model-server/wavenet_vocoder/modules.py,/home/model-server/wavenet_vocoder/util.py,/home/model-server/wavenet_vocoder/wavenet.py,/home/model-server/extract_feature.py,/home/model-server/extract_mel_spectrogram.py,/home/model-server/extract_rgb_flow.py \
+  --extra-files /home/model-server/config.py,/home/model-server/criterion.py,/home/model-server/model.py,/home/model-server/wavenet_vocoder/__init__.py,/home/model-server/wavenet_vocoder/builder.py,/home/model-server/wavenet_vocoder/conv.py,/home/model-server/wavenet_vocoder/mixture.py,/home/model-server/wavenet_vocoder/modules.py,/home/model-server/wavenet_vocoder/util.py,/home/model-server/wavenet_vocoder/wavenet.py,/home/model-server/extract_feature.py,/home/model-server/extract_mel_spectrogram.py,/home/model-server/extract_rgb_flow.py,/home/model-server/tsn.tar,/home/model-server/wavenet_vocoder.tar  \
   --export-path=/home/model-server/model-store
 
 # Start TorchServe
