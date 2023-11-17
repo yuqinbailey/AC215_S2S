@@ -219,7 +219,7 @@ def main(args=None):
         # print("endpoint:", endpoint)
 
         VERSION = 1
-        CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/regnet_deploy"
+        CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet:latest"
         APP_NAME = "regnet"
         model_display_name = f"{APP_NAME}-v{VERSION}"
         model_description = "PyTorch based regnet with custom container"
@@ -272,6 +272,7 @@ def main(args=None):
         # Endpoint format: endpoint_name="projects/{PROJECT_NUMBER}/locations/us-central1/endpoints/{ENDPOINT_ID}"
         endpoint = aiplatform.Endpoint(
             "projects/634116577723/locations/us-central1/endpoints/8245758865203789824"
+            # projects/634116577723/locations/us-east1/endpoints/8690144081755504640
         )
 
         # Get a sample image to predict
