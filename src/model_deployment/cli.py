@@ -219,7 +219,7 @@ def main(args=None):
         # print("endpoint:", endpoint)
 
         VERSION = 1
-        CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/regnet_deploy_gpu"
+        CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/regnet_deploy"
         APP_NAME = "regnet"
         model_display_name = f"{APP_NAME}-v{VERSION}"
         model_description = "PyTorch based regnet with custom container"
