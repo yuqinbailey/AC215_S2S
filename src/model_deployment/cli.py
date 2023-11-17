@@ -271,36 +271,54 @@ def main(args=None):
         # Get the endpoint
         # Endpoint format: endpoint_name="projects/{PROJECT_NUMBER}/locations/us-central1/endpoints/{ENDPOINT_ID}"
         endpoint = aiplatform.Endpoint(
-            "projects/634116577723/locations/us-central1/endpoints/8245758865203789824"
+            "projects/634116577723/locations/us-east1/endpoints/4149389757459202048"
             # projects/634116577723/locations/us-east1/endpoints/8690144081755504640
         )
 
-        # Get a sample image to predict
-        batch_size = 4
-        sequence_length = 215  # number of sequences or frames
-        feature_dimension = 2048  # feature dimension per sequence
-        mel_features = 80  
-        time_steps = 860
-        dummy_input = torch.rand(1, sequence_length, feature_dimension)
-        dummy_realB = torch.rand(1, mel_features, time_steps)
+    #     # Get a sample image to predict
+    #     batch_size = 4
+    #     sequence_length = 215  # number of sequences or frames
+    #     feature_dimension = 2048  # feature dimension per sequence
+    #     mel_features = 80  
+    #     time_steps = 860
+    #     dummy_input = torch.rand(1, sequence_length, feature_dimension)
+    #     dummy_realB = torch.rand(1, mel_features, time_steps)
 
-       # Convert the PyTorch tensor to numpy array
-        dummy_input_np = dummy_input.cpu().numpy()  # Make sure to add this line
-        dummy_realB_np = dummy_realB.cpu().numpy()  # And this line to convert tensors to numpy arrays
+    #    # Convert the PyTorch tensor to numpy array
+    #     dummy_input_np = dummy_input.cpu().numpy()  # Make sure to add this line
+    #     dummy_realB_np = dummy_realB.cpu().numpy()  # And this line to convert tensors to numpy arrays
 
-        # Convert numpy arrays to base64 encoded bytes
-        dummy_input_b64 = base64.b64encode(dummy_input_np.tobytes()).decode('utf-8')
-        dummy_realB_b64 = base64.b64encode(dummy_realB_np.tobytes()).decode('utf-8')
+    #     # Convert numpy arrays to base64 encoded bytes
+    #     dummy_input_b64 = base64.b64encode(dummy_input_np.tobytes()).decode('utf-8')
+    #     dummy_realB_b64 = base64.b64encode(dummy_realB_np.tobytes()).decode('utf-8')
 
-        # Make sure to provide the base64 strings in the format that your model expects
-        instances = (dummy_input_b64, dummy_realB_b64)
+    #     # Make sure to provide the base64 strings in the format that your model expects
+    #     instances = (dummy_input_b64, dummy_realB_b64)
 
-        # Make a prediction
-        result = endpoint.predict(instances=instances)
-        # The format of each instance should conform to the deployed model's prediction input schema.
-        # instances = [(dummy_input, dummy_realB)]
+    #     # Make a prediction
+    #     result = endpoint.predict(instances=instances)
+    #     # The format of each instance should conform to the deployed model's prediction input schema.
+    #     # instances = [(dummy_input, dummy_realB)]
 
-        print("Result:", result)
+    #     print("Result:", result)
+
+
+        with open('input_payload.json', 'r') as file:
+            # Parse JSON content from file
+            json_dict = json.load(file)
+
+        # instance = [{
+        #     "data": {
+        #         "b64": str(b64_encoded.decode('utf-8'))
+        #     }
+        # }]
+        instance = json_dict["instances"]
+        # print(instance)
+
+        print(f"Start the prediction...")
+        print(f"Waiting for the response...")
+        prediction = endpoint.predict(instances=instance, timeout=1000000)
+        print(f"Prediction response: \n\t{prediction}")
 
 
 if __name__ == "__main__":

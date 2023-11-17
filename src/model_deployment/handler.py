@@ -121,10 +121,20 @@ class RegNetHandler(BaseHandler):
 
         # feature extractions
         os.system(f"python extract_rgb_flow.py -i {PROCESSED_VIDEO_DIR} -o {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')}")
+        print("*" * 50)
+        print("Finished extract_rgb_flow")
+        print("*" * 50)
+        
         os.system(f"python extract_mel_spectrogram.py -i {PROCESSED_AUDIO_DIR} -o {os.path.join(FEATURE_DIR, f'melspec_10s_{sr}hz')}")
+        print("*" * 50)
+        print("Finished extract_mel_spectrogram")
+        print("*" * 50)
 
         # Extract RGB features
         os.system(f"CUDA_VISIBLE_DEVICES=0 python extract_feature.py  -f {test} -m RGB -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_rgb_bninception_dim1024_{fps}fps')}")
+        print("*" * 50)
+        print("Finished extract_feature RGB")
+        print("*" * 50)
 
         # Extract Flow features
         # os.system(f"CUDA_VISIBLE_DEVICES=0 python extract_feature.py  -f {test} -m Flow -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_flow_bninception_dim1024_{fps}fps')}")
