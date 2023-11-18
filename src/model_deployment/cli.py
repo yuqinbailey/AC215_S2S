@@ -271,7 +271,7 @@ def main(args=None):
         # Get the endpoint
         # Endpoint format: endpoint_name="projects/{PROJECT_NUMBER}/locations/us-central1/endpoints/{ENDPOINT_ID}"
         endpoint = aiplatform.Endpoint(
-            "projects/634116577723/locations/us-east1/endpoints/4149389757459202048"
+            "projects/634116577723/locations/us-east1/endpoints/8049507034762051584"
             # projects/634116577723/locations/us-east1/endpoints/8690144081755504640
         )
 
