@@ -29,6 +29,11 @@ from torchvision import transforms
 from PIL import Image
 from io import BytesIO
 
+from google.api_core.future.polling import DEFAULT_POLLING
+
+### Set the default timeoutto 3600 seconds
+DEFAULT_POLLING._timeout = 3600
+
 # # W&B
 # import wandb
 # GCP_PROJECT = os.environ["GCP_PROJECT"]
@@ -61,7 +66,7 @@ credentials = service_account.Credentials.from_service_account_info(
     scopes=["https://www.googleapis.com/auth/cloud-platform"],
 )
 
-aiplatform.init(project=GCP_PROJECT, credentials=credentials, location='us-east1')
+aiplatform.init(project=GCP_PROJECT, credentials=credentials, location='us-central1')
 
 ########################################################################
 
@@ -219,7 +224,9 @@ def main(args=None):
         # print("endpoint:", endpoint)
 
         VERSION = 1
-        CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet:latest"
+        CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet:cc"
+        # CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet:latest"
+
         APP_NAME = "regnet"
         model_display_name = f"{APP_NAME}-v{VERSION}"
         model_description = "PyTorch based regnet with custom container"
@@ -248,10 +255,12 @@ def main(args=None):
         endpoint = aiplatform.Endpoint.create(display_name=endpoint_display_name)
 
         traffic_percentage = 100
-        machine_type = "n1-standard-4"
+        machine_type = "n1-standard-2"
         deployed_model_display_name = model_display_name
         min_replica_count = 1
-        max_replica_count = 3
+        max_replica_count = 1
+        accelerator_type = "NVIDIA_TESLA_T4"  # Example accelerator type
+        accelerator_count = 1  # Number of accelerators per machine
         sync = True
 
         model.deploy(
@@ -259,7 +268,13 @@ def main(args=None):
             deployed_model_display_name=deployed_model_display_name,
             machine_type=machine_type,
             traffic_percentage=traffic_percentage,
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
             sync=sync,
+            deploy_request_timeout=100000000,
+            enable_access_logging=True,
         )
 
         print("Successfully deployed the model")
@@ -271,8 +286,7 @@ def main(args=None):
         # Get the endpoint
         # Endpoint format: endpoint_name="projects/{PROJECT_NUMBER}/locations/us-central1/endpoints/{ENDPOINT_ID}"
         endpoint = aiplatform.Endpoint(
-            "projects/634116577723/locations/us-east1/endpoints/4149389757459202048"
-            # projects/634116577723/locations/us-east1/endpoints/8690144081755504640
+            "projects/634116577723/locations/us-central1/endpoints/5891115131902885888"
         )
 
     #     # Get a sample image to predict
@@ -317,7 +331,7 @@ def main(args=None):
 
         print(f"Start the prediction...")
         print(f"Waiting for the response...")
-        prediction = endpoint.predict(instances=instance, timeout=1000000)
+        prediction = endpoint.predict(instances=instance, timeout=100000000)
         print(f"Prediction response: \n\t{prediction}")
 
 

@@ -83,6 +83,9 @@ class RegNetHandler(BaseHandler):
 
 
     def preprocess(self, data):
+        print("-" * 50)
+        print("CHECKPOINT 1")
+        print("-" * 50)
         # read the video data
         base64_video = data[0].get("data")
         # print(f"input data video bytes: {base64_video}")
@@ -97,17 +100,29 @@ class RegNetHandler(BaseHandler):
         os.makedirs(PROCESSED_AUDIO_DIR, exist_ok=True)
         os.makedirs(FEATURE_DIR, exist_ok=True)
 
+        print("-" * 50)
+        print("CHECKPOINT 2")
+        print("-" * 50)
+
         # preprocess
         clip = VideoFileClip(input_video_path)
 
         output_video_path = os.path.join(PROCESSED_VIDEO_DIR, f'{test}.mp4')
         output_audio_path = os.path.join(PROCESSED_AUDIO_DIR, f'{test}.wav')
 
+        print("-" * 50)
+        print("CHECKPOINT 3")
+        print("-" * 50)
+
         trimmed_clip = clip.subclip(t, min(t + 10, clip.duration))
         audio_clip = trimmed_clip.audio
 
         trimmed_clip.write_videofile(output_video_path, fps=fps, threads=8, logger=None, codec="libx264", audio_codec="aac", ffmpeg_params=['-b:a', '98k'])
         audio_clip.write_audiofile(output_audio_path, fps=sr, logger=None, ffmpeg_params=['-ac', '1', '-ab', '16k'])
+
+        print("-" * 50)
+        print("CHECKPOINT 4")
+        print("-" * 50)
         
         print("*" * 50)
         os.system(f"pwd")
