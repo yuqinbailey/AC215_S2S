@@ -224,7 +224,9 @@ def main(args=None):
         # print("endpoint:", endpoint)
 
         VERSION = 1
-        CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet:latest"
+        CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet:cc"
+        # CUSTOM_PREDICTOR_IMAGE_URI = "us-central1-docker.pkg.dev/ac215project-398818/gcf-artifacts/pytorch_predict_regnet:latest"
+
         APP_NAME = "regnet"
         model_display_name = f"{APP_NAME}-v{VERSION}"
         model_description = "PyTorch based regnet with custom container"
@@ -284,7 +286,7 @@ def main(args=None):
         # Get the endpoint
         # Endpoint format: endpoint_name="projects/{PROJECT_NUMBER}/locations/us-central1/endpoints/{ENDPOINT_ID}"
         endpoint = aiplatform.Endpoint(
-            "projects/634116577723/locations/us-central1/endpoints/1749210849605582848"
+            "projects/634116577723/locations/us-central1/endpoints/5891115131902885888"
         )
 
     #     # Get a sample image to predict
@@ -329,7 +331,7 @@ def main(args=None):
 
         print(f"Start the prediction...")
         print(f"Waiting for the response...")
-        prediction = endpoint.predict(instances=instance, timeout=1000000)
+        prediction = endpoint.predict(instances=instance, timeout=100000000)
         print(f"Prediction response: \n\t{prediction}")
 
 
