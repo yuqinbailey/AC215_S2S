@@ -1,5 +1,6 @@
 # Use the official Debian-hosted Python image
 FROM python:3.9-slim-buster
+# FROM pytorch/pytorch:latest
 
 ARG DEBIAN_PACKAGES="build-essential git"
 

@@ -65,7 +65,7 @@ def test_model():
     torch.manual_seed(config.seed)
     torch.cuda.manual_seed(config.seed)
     model = Regnet()
-    valset = RegnetLoader(config.test_files)
+    valset = RegnetLoader(args.test_name)
     print(len(valset))
     test_loader = DataLoader(valset, num_workers=4, shuffle=False,
                              batch_size=config.batch_size, pin_memory=False)
@@ -110,6 +110,7 @@ if __name__ == '__main__':
     # parser.add_argument('-c', '--config_file', type=str, default='',
     #                     help='file for configuration')
     parser.add_argument("--pretrained_regnet_path", type=str, default="", help="Path to the pretrained model")
+    parser.add_argument("--test_name", type=str, default="", help="id of test video")
     # parser.add_argument("opts", default=None, nargs=argparse.REMAINDER)
     args = parser.parse_args()
 

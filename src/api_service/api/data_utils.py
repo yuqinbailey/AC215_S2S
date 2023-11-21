@@ -12,13 +12,14 @@ class RegnetLoader(torch.utils.data.Dataset):
     loads image, flow feature, mel-spectrogramsfiles
     """
 
-    def __init__(self, list_file, max_sample=-1):
+    def __init__(self, test_name, max_sample=-1):
         self.video_samples = config.video_samples
         self.audio_samples = config.audio_samples
         self.mel_samples = config.mel_samples
 
-        with open(list_file, encoding='utf-8') as f:
-            self.video_ids = [line.strip() for line in f]
+        self.video_ids = [test_name]
+        # with open(list_file, encoding='utf-8') as f:
+        #     self.video_ids = [line.strip() for line in f]
 
     def get_feature_mel_pair(self, video_id):
         im_path = os.path.join(config.rgb_feature_dir, video_id+".pkl")
