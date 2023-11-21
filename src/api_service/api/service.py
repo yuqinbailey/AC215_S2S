@@ -6,7 +6,7 @@ import pandas as pd
 import os
 from fastapi import File
 from tempfile import TemporaryDirectory
-# from api import model
+from api import api_model
 
 # Initialize Tracker Service
 # tracker_service = TrackerService()
@@ -72,7 +72,7 @@ async def predict(file: bytes = File(...)):
 
         # # Make prediction
         prediction_results = {}
-        # prediction_results = model.make_prediction_vertexai(image_path)
+        prediction_results = api_model.make_prediction(video_path)
 
     print(prediction_results)
     return prediction_results

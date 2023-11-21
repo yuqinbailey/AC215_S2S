@@ -5,11 +5,11 @@ set -e
 set -x
 
 # Define some environment variables
-export IMAGE_NAME="mushroom-app-api-service"
+export IMAGE_NAME="s2s-api-service"
 export BASE_DIR=$(pwd)
-export SECRETS_DIR=$(pwd)/../secrets/
-export PERSISTENT_DIR=$(pwd)/../persistent-folder/
-export GCS_BUCKET_NAME="mushroom-app-models"
+export SECRETS_DIR=$(pwd)/../../secrets/
+export PERSISTENT_DIR=$(pwd)/../../persistent-folder/
+export GCS_BUCKET_NAME="s2s_data_new"
 
 # Build the image based on the Dockerfile
 # docker build -t $IMAGE_NAME -f Dockerfile .
@@ -18,12 +18,14 @@ export GCS_BUCKET_NAME="mushroom-app-models"
 docker build -t $IMAGE_NAME --platform=linux/arm64/v8 -f Dockerfile .
 
 # Run the container
-docker run --rm --name $IMAGE_NAME -ti \
--v "$BASE_DIR":/app 
+# Frank
+docker run --rm --name frank_test -ti \
+-v "$BASE_DIR":/app \
 -v "$SECRETS_DIR":/secrets \
 -v "$PERSISTENT_DIR":/persistent \
 -p 9000:9000 \
 -e DEV=1 \
 -e GOOGLE_APPLICATION_CREDENTIALS=/secrets/ml-workflow.json \
 -e GCS_BUCKET_NAME=$GCS_BUCKET_NAME \
+--entrypoint /bin/bash \
 $IMAGE_NAME
