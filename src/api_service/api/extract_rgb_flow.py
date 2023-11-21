@@ -30,26 +30,26 @@ def cal_for_frames(video_path, output_dir, width, height):
         num += 1
     if num < 215:
         print(video_path)
-    
+
 def compute_TVL1(prev, curr, bound=20):
     """Compute the TV-L1 optical flow."""
     TVL1 = cv2.optflow.DualTVL1OpticalFlow_create()
     flow = TVL1.calc(prev, curr, None)
-    flow[flow>bound]=bound
-    flow[flow<-bound]=-bound
-    flow-=-bound
-    flow*=(255/float(2*bound))
+    flow[flow > bound] = bound
+    flow[flow < -bound] = -bound
+    flow -= -bound
+    flow *= (255 / float(2 * bound))
     return flow
- 
-if __name__ == '__main__':
-    paser = argparse.ArgumentParser()
-    paser.add_argument("-i", "--input_dir", default="data/features/dog/videos_10s_21.5fps")
-    paser.add_argument("-o", "--output_dir", default="data/features/dog/OF_10s_21.5fps")
-    paser.add_argument("-w", "--width", type=int, default=340)
-    paser.add_argument("-g", "--height", type=int, default=256)
-    paser.add_argument("-n", '--num_worker', type=int, default=16)
 
-    args = paser.parse_args()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--input_dir", default="data/features/dog/videos_10s_21.5fps")
+    parser.add_argument("-o", "--output_dir", default="data/features/dog/OF_10s_21.5fps")
+    parser.add_argument("-w", "--width", type=int, default=340)
+    parser.add_argument("-g", "--height", type=int, default=256)
+    parser.add_argument("-n", '--num_worker', type=int, default=16)
+
+    args = parser.parse_args()
     input_dir = args.input_dir
     output_dir = args.output_dir
     width = args.width
@@ -58,5 +58,5 @@ if __name__ == '__main__':
     video_paths = glob(P.join(input_dir, "*.mp4"))
     video_paths.sort()
     with Pool(args.num_worker) as p:
-        p.map(partial(cal_for_frames, output_dir=output_dir, 
-                    width=width, height=height), video_paths)
+        p.map(partial(cal_for_frames, output_dir=output_dir,
+                       width=width, height=height), video_paths)
