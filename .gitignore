@@ -130,7 +130,10 @@ dmypy.json
 
 .DS_Store
 # secrets/
-src/validation/.git/
+**/secrets/
+src/secrets/
+
+**.tar.gz
 *.mp4
 *.wav
 
@@ -142,14 +145,14 @@ src/train/package/trainer/README.md
 src/train/trainer.tar.gz
 
 # deploy dir
-src/model-deployment/ckpt/
-src/model-deployment/data/
-src/model-deployment/images/
-src/model-deployment/model/
-src/model-deployment/Pipfile
-src/model-deployment/Pipfile.lock
-src/model-deployment/Pipfile.lock.amd
-src/model-deployment/Pipfile.lock.arm
-src/model-deployment/docker-entrypoint.sh
+src/model_deployment/ckpt/
+src/model_deployment/data/
+src/model_deployment/images/
+src/model_deployment/model/
+src/model_deployment/Pipfile
+src/model_deployment/Pipfile.lock
+src/model_deployment/Pipfile.lock.amd
+src/model_deployment/Pipfile.lock.arm
+src/model_deployment/docker-entrypoint.sh
 
-
+persistent_folder/

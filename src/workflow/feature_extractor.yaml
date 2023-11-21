@@ -1,0 +1,29 @@
+# PIPELINE DEFINITION
+# Name: feature-extractor-pipeline
+components:
+  comp-feature-extractor:
+    executorLabel: exec-feature-extractor
+deploymentSpec:
+  executors:
+    exec-feature-extractor:
+      container:
+        args:
+        - ./feature_extract.sh
+        - -p
+        - playing_bongo
+        - -n 1
+        image: lildanni/feature-extraction
+pipelineInfo:
+  name: feature-extractor-pipeline
+root:
+  dag:
+    tasks:
+      feature-extractor:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-feature-extractor
+        taskInfo:
+          name: feature-extractor
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.3.0

@@ -1,4 +1,4 @@
-# Start with an official PyTorch base image
+# Start with a base image
 FROM pytorch/pytorch:1.2-cuda10.0-cudnn7-runtime
 
 # Set environment variables for non-interactive mode
@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
     wget && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Create a new Conda environment and install packages
+# Now proceed with conda installations and the rest of your Dockerfile
 RUN conda create -n myenv python=3.7.2 && \
     conda install -n myenv -c conda-forge ffmpeg && \
     conda clean -a -y
@@ -36,10 +36,16 @@ RUN wget http://es.archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi7_3.3-4
 RUN conda install -n myenv -y pytorch==1.9 torchvision torchaudio cudatoolkit=11.1 -c pytorch -c nvidia && \
     conda clean -a -y
 
+# Copy the entrypoint script into the image
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+# Set permissions for the entrypoint script
+RUN chmod +x /docker-entrypoint.sh
+
 # Set working directory and copy app contents
 COPY . /app
 WORKDIR /app
 
-# Initialize conda for bash and activate environment
-RUN conda init bash && \
-    echo "conda activate myenv" >> ~/.bashrc
+# Set the entrypoint script as the ENTRYPOINT
+ENTRYPOINT ["/bin/bash", "./docker-entrypoint.sh"]
+

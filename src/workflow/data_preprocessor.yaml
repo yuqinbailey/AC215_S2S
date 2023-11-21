@@ -1,0 +1,28 @@
+# PIPELINE DEFINITION
+# Name: data-preprocessor-pipeline
+components:
+  comp-data-preprocessor:
+    executorLabel: exec-data-preprocessor
+deploymentSpec:
+  executors:
+    exec-data-preprocessor:
+      container:
+        args:
+        - cli.py
+        - -p playing_bongo
+        - -n 10
+        image: lildanni/data-preprocessing
+pipelineInfo:
+  name: data-preprocessor-pipeline
+root:
+  dag:
+    tasks:
+      data-preprocessor:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-data-preprocessor
+        taskInfo:
+          name: data-preprocessor
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.3.0

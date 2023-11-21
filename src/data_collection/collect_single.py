@@ -55,7 +55,8 @@ def main(args):
     blob = bucket.blob(vggsound_file)
     blob.download_to_filename(blob.name)
 
-    target_topic = args.target_topic
+    target_topic = str(args.target_topic)
+    target_topic = target_topic.replace("_", " ")
 
     vggsound = pd.read_csv(vggsound_file, header=None)
     vggsound.columns = ['video_id', 'start_time', 'topic', "dataset"]
@@ -63,8 +64,19 @@ def main(args):
     relevant_ids = get_relevant_videos(target_topic, vggsound)
     target_topic = target_topic.replace(" ", "_")
     print(f"[INFO] The num of videos for topic {target_topic} is {len(relevant_ids)} ")
+
+
+    # sanity check for existing folder in GCP bucket
+    directory_path = raw_data + "/" + target_topic
+    directory_path = directory_path.rstrip('/') + '/'
+    blobs = bucket.list_blobs(prefix=directory_path, delimiter='/')
+
+    for blob in blobs:
+        print(f"[INFO] Found existing folder named with {target_topic}.")
+        print("[INFO] Ends the program directly.")
+        return
     
-    # # Use ThreadPoolExecutor to download videos concurrently
+    # Use ThreadPoolExecutor to download videos concurrently
     num_workers = args.num_workers
     print(f"The number of workers: {num_workers}")
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
