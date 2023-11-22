@@ -10,7 +10,7 @@ export IMAGE_NAME="s2s-frontend-simple"
 export BASE_DIR=$(pwd)
 
 # Build the image based on the Dockerfile
-docker build -t $IMAGE_NAME -f Dockerfile .
+docker build -t $IMAGE_NAME -f Dockerfile.dev .
 
 # Run the container
 # --v: Attach a filesystem volume to the container

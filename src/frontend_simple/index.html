@@ -33,7 +33,7 @@
     <!-- Content -->
     <div class="image-crop-container">
 		<img src="img/drum.avif" id="cropped-image">
-		<h1 style="color: #F2E9E4">🔊 Silence to Sound</h1>
+		<h1 style="color: #F2E9E4">Silence to Sound</h1>
 	</div>
 
     <div class="container text-center" >
@@ -104,7 +104,7 @@
         // Read the uploaded file and display it
         var file_to_upload = input_file.files[0];
         input_file_view.src = URL.createObjectURL(file_to_upload);
-        prediction_label.innerHTML = "";
+        //prediction_label.innerHTML = "";
 
         // Post the image to the /predict API
         var formData = new FormData();
