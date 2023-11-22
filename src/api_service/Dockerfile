@@ -77,7 +77,8 @@ FROM pytorch/pytorch:latest
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
     PYTHONUNBUFFERED=1 \
-    PYENV_SHELL=/bin/bash
+    PYENV_SHELL=/bin/bash \
+    MKL_SERVICE_FORCE_INTEL=1
 
 # Install necessary system packages
 RUN apt-get update && \
