@@ -12,7 +12,6 @@ WORKDIR /app
 # RUN yarn run build
 
 # Nginx wrapper to serve static files
-
 COPY . /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
