@@ -3,7 +3,6 @@ import json
 import numpy as np
 from google.cloud import aiplatform
 import base64
-
 import os
 import requests
 import zipfile
@@ -15,28 +14,21 @@ import base64
 import torch
 from tqdm import tqdm
 import sys
-from api.model import Regnet
-from api.config import _C as config
-
-from api.wavenet_vocoder import builder
 from io import BytesIO
 import os
-from moviepy.editor import VideoFileClip
+from moviepy.editor import VideoFileClip, AudioFileClip
 
-
-TARGET_MODEL_NAME = "traced_regnet_model_test.pth"
 fps = 21.5
 prefix = "playing_bongo"
 t = 0  # trimming from the beginning
-
-test = "giao" # name of user input video
 sr = 22050  # Sample rate for audio
 
 PROCESSED_VIDEO_DIR = f"./processed_data/{prefix}/video_10s_{fps}fps"
 PROCESSED_AUDIO_DIR = f"./processed_data/{prefix}/audio_10s_{sr}hz"
 FEATURE_DIR = f"./features/{prefix}"
 
-def preprocess(input_video_path):
+def preprocess(test):
+        input_video_path = test + ".mp4"
 
         # start to do the preprocess and feature extraction
         os.makedirs(PROCESSED_VIDEO_DIR, exist_ok=True)
@@ -67,16 +59,6 @@ def preprocess(input_video_path):
         print("CHECKPOINT 4")
         print("-" * 50)
         
-        print("*" * 50)
-        os.system(f"pwd")
-        # Get the absolute path of the current file
-        current_file_path = os.path.abspath(__file__)
-
-        # Get the directory name of the current file
-        current_directory = os.path.dirname(current_file_path)
-        print(current_directory)
-        print("*" * 50)
-
         # feature extractions
         os.system(f"python ./api/extract_rgb_flow.py -i {PROCESSED_VIDEO_DIR} -o {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')}")
         print("*" * 50)
@@ -88,26 +70,37 @@ def preprocess(input_video_path):
         print("Finished extract_mel_spectrogram")
         print("*" * 50)
 
-        # # Extract RGB features
-        # os.system(f"CUDA_VISIBLE_DEVICES=0 python extract_feature.py  -f {test} -m RGB -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_rgb_bninception_dim1024_{fps}fps')}")
-        # print("*" * 50)
-        # print("Finished extract_feature RGB")
-        # print("*" * 50)
+        # Extract RGB features
+        os.system(f"CUDA_VISIBLE_DEVICES=0 python ./api/extract_feature.py  -f {test} -m RGB -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_rgb_bninception_dim1024_{fps}fps')}")
+        print("*" * 50)
+        print("Finished extract_feature RGB")
+        print("*" * 50)
 
-        # # Extract Flow features
-        # os.system(f"CUDA_VISIBLE_DEVICES=0 python extract_feature.py  -f {test} -m Flow -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_flow_bninception_dim1024_{fps}fps')}")
-        # print("*" * 50)
-        # print("Finished extract_feature flow")
-        # print("*" * 50)
+        # Extract Flow features
+        os.system(f"CUDA_VISIBLE_DEVICES=0 python ./api/extract_feature.py  -f {test} -m Flow -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_flow_bninception_dim1024_{fps}fps')}")
+        print("*" * 50)
+        print("Finished extract_feature flow")
+        print("*" * 50)
 
 
-def make_prediction(video_path):
+def make_prediction(test):
       
-    preprocess(video_path)
-    os.system(f"CUDA_VISIBLE_DEVICES=0 python test.py")
-    
-        
+    preprocess(test)
 
+    os.system(f"CUDA_VISIBLE_DEVICES=0 python ./api/test.py --test_name {test}")
+
+    # Load the video clip
+    video_clip = VideoFileClip(os.path.join(PROCESSED_VIDEO_DIR, f'{test}.mp4'))
+
+    # Load the audio clip
+    audio_clip = AudioFileClip(os.path.join('./results', f'{test}.wav'))
+
+    # Set the audio of the video clip to your audio clip
+    video_clip = video_clip.set_audio(audio_clip)
+
+    # Write the result to a new file
+    video_clip.write_videofile(os.path.join('./results', f'{test}.mp4'), codec='libx264', audio_codec='aac')
+    
 
 # def make_prediction_vertexai(image_path):
 #     print("Predict using Vertex AI endpoint")

@@ -1,10 +1,8 @@
 from yacs.config import CfgNode as CN
 
-
-
 _C  =  CN()
-_C.BASE_DATA_PATH = "/gcs/s2s_data/"
-_C.epochs = 50
+_C.BASE_DATA_PATH = "/gcs/s2s_data_new/"
+_C.epochs = 100
 _C.num_epoch_save = 10
 _C.seed = 123
 _C.dynamic_loss_scaling = True
@@ -12,22 +10,15 @@ _C.dist_backend = "nccl"
 _C.dist_url = "tcp://localhost:54321"
 _C.cudnn_enabled = True
 _C.cudnn_benchmark = False
-_C.save_dir = _C.BASE_DATA_PATH + 'ckpt/processed_data/'
-_C.checkpoint_path = ''
-# _C.checkpoint_path = 'ckpt/processed_data/checkpoint_041000'
+_C.save_dir = './results'
+_C.checkpoint_path = _C.BASE_DATA_PATH + 'ckpt/bongo/checkpoint_latest'
+
 _C.epoch_count = 0
 _C.exclude_dirs = ['ckpt', 'data']
-_C.training_files = _C.BASE_DATA_PATH + 'filelists/playing_bongo_train.txt'
-_C.test_files = _C.BASE_DATA_PATH + 'filelists/playing_bongo_test.txt'
-# _C.rgb_feature_dir = "data/features/dog/feature_rgb_bninception_dim1024_21.5fps"
-# _C.flow_feature_dir = "data/features/dog/feature_flow_bninception_dim1024_21.5fps"
-# _C.mel_dir = "data/features/dog/melspec_10s_22050hz"
-# _C.rgb_feature_dir = BASE_TRAINER_PATH + "data/features/processed_data/feature_rgb_bninception_dim1024_21.5fps"
-# _C.flow_feature_dir = BASE_TRAINER_PATH + "data/features/processed_data/feature_flow_bninception_dim1024_21.5fps"
-# _C.mel_dir =BASE_TRAINER_PATH + "data/features/processed_data/melspec_10s_22050hz"
-_C.rgb_feature_dir = _C.BASE_DATA_PATH + "/features/playing_bongo/feature_rgb_bninception_dim1024_21.5fps"
-_C.flow_feature_dir = _C.BASE_DATA_PATH + "/features/playing_bongo/feature_flow_bninception_dim1024_21.5fps"
-_C.mel_dir =_C.BASE_DATA_PATH + "/features/playing_bongo/melspec_10s_22050hz"
+_C.rgb_feature_dir = "./features/playing_bongo/feature_rgb_bninception_dim1024_21.5fps"
+_C.flow_feature_dir = "./features/playing_bongo/feature_flow_bninception_dim1024_21.5fps"
+_C.mel_dir = "./features/playing_bongo/melspec_10s_22050hz"
+
 _C.video_samples = 215
 _C.audio_samples = 10
 _C.mel_samples = 860
@@ -61,7 +52,7 @@ _C.loss_type = "MSE"
 _C.weight_decay = 1e-6
 _C.grad_clip_thresh = 1.0
 # _C.batch_size = 64
-_C.batch_size = 4
+_C.batch_size = 16
 _C.lr = 0.0002
 _C.beta1 = 0.5
 _C.continue_train = False

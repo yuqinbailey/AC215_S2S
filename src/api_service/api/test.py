@@ -5,7 +5,7 @@ import torch
 from torch.utils.data import DataLoader
 import numpy as np
 import librosa
-from api_service.api.data_utils import RegnetLoader
+from data_utils import RegnetLoader
 from model import Regnet
 from config import _C as config
 import matplotlib

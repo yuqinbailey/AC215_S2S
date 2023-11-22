@@ -1,2 +1,2 @@
 from api.api_model import *
-preprocess("./test.mp4")
+make_prediction("test")
