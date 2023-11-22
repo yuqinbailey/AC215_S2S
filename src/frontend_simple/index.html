@@ -67,8 +67,16 @@
             
 			<div class="col-6" id="right" >
                 <div class="mdc-card mdc-card--outlined" >
-                    
                 </div>
+                <br>
+                <br>
+                <div id="progressBarContainer" style="width: 100%; background-color: #ddd;">
+                    <div id="progressBar" style="height: 30px; width: 0%; background-color: #4CAF50;"></div>
+                </div>
+                <br>
+                <!-- Download Button -->
+                <button id="downloadButton" style="display: none;" onclick="downloadVideo()">Download Video</button>
+            
 			</div>
 		</div>
 	</div>
@@ -107,17 +115,13 @@
                 'Content-Type': 'multipart/form-data'
             }
         }).then(function (response) {
-            var prediction_results = response.data;
-            console.log(prediction_results);
-
-            // Display the results
-            prediction_label.innerHTML = prediction_results["prediction_label"] + " (" + prediction_results["accuracy"] + "%)";
-            if (prediction_results["poisonous"]) {
-                mushroom_type.innerHTML = "&nbsp;&nbsp;Poisonous";
-            } else {
-                mushroom_type.innerHTML = "";
-            }
-
+            console.log(response.data);
+            // Assuming response includes a video ID or some status message
+            alert("Your video is being processed. You will be notified when it's ready.");
+            // Optionally, save the video ID or other reference in local storage or display it to the user
+        }).catch(function (error) {
+            console.error("Error during file upload:", error);
+            alert("There was an error uploading your video.");
         });
     }
 

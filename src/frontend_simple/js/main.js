@@ -248,3 +248,34 @@ function drawBarChart(xScale, yScale, data, svg){
         .text(d => `${d.percentage}%`)  // the text to display
 
 }
+
+function startDummyProgressBar() {
+    var progress = 0;
+    var progressBar = document.getElementById('progressBar');
+    var downloadButton = document.getElementById('downloadButton');
+    progressBar.style.width = progress + '%';
+
+    var interval = setInterval(function() {
+        progress += 5; // increment the progress
+        progressBar.style.width = progress + '%';
+
+        if (progress >= 100) {
+            clearInterval(interval);
+            downloadButton.style.display = 'block'; // show the download button
+        }
+    }, 1000); //update progress every 1 second
+}
+
+function downloadVideo() {
+    // the URL to the video file
+    var videoUrl = 'http://localhost:9000/results/test.mp4';  
+
+    // create a temporary anchor tag to trigger the download
+    var a = document.createElement('a');
+    a.href = videoUrl;
+    a.download = 'processed_video.mp4';  // the name we want to save the file as
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
