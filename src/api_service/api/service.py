@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, BackgroundTasks
 from starlette.middleware.cors import CORSMiddleware
 import asyncio
 # from api.tracker import TrackerService
@@ -7,6 +7,7 @@ import os
 from fastapi import File
 from tempfile import TemporaryDirectory
 from api import api_model
+import uuid
 
 # Initialize Tracker Service
 # tracker_service = TrackerService()
@@ -24,55 +25,44 @@ app.add_middleware(
 )
 
 
+# Global variable to hold the status
+video_processing_status = "not_started"
+
+
+def process_video(video_path):
+    global video_processing_status
+    video_processing_status = "processing"
+    api_model.make_prediction(video_path)
+    video_processing_status = "finished"
+
 @app.on_event("startup")
 async def startup():
     print("Startup tasks")
-    # Start the tracker service
-    # asyncio.create_task(tracker_service.track())
+    # Initialize video_processing_status
+    global video_processing_status
+    video_processing_status = "not_started"
 
-
-# Routes
 @app.get("/")
 async def get_index():
     return {"message": "Welcome to the API Service"}
 
-
-# @app.get("/experiments")
-# def experiments_fetch():
-#     # Fetch experiments
-#     df = pd.read_csv("/persistent/experiments/experiments.csv")
-
-#     df["id"] = df.index
-#     df = df.fillna("")
-
-#     return df.to_dict("records")
-
-
-# @app.get("/best_model")
-# async def get_best_model():
-#     model.check_model_change()
-#     if model.best_model is None:
-#         return {"message": "No model available to serve"}
-#     else:
-#         return {
-#             "message": "Current model being served:" + model.best_model["model_name"],
-#             "model_details": model.best_model,
-#         }
-
-
 @app.post("/predict")
-async def predict(file: bytes = File(...)):
-    print("predict file:", len(file), type(file))
+async def predict(background_tasks: BackgroundTasks, file: bytes = File(...)):
+    global video_processing_status
 
-    # Save the image
-    with TemporaryDirectory() as video_dir:
-        video_path = os.path.join(video_dir, "test.mp4")
-        with open(video_path, "wb") as output:
-            output.write(file)
+    video_path = './test.mp4'
+    with open(video_path, "wb") as output:
+        output.write(file)
 
-        # # Make prediction
-        prediction_results = {}
-        prediction_results = api_model.make_prediction(video_path)
+    # Reset the status when a new video is uploaded
+    video_processing_status = "not_started"
 
-    print(prediction_results)
-    return prediction_results
+    # Start the video processing in a background task
+    background_tasks.add_task(process_video, video_path)
+
+    return {"message": "Video processing started"}
+
+@app.get("/status")
+def get_status():
+    global video_processing_status
+    return {"status": video_processing_status}
