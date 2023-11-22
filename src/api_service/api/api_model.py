@@ -99,7 +99,7 @@ def make_prediction(test):
     video_clip = video_clip.set_audio(audio_clip)
 
     # Write the result to a new file
-    video_clip.write_videofile(os.path.join('../persistent/results', f'{test}.mp4'), codec='libx264', audio_codec='aac')
+    video_clip.write_videofile(os.path.join('../persistent/', f'{test}.mp4'), codec='libx264', audio_codec='aac')
     
 
 # def make_prediction_vertexai(image_path):

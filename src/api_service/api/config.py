@@ -11,7 +11,8 @@ _C.dist_url = "tcp://localhost:54321"
 _C.cudnn_enabled = True
 _C.cudnn_benchmark = False
 _C.save_dir = './results'
-_C.checkpoint_path = _C.BASE_DATA_PATH + 'ckpt/bongo/checkpoint_latest'
+# _C.checkpoint_path = _C.BASE_DATA_PATH + 'ckpt/bongo/checkpoint_latest'
+_C.checkpoint_path = './ckpt/dog_barking/checkpoint_041000'
 
 _C.epoch_count = 0
 _C.exclude_dirs = ['ckpt', 'data']
@@ -61,4 +62,5 @@ _C.lambda_Silenceloss = 0
 _C.niter = 100
 _C.D_interval = 1
 _C.wo_G_GAN = False
-_C.wavenet_path = _C.BASE_DATA_PATH + 'ckpt/drum_wavenet/drum_checkpoint_step000160000_ema.pth'
+# _C.wavenet_path = _C.BASE_DATA_PATH + 'ckpt/drum_wavenet/drum_checkpoint_step000160000_ema.pth'
+_C.wavenet_path = './ckpt/drum_wavenet/drum_checkpoint_step000160000_ema.pth'

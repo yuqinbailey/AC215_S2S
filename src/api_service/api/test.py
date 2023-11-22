@@ -8,6 +8,7 @@ import librosa
 from data_utils import RegnetLoader
 from model import Regnet
 from config import _C as config
+from google.cloud import storage
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -114,11 +115,26 @@ if __name__ == '__main__':
     # parser.add_argument("opts", default=None, nargs=argparse.REMAINDER)
     args = parser.parse_args()
 
-    # if args.config_file:
-    #     config.merge_from_file(args.config_file)
- 
-    # config.merge_from_list(args.opts)
-    # config.freeze()
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket("s2s_data_new")
+    # Download the Regnet and Wavenet weights from GCS
+    if not os.path.exists("./ckpt/"):
+        os.makedirs("./ckpt/dog_barking/")
+        os.makedirs("./ckpt/drum_wavenet/")
+
+    # prefix = 'checkpoint_latest'
+    # blob = bucket.blob(f"ckpt/bongo/{prefix}_netG")
+    # blob.download_to_filename(f"./ckpt/bongo/{prefix}_netG")
+    # blob = bucket.blob(f"ckpt/bongo/{prefix}_netD")
+    # blob.download_to_filename(f"./ckpt/bongo/{prefix}_netD")
+    blob = bucket.blob(f"ckpt/dog_barking/checkpoint_041000/checkpoint_041000_netG")
+    blob.download_to_filename(f"./ckpt/dog_barking/checkpoint_041000_netG")
+    blob = bucket.blob(f"ckpt/dog_barking/checkpoint_041000/checkpoint_041000_netD")
+    blob.download_to_filename(f"./ckpt/dog_barking/checkpoint_041000_netD")
+
+    # wavenet
+    blob = bucket.blob(f"ckpt/drum_wavenet/drum_checkpoint_step000160000_ema.pth")
+    blob.download_to_filename(f"./ckpt/drum_wavenet/drum_checkpoint_step000160000_ema.pth")
 
     torch.backends.cudnn.enabled = config.cudnn_enabled
     torch.backends.cudnn.benchmark = config.cudnn_benchmark
