@@ -73,6 +73,23 @@ The following are the folders from the previous milestones:
 
 
 ## Milestone5
+
+Here is the code structure for this time.
+
+The following are the folders for this milestone:
+```
+- api_service
+- data_collection
+- data_preprocessing
+- deployment
+- feature_extraction
+- frontent_simple
+- train
+- model_deployment
+- workflow
+```
+
+
 After completions of building a robust ML Pipeline in our previous milestone we have built a backend api service and frontend app. This will be our user-facing application that ties together the various components built in previous milestones.
 
 **Application Design**
@@ -100,11 +117,21 @@ Persistent storage is achieved through a Google Compute Engine (GCE) Persistent 
 **P.S. Our mentor approved running inference without Vertex AI since Vertex AI can't support our model's long-duration inference. As a workaround, we run inference in the VM.**
 
 ### App backend API container
-This container has all the python files to run and expose the backend apis.
+
+We built backend api service using FAST API to expose model functionality to the frontend. We provide the following functions for listening to the front-end. Some user-friendly prompts are also returned to the user while the model is doing the inference, such as progress bar.
+
+<img src="images/backend1.jpg"  width="800">
 
 ### App frontend container
 
+We built a user friendly frontend simple app to generate the sounds from slient videos using convolution-based models from the backend. Using the app a user can upload a short slient video and upload it. The app will generate the sounds for the video and the user can download the generated video. 
+
+<img src="images/frontend1.png"  width="800">
+
 ### Deployment
+Here is our deployed app on a single VM instance with T4 GPU in GCP:
+<img src="images/vm.png"  width="800">
+
 - run api-service container
 ```shell
 sh shell.sh
