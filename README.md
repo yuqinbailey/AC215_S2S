@@ -123,8 +123,10 @@ sudo docker run -d --name nginx -v $(pwd)/conf/nginx/nginx.conf:/etc/nginx/nginx
 
 When the user open the website, there will be the function for user to upload a 10s video.
 <img src="images/frontend_init.png"  width="800">
+<img src="images/frontend_upload.jpg"  width="650">
 
-After getting the user's video, the backend api will be called and start preprocessing and inference.
+After getting the user's video, the frontend will inform the user of the progress, and the backend api will be called and start preprocessing and inference.
+<img src="images/frontend_processing.jpg"  width="650">
 <img src="images/backend_api.jpg"  width="650">
 
 When the audio is successfully generated, there will be a link generated for the user to download the new video with sound.
