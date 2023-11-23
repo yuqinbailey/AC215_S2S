@@ -14,13 +14,7 @@ Project Organization
       └── src
             ├── secrets
             ├── workflow
-            │   ├── Dockerfile
-            │   ├── data_collector.yaml
-            │   ├── data_preprocessor.yaml
-            │   ├── ...
-            │   ├── pipeline.yaml
-            │   ├── model.py
-            │   └── cli.py
+            │   └── ...
             ├── data_collection            <- Scripts for dataset creation
             │   └── ...
             ├── data_preprocessing         <- Code for data processing
@@ -28,16 +22,17 @@ Project Organization
             ├── feature_extraction         <- Code for video feature extracion
             │   └── ...
             ├── train                      <- Model training, evaluation, and prediction code
-            │   ├── package
-            │   │   ├── trainer
-            │   │   ├── PKG-INFO
-            │   │   └── setup.py
             │   └── ...
-            ├── model_deployment           <- Model deployment
-            │   ├── wavenet_vocoder
-            │   └── ...
-            ├── api_service                <- Code for App backend APIs
+            ├── api_service                <- Code for model deployment & App backend APIs
             │   ├── api
+            │   │   ├── tsn
+            │   │   ├── wavenet_vododer
+            │   │   ├── extract_rgb_flow.py
+            │   │   ├── extract_mel_spectrogram.py
+            │   │   ├── extract_feature.py
+            │   │   ├── model.py
+            │   │   ├── api_model.py
+            │   │   └── service.py
             │   ├── Dockerfile
             │   ├── docker-entrypoint.sh
             │   ├── docker-shell.sh
@@ -81,9 +76,6 @@ S2S (*Silence to Sound*)
 We aim to develop an application that generates ambient sounds from images or silent videos leveraging computer vision and multimodal models. Our goal is to enrich the general user experience by creating a harmonized visual-audio ecosystem, and facilitate immersive multimedia interactions for individuals with visual impairments.
 
 
-## Milestone5
-![pipeline](images/mega_pipeline.jpg)
-
 ### Code Structure
 
 The following are the folders from the previous milestones:
@@ -96,20 +88,26 @@ The following are the folders from the previous milestones:
 - workflow
 ```
 
-### ML workflow: Kubeflow
 
-<img src='images/kubeflow.png' width='400'>
+## Milestone5
+After completions of building a robust ML Pipeline in our previous milestone we have built a backend api service and frontend app. This will be our user-facing application that ties together the various components built in previous milestones.
 
+**Application Design**
 
-**RegNet Model** [<sup>[2]</sup>](references/README.md#2)
+Before we start implementing the app we built a detailed design document outlining the application’s architecture. We built a Solution Architecture abd Technical Architecture to ensure all our components work together.
 
-![](images/regnet_chen_etal_2020.png)
+Here is our Solution Architecture:
+<img src="images/solution_arch.png"  width="800">
+
+Here is our Technical Architecture:
+<img src="images/technical_arch.png"  width="800">
 
 
 ### App backend API container
 
 
 ### App frontend container
+<img src="images/frontend_running.jpg"  width="800">
 
 
 ### Docker cleanup
@@ -118,10 +116,6 @@ To make sure we do not have any running containers and clear up unused images -
 * Stop any container that is running
 * Run `docker image ls`
 * Run `docker system prune`
-
-
-### Data visualization for sanity check
-- [Colab Notebook](https://colab.research.google.com/drive/16ipwKR76L_exSH5SqfNyQ7FJUOtNSwla?usp=sharing) - facilitates the retrieval of various versions of our dataset managed by DVC, requiring GCP and GitHub authentication. It offers two functions, `dataset_metrics` and `show_examples`, to efficiently visualize dataset samples and display metrics, serving as sanity check for our data.
 
 
 ### [References](references/README.md)
