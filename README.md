@@ -100,6 +100,7 @@ Persistent storage is achieved through a Google Compute Engine (GCE) Persistent 
 **P.S. Our mentor approved running inference without Vertex AI since Vertex AI can't support our model's long-duration inference. As a workaround, we run inference in the VM.**
 
 ### App backend API container
+<img src="images/backend1.jpg"  width="800">
 
 We built backend api service using FAST API to expose model functionality to the frontend. We provide the following functions for listening to the front-end. Some user-friendly prompts are also returned to the user while the model is doing the inference, such as progress bar.
 
@@ -107,7 +108,7 @@ We built backend api service using FAST API to expose model functionality to the
 
 We built a user friendly frontend simple app to generate the sounds from slient videos using convolution-based models from the backend. Using the app a user can upload a short slient video and upload it. The app will generate the sounds for the video and the user can download the generated video. 
 
-<img src="images/frontend_init.png"  width="800">
+<img src="images/frontend1.png"  width="800">
 
 ### Deployment
 Here is our deployed app on a single VM instance with T4 GPU in GCP:
