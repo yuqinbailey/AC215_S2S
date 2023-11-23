@@ -85,6 +85,8 @@ Here is our Solution Architecture:
 Here is our Technical Architecture:
 <img src="images/technical_arch.svg"  width="800">
 
+P.S. Our mentor approved running inference without Vertex AI since Vertex AI can't support our model's long-duration inference. As a workaround, we run inference in the VM.
+
 ### App backend API container
 This container has all the python files to run and expose the backend apis.
 
@@ -114,7 +116,7 @@ After getting the user's video, the backend api will be called and start preproc
 <img src="images/backend_api.jpg"  width="650">
 
 When the audio is successfully generated, there will be a link generated for the user to download the new video with sound.
-<img src="images/frontend_result.png"  width="800">
+<img src="images/frontend_result.jpg"  width="800">
 
 
 ### Docker cleanup
