@@ -82,6 +82,12 @@ Before we start implementing the app we built a detailed design document outlini
 Here is our Solution Architecture:
 <img src="images/solution_arch.svg"  width="800">
 
+Our solution process begins with the 'Develop App' phase where we can interact with the system via HTTPS/SSH protocols, primarily using VSCode as the integrated development environment. The machine learning pipeline consists of four main components: the Data Collector, Data Processor, Feature Extractor, and Model Training modules, which are interconnected and follow a sequential data flow to process and learn from the data effectively.
+
+In our Frontend component, the "S2S Generator Website," which allows for video upload and viewing of results by the end-users, facilitated through HTTP/HTTPS protocols. The Backend is supported by an API Service that handles model serving, ensuring efficient communication between the frontend and the machine learning pipeline.
+
+All components are supported by underlying cloud services, including a Source Control system for code management, a Container Registry for Docker images, and a Model Store hosted on Google Cloud Platform (GCP) to store and retrieve machine learning models. 
+
 Here is our Technical Architecture:
 <img src="images/technical_arch.svg"  width="800">
 
