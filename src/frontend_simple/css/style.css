@@ -90,7 +90,7 @@ body, html {
 }
 
 
-#generateButton {
+#generateButton, #downloadButton{
     background-color: #89b9d9;
     color: white;
     padding: 10px 20px;

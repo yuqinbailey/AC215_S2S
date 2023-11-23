@@ -32,7 +32,7 @@ video_processing_status = "not_started"
 def process_video(video_path):
     global video_processing_status
     video_processing_status = "processing"
-    api_model.make_prediction(video_path)
+    api_model.make_prediction('test')
     video_processing_status = "finished"
 
 @app.on_event("startup")

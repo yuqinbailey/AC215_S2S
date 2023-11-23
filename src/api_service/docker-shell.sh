@@ -5,7 +5,7 @@ set -e
 set -x
 
 # Define some environment variables
-export IMAGE_NAME="s2s-api-service:amd64"
+export IMAGE_NAME="lildanni/s2s-api-service"
 export BASE_DIR=$(pwd)
 export SECRETS_DIR=$(pwd)/../../secrets/
 export PERSISTENT_DIR=$(pwd)/../../persistent-folder/
@@ -17,9 +17,7 @@ export GCS_BUCKET_NAME="s2s_data_new"
 # M1/2 chip macs use this line
 docker build -t $IMAGE_NAME --platform=linux/amd64 -f Dockerfile .
 
-# Run the container
-# Frank
-# docker run --rm --name frank_test -ti \
+# docker run --rm --name api-service -ti \
 # -v "$BASE_DIR":/app \
 # -v "$SECRETS_DIR":/secrets \
 # -v "$PERSISTENT_DIR":/persistent \
@@ -27,5 +25,4 @@ docker build -t $IMAGE_NAME --platform=linux/amd64 -f Dockerfile .
 # -e DEV=1 \
 # -e GOOGLE_APPLICATION_CREDENTIALS=/secrets/ml-workflow.json \
 # -e GCS_BUCKET_NAME=$GCS_BUCKET_NAME \
-# --entrypoint /bin/bash \
 # $IMAGE_NAME

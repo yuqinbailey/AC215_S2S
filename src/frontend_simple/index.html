@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>🔊 Silence to Sound</title>
+    <title>Silence to Sound</title>
     <!-- Add reference to Google fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <!-- Google Material Design Styles -->
@@ -52,7 +52,7 @@
 			</div>
             
             <div class="svg-container">
-                <svg width="70" height="50">
+                <svg width="70" height="300">
                     <defs>
                         <marker id="arrowhead" markerWidth="7" markerHeight="7" 
                         refX="0" refY="3.5" orient="auto">
@@ -83,10 +83,9 @@
     <!-- Content -->
 </body>
 <!-- Add Javascript -->
-<!-- <script src="js/main.js"></script> -->
-<script>
+<!-- <script>
     // API URL
-    axios.defaults.baseURL = 'http://localhost:9000/';
+    axios.defaults.baseURL = '/api';
 
     // file input
     var input_file = document.getElementById("input_file");
@@ -126,9 +125,8 @@
 
     // Attach an onchange event
     input_file.onchange = input_file_onchange;
-</script>
-
-
+</script> -->
+<script src="js/main.js"></script>
 
 
 </html>

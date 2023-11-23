@@ -51,7 +51,7 @@ The following commands are available:
 \033[0m
 "
 
-# Check if in development mode and choose the appropriate server function
+#Check if in development mode and choose the appropriate server function
 if [ "${DEV}" = 1 ]; then
   uvicorn_server
 else
