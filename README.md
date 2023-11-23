@@ -97,7 +97,7 @@ We developed four components on Vertex AI, including Data Collector, Data Proces
 
 Persistent storage is achieved through a Google Compute Engine (GCE) Persistent Volume backed by a Persistent Disk, ensuring data durability and statefulness across sessions. The entire system is designed to ensure seamless integration between development, data handling, and user interaction.
 
-P.S. Our mentor approved running inference without Vertex AI since Vertex AI can't support our model's long-duration inference. As a workaround, we run inference in the VM.
+**P.S. Our mentor approved running inference without Vertex AI since Vertex AI can't support our model's long-duration inference. As a workaround, we run inference in the VM.**
 
 ### App backend API container
 This container has all the python files to run and expose the backend apis.
@@ -123,11 +123,11 @@ sudo docker run -d --name nginx -v $(pwd)/conf/nginx/nginx.conf:/etc/nginx/nginx
 
 When the user open the website, there will be the function for user to upload a 10s video.
 <img src="images/frontend_init.png"  width="800">
-<img src="images/frontend_upload.jpg"  width="650">
+<img src="images/frontend_upload.jpg"  width="800">
 
 After getting the user's video, the frontend will inform the user of the progress, and the backend api will be called and start preprocessing and inference.
 <img src="images/frontend_processing.jpg"  width="650">
-<img src="images/backend_api.jpg"  width="650">
+<img src="images/backend_api.jpg"  width="800">
 
 When the audio is successfully generated, there will be a link generated for the user to download the new video with sound.
 <img src="images/frontend_result.jpg"  width="800">
