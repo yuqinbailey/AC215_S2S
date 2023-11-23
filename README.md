@@ -14,13 +14,7 @@ Project Organization
       └── src
             ├── secrets
             ├── workflow
-            │   ├── Dockerfile
-            │   ├── data_collector.yaml
-            │   ├── data_preprocessor.yaml
-            │   ├── ...
-            │   ├── pipeline.yaml
-            │   ├── model.py
-            │   └── cli.py
+            │   └── ...
             ├── data_collection            <- Scripts for dataset creation
             │   └── ...
             ├── data_preprocessing         <- Code for data processing
@@ -28,16 +22,17 @@ Project Organization
             ├── feature_extraction         <- Code for video feature extracion
             │   └── ...
             ├── train                      <- Model training, evaluation, and prediction code
-            │   ├── package
-            │   │   ├── trainer
-            │   │   ├── PKG-INFO
-            │   │   └── setup.py
             │   └── ...
-            ├── model_deployment           <- Model deployment
-            │   ├── wavenet_vocoder
-            │   └── ...
-            ├── api_service                <- Code for App backend APIs
+            ├── api_service                <- Code for model deployment & App backend APIs
             │   ├── api
+            │   │   ├── tsn
+            │   │   ├── wavenet_vododer
+            │   │   ├── extract_rgb_flow.py
+            │   │   ├── extract_mel_spectrogram.py
+            │   │   ├── extract_feature.py
+            │   │   ├── model.py
+            │   │   ├── api_model.py
+            │   │   └── service.py
             │   ├── Dockerfile
             │   ├── docker-entrypoint.sh
             │   ├── docker-shell.sh
@@ -48,23 +43,6 @@ Project Organization
                 ├── index.html
                 ├── Dockerfile
                 └── docker-shell.sh
-
-**GCP Bucket** 
-`s2s_data_new`
-```
-  ├── vggsound.csv
-  ├── raw_data                <- raw data scraped from youtube
-  ├── processed_data          <- intermediate preprocessed data
-  ├── features                <- extracted features from preprocessed data
-  │   ├── filelists                 <- splited train and test sets
-  │   └── playing_bingo
-  │       ├── feature_flow_bninception_dim1024_21.5fps
-  │       ├── feature_rgb_bninception_dim1024_21.5fps
-  │       └── melspec_10s_22050hz          <- audio feature
-  ├── dvc_store               <- data registry: yuqinbailey/s2s-dvcrepo
-  ├── ckpt
-  └── model                   <- saved model + update signitures
-```
 
 
 --------
@@ -81,9 +59,6 @@ S2S (*Silence to Sound*)
 We aim to develop an application that generates ambient sounds from images or silent videos leveraging computer vision and multimodal models. Our goal is to enrich the general user experience by creating a harmonized visual-audio ecosystem, and facilitate immersive multimedia interactions for individuals with visual impairments.
 
 
-## Milestone5
-![pipeline](images/mega_pipeline.jpg)
-
 ### Code Structure
 
 The following are the folders from the previous milestones:
@@ -96,20 +71,52 @@ The following are the folders from the previous milestones:
 - workflow
 ```
 
-### ML workflow: Kubeflow
 
-<img src='images/kubeflow.png' width='400'>
+## Milestone5
+After completions of building a robust ML Pipeline in our previous milestone we have built a backend api service and frontend app. This will be our user-facing application that ties together the various components built in previous milestones.
 
+**Application Design**
 
-**RegNet Model** [<sup>[2]</sup>](references/README.md#2)
+Before we start implementing the app we built a detailed design document outlining the application’s architecture. We built a Solution Architecture abd Technical Architecture to ensure all our components work together.
 
-![](images/regnet_chen_etal_2020.png)
+Here is our Solution Architecture:
+<img src="images/solution_arch.svg"  width="800">
 
+Here is our Technical Architecture:
+<img src="images/technical_arch.svg"  width="800">
+
+P.S. Our mentor approved running inference without Vertex AI since Vertex AI can't support our model's long-duration inference. As a workaround, we run inference in the VM.
 
 ### App backend API container
-
+This container has all the python files to run and expose the backend apis.
 
 ### App frontend container
+
+### Deployment
+- run api-service container
+```shell
+sh shell.sh
+```
+
+- run frontend container
+```shell
+sudo docker pull lildanni/s2s-frontend
+sudo docker run -d --name frontend -p 3000:80 --network s2s lildanni/s2s-frontend
+```
+
+- run NGINX web server
+```shell
+sudo docker run -d --name nginx -v $(pwd)/conf/nginx/nginx.conf:/etc/nginx/nginx.conf -p 80:80 --network s2s nginx:stable
+```
+
+When the user open the website, there will be the function for user to upload a 10s video.
+<img src="images/frontend_init.png"  width="800">
+
+After getting the user's video, the backend api will be called and start preprocessing and inference.
+<img src="images/backend_api.jpg"  width="650">
+
+When the audio is successfully generated, there will be a link generated for the user to download the new video with sound.
+<img src="images/frontend_result.jpg"  width="800">
 
 
 ### Docker cleanup
@@ -118,10 +125,6 @@ To make sure we do not have any running containers and clear up unused images -
 * Stop any container that is running
 * Run `docker image ls`
 * Run `docker system prune`
-
-
-### Data visualization for sanity check
-- [Colab Notebook](https://colab.research.google.com/drive/16ipwKR76L_exSH5SqfNyQ7FJUOtNSwla?usp=sharing) - facilitates the retrieval of various versions of our dataset managed by DVC, requiring GCP and GitHub authentication. It offers two functions, `dataset_metrics` and `show_examples`, to efficiently visualize dataset samples and display metrics, serving as sanity check for our data.
 
 
 ### [References](references/README.md)

@@ -156,3 +156,5 @@ src/model_deployment/Pipfile.lock.arm
 src/model_deployment/docker-entrypoint.sh
 
 persistent_folder/
+src/api_service/features/
+src/api_service/processed_data/
