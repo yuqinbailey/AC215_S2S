@@ -82,7 +82,7 @@ Before we start implementing the app we built a detailed design document outlini
 Here is our Solution Architecture:
 <img src="images/solution_arch.svg"  width="800">
 
-Our solution process begins with the 'Develop App' phase where we can interact with the system via HTTPS/SSH protocols, primarily using VSCode as the integrated development environment. The machine learning pipeline consists of four main components: the Data Collector, Data Processor, Feature Extractor, and Model Training modules, which are interconnected and follow a sequential data flow to process and learn from the data effectively.
+Our solution process begins with the Develop App phase where we can interact with the system via HTTPS/SSH protocols, primarily using VSCode as the integrated development environment. The machine learning pipeline consists of four main components: the Data Collector, Data Processor, Feature Extractor, and Model Training modules, which are interconnected and follow a sequential data flow to process and learn from the data effectively.
 
 In our Frontend component, the "S2S Generator Website," which allows for video upload and viewing of results by the end-users, facilitated through HTTP/HTTPS protocols. The Backend is supported by an API Service that handles model serving, ensuring efficient communication between the frontend and the machine learning pipeline.
 
@@ -90,6 +90,12 @@ All components are supported by underlying cloud services, including a Source Co
 
 Here is our Technical Architecture:
 <img src="images/technical_arch.svg"  width="800">
+
+Our Technical Architecture is organized to support the application's development and operational needs. For containerization and deployment, images are pulled from Docker Hub, and a Google Cloud Storage (GCS) Bucket is utilized for storing data and models, with secure HTTPS protocol enforced.
+
+We developed four components on Vertex AI, including Data Collector, Data Processor, Feature Extractor, and Model Training, which forms part of the pipeline of our project. The architecture involves an NGINX Container to route traffic, a Frontend Container that serves the user interface, and an API Service Container dedicated to model serving.
+
+Persistent storage is achieved through a Google Compute Engine (GCE) Persistent Volume backed by a Persistent Disk, ensuring data durability and statefulness across sessions. The entire system is designed to ensure seamless integration between development, data handling, and user interaction.
 
 P.S. Our mentor approved running inference without Vertex AI since Vertex AI can't support our model's long-duration inference. As a workaround, we run inference in the VM.
 
