@@ -84,9 +84,9 @@ Here is our Solution Architecture:
 
 Our solution process begins with the Develop App phase where we can interact with the system via HTTPS/SSH protocols, primarily using VSCode as the integrated development environment. The machine learning pipeline consists of four main components: the Data Collector, Data Processor, Feature Extractor, and Model Training modules, which are interconnected and follow a sequential data flow to process and learn from the data effectively.
 
-In our Frontend component, the "S2S Generator Website," which allows for video upload and viewing of results by the end-users, facilitated through HTTP/HTTPS protocols. The Backend is supported by an API Service that handles model serving, ensuring efficient communication between the frontend and the machine learning pipeline.
+In our Frontend component, the S2S Generator Website, which allows for video upload and viewing of results by the end-users, facilitated through HTTP/HTTPS protocols. The Backend is supported by an API Service that handles model serving, ensuring efficient communication between the frontend and the machine learning pipeline.
 
-All components are supported by underlying cloud services, including a Source Control system for code management, a Container Registry for Docker images, and a Model Store hosted on Google Cloud Platform (GCP) to store and retrieve machine learning models. 
+All components are supported by underlying cloud services, including a Source Control system for code management, a Container Registry for Docker images, and a Model Store hosted on Google Cloud Platform (GCP) to store and retrieve our models. 
 
 Here is our Technical Architecture:
 <img src="images/technical_arch.svg"  width="800">
@@ -97,7 +97,7 @@ We developed four components on Vertex AI, including Data Collector, Data Proces
 
 Persistent storage is achieved through a Google Compute Engine (GCE) Persistent Volume backed by a Persistent Disk, ensuring data durability and statefulness across sessions. The entire system is designed to ensure seamless integration between development, data handling, and user interaction.
 
-P.S. Our mentor approved running inference without Vertex AI since Vertex AI can't support our model's long-duration inference. As a workaround, we run inference in the VM.
+**P.S. Our mentor approved running inference without Vertex AI since Vertex AI can't support our model's long-duration inference. As a workaround, we run inference in the VM.**
 
 ### App backend API container
 This container has all the python files to run and expose the backend apis.
@@ -123,9 +123,11 @@ sudo docker run -d --name nginx -v $(pwd)/conf/nginx/nginx.conf:/etc/nginx/nginx
 
 When the user open the website, there will be the function for user to upload a 10s video.
 <img src="images/frontend_init.png"  width="800">
+<img src="images/frontend_upload.jpg"  width="800">
 
-After getting the user's video, the backend api will be called and start preprocessing and inference.
-<img src="images/backend_api.jpg"  width="650">
+After getting the user's video, the frontend will inform the user of the progress, and the backend api will be called and start preprocessing and inference.
+<img src="images/frontend_processing.jpg"  width="650">
+<img src="images/backend_api.jpg"  width="800">
 
 When the audio is successfully generated, there will be a link generated for the user to download the new video with sound.
 <img src="images/frontend_result.jpg"  width="800">
