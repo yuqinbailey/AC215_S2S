@@ -73,6 +73,23 @@ The following are the folders from the previous milestones:
 
 
 ## Milestone5
+
+Here is the code structure for this time.
+
+The following are the folders for this milestone:
+```
+- api_service
+- data_collection
+- data_preprocessing
+- deployment
+- feature_extraction
+- frontent_simple
+- train
+- model_deployment
+- workflow
+```
+
+
 After completions of building a robust ML Pipeline in our previous milestone we have built a backend api service and frontend app. This will be our user-facing application that ties together the various components built in previous milestones.
 
 **Application Design**
