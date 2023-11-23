@@ -44,23 +44,6 @@ Project Organization
                 ├── Dockerfile
                 └── docker-shell.sh
 
-**GCP Bucket** 
-`s2s_data_new`
-```
-  ├── vggsound.csv
-  ├── raw_data                <- raw data scraped from youtube
-  ├── processed_data          <- intermediate preprocessed data
-  ├── features                <- extracted features from preprocessed data
-  │   ├── filelists                 <- splited train and test sets
-  │   └── playing_bingo
-  │       ├── feature_flow_bninception_dim1024_21.5fps
-  │       ├── feature_rgb_bninception_dim1024_21.5fps
-  │       └── melspec_10s_22050hz          <- audio feature
-  ├── dvc_store               <- data registry: yuqinbailey/s2s-dvcrepo
-  ├── ckpt
-  └── model                   <- saved model + update signitures
-```
-
 
 --------
 # AC215 - Milestone5 - Silence to Sound
@@ -102,12 +85,29 @@ Here is our Solution Architecture:
 Here is our Technical Architecture:
 <img src="images/technical_arch.png"  width="800">
 
-
 ### App backend API container
 
-
 ### App frontend container
-<img src="images/frontend_running.jpg"  width="800">
+
+### Deployment
+- run api-service container
+```shell
+sh shell.sh
+```
+
+- run frontend container
+```shell
+sudo docker pull lildanni/s2s-frontend
+sudo docker run -d --name frontend -p 3000:80 --network s2s lildanni/s2s-frontend
+```
+
+- run NGINX web server
+```shell
+sudo docker run -d --name nginx -v $(pwd)/conf/nginx/nginx.conf:/etc/nginx/nginx.conf -p 80:80 --network s2s nginx:stable
+```
+
+<img src="images/backend_api.jpg"  width="650">
+<img src="images/frontend_init.png"  width="800">
 
 
 ### Docker cleanup
