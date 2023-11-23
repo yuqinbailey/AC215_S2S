@@ -100,9 +100,10 @@ Persistent storage is achieved through a Google Compute Engine (GCE) Persistent 
 **P.S. Our mentor approved running inference without Vertex AI since Vertex AI can't support our model's long-duration inference. As a workaround, we run inference in the VM.**
 
 ### App backend API container
-<img src="images/backend1.jpg"  width="800">
 
 We built backend api service using FAST API to expose model functionality to the frontend. We provide the following functions for listening to the front-end. Some user-friendly prompts are also returned to the user while the model is doing the inference, such as progress bar.
+
+<img src="images/backend1.jpg"  width="800">
 
 ### App frontend container
 
