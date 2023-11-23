@@ -105,6 +105,9 @@ This container has all the python files to run and expose the backend apis.
 ### App frontend container
 
 ### Deployment
+Here is our deployed app on a single VM instance with T4 GPU in GCP:
+<img src="images/vm.png"  width="800">
+
 - run api-service container
 ```shell
 sh shell.sh
