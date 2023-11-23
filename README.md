@@ -80,12 +80,13 @@ After completions of building a robust ML Pipeline in our previous milestone we 
 Before we start implementing the app we built a detailed design document outlining the application’s architecture. We built a Solution Architecture abd Technical Architecture to ensure all our components work together.
 
 Here is our Solution Architecture:
-<img src="images/solution_arch.png"  width="800">
+<img src="images/solution_arch.svg"  width="800">
 
 Here is our Technical Architecture:
-<img src="images/technical_arch.png"  width="800">
+<img src="images/technical_arch.svg"  width="800">
 
 ### App backend API container
+This container has all the python files to run and expose the backend apis.
 
 ### App frontend container
 
@@ -106,8 +107,14 @@ sudo docker run -d --name frontend -p 3000:80 --network s2s lildanni/s2s-fronten
 sudo docker run -d --name nginx -v $(pwd)/conf/nginx/nginx.conf:/etc/nginx/nginx.conf -p 80:80 --network s2s nginx:stable
 ```
 
-<img src="images/backend_api.jpg"  width="650">
+When the user open the website, there will be the function for user to upload a 10s video.
 <img src="images/frontend_init.png"  width="800">
+
+After getting the user's video, the backend api will be called and start preprocessing and inference.
+<img src="images/backend_api.jpg"  width="650">
+
+When the audio is successfully generated, there will be a link generated for the user to download the new video with sound.
+<img src="images/frontend_result.png"  width="800">
 
 
 ### Docker cleanup
