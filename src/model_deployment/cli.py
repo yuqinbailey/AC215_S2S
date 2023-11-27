@@ -42,33 +42,7 @@ BEST_MODEL = "traced_regnet_model_test.pth"
 GCP_PROJECT = "ac215project-398818"
 GCS_MODELS_BUCKET_NAME = "s2s_data_new"
 ARTIFACT_URI = f"gs://{GCS_MODELS_BUCKET_NAME}/model/RegNet/"
-
-########### only in this container, DO NOT PUSH TO GIT HUB ###########
-
-from google.oauth2 import service_account
-import json
-SERVICE_ACCOUNT = json.loads(r"""{
-    "type": "service_account",
-    "project_id": "ac215project-398818",
-    "private_key_id": "30a1b85791b1178f16bd1546f40b2c6131ca7a47",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC10F9XtSBx7z0A\nwcqZcGv9GdVyQfRIby9XAQc+KStmyroZQEoWk0akFHxBoVScgaoYTw9nXvfF9yGF\nCmvByCzrbfwAtEPVubWbhUMjEqQtldDQoLhSlWII0psAQBTeNyrxESiaEaimf7dh\niD1r7+Bv0aSj/zhjDcu903v7ed9TI906gxUIdOXm44SHwbouFlS+t5awr/Ep0Irn\nSKGSGm5x521hiBT/WdpY9Lr2bT+NsBVi1K9oKVN/JiJv2vh3mRtMVJMk0iGHqkLl\nMCHZsKI5xcGCkqEvnybLt38qh5Ea4uWf9RejFJiLUPMPwLossB5cYczJIYX4Su7t\nlFsunDoTAgMBAAECggEAESN/K/470eb/70zVTikt/NINGrQDP5AU5yoxJm0XasgB\nyp89UgB4axTam7iGCH95QHO0xi/1F65n9KnFUPiPh3KQNqQc4Djyg3ezRaCcZQcC\nLqXKik+2SeefII2/NIKrI8X+zPs3fy57ORCbMva4nOx8Yns3XlsEEYpYiHL2GC5D\nSjC/8gssQXeUYF/WRUI5T7FXUJijSREIwu1Fx7mchmzgykI6vjasvevgCqAUZfc2\nw/3VYzFHkzHE9BGI9hL8KaK07RRihVil5dqdmB29FYSVyD9YvgQuaN1KpZfSsCqK\nkrB6meqRfq4D79o6TkbXXdjzIaOlEBZ+yUVyFZTgfQKBgQDsTEPZL2NyU4uYng/0\nUiScy3ihlsEVx/Dq9BdTQD3tct4EH0KgSUaIVrXAKJHtq0avR4/O6YxqGYKYql6T\n5rpmsFssWJg+EfVqpafPQxjnr2pf6sVdfXuuHFfVk9wWT8+AdiplG0C9n+NUpD1s\nTuwoa7Ev7haRd75xIfnhlTFqNQKBgQDE+ShRz90qF6nPeWMmtC1k2w2ovVyHXwPN\nAk8wNTmVxq834tvA0LsQrVHl3SY/HilN/p/Bq5EXNVW8+3eHjJxk5bnvm9yHxkUG\n1PPCy0ZbHiPpCOALHEI+GJdpGeupwd+yminz0HgWH/xOsN/Ef16TViAFXBr0rdFj\nWLZpF4JcJwKBgHcVqEvX+gIv4HY1kkzK6PCsCktFMmHLtbpy8R5fjdYQwZrKNkWZ\nKBalvErvJzvjyWekZPEd+kmuOYa+tZNMADyoPAqJS5BcdJYejgeCBRcd7DoSkwye\npKoGVq2oKo6EAkr3Qj5aEbJ+1Y5ehyYCUDm+rDk/f9gnxK43NTteeNzRAoGACq6A\nUz90fO3flZK9n8GxnICMkxQByo2KhTmU1cZtIwQtSFiTFje7jUH46QA/LLkUAFjI\njRYiviF0TtVMPBuR957FoIrRQMOtxpsRxQSFAjf2NpL2o2Oa7AclXtu6/e+3k9Xs\nZH5vpLODWTkaSWum01KeVewSwiYS7tJGwhg2R40CgYAMvuGXH3BbUTP+KlL7Weh/\nEOhYO1lxQW41YSq6CPDmQOUJaf9tK512d/Fd9u7nZCQhXSiZHj9zUav6YTSZ+Wp/\n9Xz3tESvVYB8dvYI2F21J7iBvpF7Ludft7LqWx+X8Uelg1HKXmxkgWRHiRpfCKoG\nPBQM2JjpgdMgWaD1Y/rXqA==\n-----END PRIVATE KEY-----\n",
-    "client_email": "model-deployment@ac215project-398818.iam.gserviceaccount.com",
-    "client_id": "104802719843929809393",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/model-deployment%40ac215project-398818.iam.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
-  }""")
-
-credentials = service_account.Credentials.from_service_account_info(
-    SERVICE_ACCOUNT,
-    scopes=["https://www.googleapis.com/auth/cloud-platform"],
-)
-
-aiplatform.init(project=GCP_PROJECT, credentials=credentials, location='us-central1')
-
-########################################################################
+SERVICE_ACCOUNT = ""
 
 class CombinedModel(torch.nn.Module):
     def __init__(self, regnet_model, wavenet_model):
@@ -288,33 +262,6 @@ def main(args=None):
         endpoint = aiplatform.Endpoint(
             "projects/634116577723/locations/us-central1/endpoints/5891115131902885888"
         )
-
-    #     # Get a sample image to predict
-    #     batch_size = 4
-    #     sequence_length = 215  # number of sequences or frames
-    #     feature_dimension = 2048  # feature dimension per sequence
-    #     mel_features = 80  
-    #     time_steps = 860
-    #     dummy_input = torch.rand(1, sequence_length, feature_dimension)
-    #     dummy_realB = torch.rand(1, mel_features, time_steps)
-
-    #    # Convert the PyTorch tensor to numpy array
-    #     dummy_input_np = dummy_input.cpu().numpy()  # Make sure to add this line
-    #     dummy_realB_np = dummy_realB.cpu().numpy()  # And this line to convert tensors to numpy arrays
-
-    #     # Convert numpy arrays to base64 encoded bytes
-    #     dummy_input_b64 = base64.b64encode(dummy_input_np.tobytes()).decode('utf-8')
-    #     dummy_realB_b64 = base64.b64encode(dummy_realB_np.tobytes()).decode('utf-8')
-
-    #     # Make sure to provide the base64 strings in the format that your model expects
-    #     instances = (dummy_input_b64, dummy_realB_b64)
-
-    #     # Make a prediction
-    #     result = endpoint.predict(instances=instances)
-    #     # The format of each instance should conform to the deployed model's prediction input schema.
-    #     # instances = [(dummy_input, dummy_realB)]
-
-    #     print("Result:", result)
 
 
         with open('input_payload.json', 'r') as file:
