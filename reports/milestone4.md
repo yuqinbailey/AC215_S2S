@@ -203,4 +203,4 @@ To make sure we do not have any running containers and clear up unused images -
 - [Colab Notebook](https://colab.research.google.com/drive/16ipwKR76L_exSH5SqfNyQ7FJUOtNSwla?usp=sharing) - facilitates the retrieval of various versions of our dataset managed by DVC, requiring GCP and GitHub authentication. It offers two functions, `dataset_metrics` and `show_examples`, to efficiently visualize dataset samples and display metrics, serving as sanity check for our data.
 
 
-### [References](references/README.md)
+### [References](/references/README.md)
