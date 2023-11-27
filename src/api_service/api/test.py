@@ -5,16 +5,17 @@ import torch
 from torch.utils.data import DataLoader
 import numpy as np
 import librosa
-from trainer.data_utils import RegnetLoader
-from trainer.model import Regnet
-from trainer.config import _C as config
+from data_utils import RegnetLoader
+from model import Regnet
+from config import _C as config
+from google.cloud import storage
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import soundfile as sf
 
-from .wavenet_vocoder import builder
+from wavenet_vocoder import builder
 
 def build_wavenet(checkpoint_path=None, device='cuda:0'):
     model = builder.wavenet(
@@ -65,7 +66,7 @@ def test_model():
     torch.manual_seed(config.seed)
     torch.cuda.manual_seed(config.seed)
     model = Regnet()
-    valset = RegnetLoader(config.test_files)
+    valset = RegnetLoader(args.test_name)
     print(len(valset))
     test_loader = DataLoader(valset, num_workers=4, shuffle=False,
                              batch_size=config.batch_size, pin_memory=False)
@@ -110,15 +111,30 @@ if __name__ == '__main__':
     # parser.add_argument('-c', '--config_file', type=str, default='',
     #                     help='file for configuration')
     parser.add_argument("--pretrained_regnet_path", type=str, default="", help="Path to the pretrained model")
+    parser.add_argument("--test_name", type=str, default="", help="id of test video")
     # parser.add_argument("opts", default=None, nargs=argparse.REMAINDER)
     args = parser.parse_args()
 
-    # config.checkpoint_path = args.pretrained_regnet_path
-    # if args.config_file:
-    #     config.merge_from_file(args.config_file)
- 
-    # config.merge_from_list(args.opts)
-    # config.freeze()
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket("s2s_data_new")
+    # Download the Regnet and Wavenet weights from GCS
+    if not os.path.exists("./ckpt/"):
+        os.makedirs("./ckpt/dog_barking/")
+        os.makedirs("./ckpt/drum_wavenet/")
+
+    # prefix = 'checkpoint_latest'
+    # blob = bucket.blob(f"ckpt/bongo/{prefix}_netG")
+    # blob.download_to_filename(f"./ckpt/bongo/{prefix}_netG")
+    # blob = bucket.blob(f"ckpt/bongo/{prefix}_netD")
+    # blob.download_to_filename(f"./ckpt/bongo/{prefix}_netD")
+    blob = bucket.blob(f"ckpt/dog_barking/checkpoint_041000/checkpoint_041000_netG")
+    blob.download_to_filename(f"./ckpt/dog_barking/checkpoint_041000_netG")
+    blob = bucket.blob(f"ckpt/dog_barking/checkpoint_041000/checkpoint_041000_netD")
+    blob.download_to_filename(f"./ckpt/dog_barking/checkpoint_041000_netD")
+
+    # wavenet
+    blob = bucket.blob(f"ckpt/drum_wavenet/drum_checkpoint_step000160000_ema.pth")
+    blob.download_to_filename(f"./ckpt/drum_wavenet/drum_checkpoint_step000160000_ema.pth")
 
     torch.backends.cudnn.enabled = config.cudnn_enabled
     torch.backends.cudnn.benchmark = config.cudnn_benchmark

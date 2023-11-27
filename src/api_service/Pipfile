@@ -1,0 +1,38 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+uvicorn = "*"
+fastapi = "*"
+pandas = "*"
+google-cloud-storage = "*"
+python-multipart = "*"
+google-cloud-aiplatform = "*"
+numba = "*"
+librosa = "*"
+matplotlib = "*"
+opencv-python = "*"
+opencv-contrib-python = "*"
+Pillow = "*"
+tqdm = "*"
+yacs = "*"
+future = "*"
+numpy = "*"
+scipy = "*"
+scikit-learn = "*"
+tensorboard = "*"
+wandb = "*"
+soundfile = "*"
+chardet = "*"
+charset_normalizer = "*"
+protobuf = "*"
+moviepy = "*"
+google = "*"
+
+
+[requires]
+python_version = "3.8"

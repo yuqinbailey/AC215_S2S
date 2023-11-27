@@ -130,9 +130,10 @@ dmypy.json
 
 .DS_Store
 # secrets/
-**.tar.gz
 **/secrets/
 src/secrets/
+
+**.tar.gz
 *.mp4
 *.wav
 
@@ -143,13 +144,7 @@ src/train/package/trainer/filelists/
 src/train/package/trainer/README.md
 src/train/trainer.tar.gz
 
-# deploy dir
-src/model_deployment/ckpt/
-src/model_deployment/data/
-src/model_deployment/images/
-src/model_deployment/model/
-src/model_deployment/Pipfile
-src/model_deployment/Pipfile.lock
-src/model_deployment/Pipfile.lock.amd
-src/model_deployment/Pipfile.lock.arm
-src/model_deployment/docker-entrypoint.sh
+# api dir
+persistent_folder/
+src/api_service/features/
+src/api_service/processed_data/
