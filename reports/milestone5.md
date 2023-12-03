@@ -168,4 +168,4 @@ To make sure we do not have any running containers and clear up unused images -
 * Run `docker system prune`
 
 
-### [References](references/README.md)
+### [References](/references/README.md)
