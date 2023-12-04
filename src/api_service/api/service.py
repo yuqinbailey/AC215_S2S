@@ -8,6 +8,7 @@ from fastapi import File
 from tempfile import TemporaryDirectory
 from api import api_model
 import uuid
+from fastapi.responses import FileResponse
 
 # Initialize Tracker Service
 # tracker_service = TrackerService()
@@ -31,9 +32,9 @@ video_processing_status = "not_started"
 
 def process_video(video_path):
     global video_processing_status
-    video_processing_status = "processing"
-    api_model.make_prediction('test')
-    video_processing_status = "finished"
+    # video_processing_status = "processing"
+    # api_model.make_prediction('test')
+    video_processing_status = "completed"
 
 @app.on_event("startup")
 async def startup():
@@ -66,3 +67,13 @@ async def predict(background_tasks: BackgroundTasks, file: bytes = File(...)):
 def get_status():
     global video_processing_status
     return {"status": video_processing_status}
+
+
+@app.get("/get_video")
+def get_video():
+    # print(os.getcwd())
+    video_path = './results/test.mp4'  # Replace with the actual path to your processed video
+    if os.path.exists(video_path):
+        return FileResponse(video_path)
+    else:
+        return {"message": "File does not exist"}, 404
