@@ -7,7 +7,7 @@ export BASE_DIR=$(pwd)
 export SECRETS_DIR=$(pwd)/../secrets/
 export GCS_BUCKET_URI="gs://s2s_data_new"
 export GCP_PROJECT="ac215project-398818"
-export WANDB_KEY="f41e521531bde36451c2adc9a1e7b2de8f2064fa"
+export WANDB_KEY=""
 
 # Build the image based on the Dockerfile
 #docker build -t $IMAGE_NAME -f Dockerfile .
