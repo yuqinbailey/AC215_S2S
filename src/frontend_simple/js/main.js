@@ -19,7 +19,7 @@ function input_file_onchange() {
     input_file_view.src = URL.createObjectURL(file_to_upload);
     //prediction_label.innerHTML = "";
 
-    // Post the image to the /predict API
+    // Post the video to the /predict API
     var formData = new FormData();
     formData.append("file", input_file.files[0]);
     axios.post('/predict', formData, {
@@ -30,8 +30,8 @@ function input_file_onchange() {
         console.log(response.data);
         // Assuming response includes a video ID or some status message
         alert("Your video is being processed. You will be notified when it's ready.");
-        // Optionally, save the video ID or other reference in local storage or display it to the user
-    }).catch(function (error) {
+        checkStatus();
+        }).catch(function (error) {
         console.error("Error during file upload:", error);
         alert("There was an error uploading your video.");
     });
@@ -57,16 +57,44 @@ function startDummyProgressBar() {
     }, 1000); //update progress every 1 second
 }
 
-function downloadVideo() {
-    // the URL to the video file
-    var videoUrl = 'persistent-folder/test.mp4';
+function checkStatus() {
+    axios.get('/status').then(response => {
+        console.log('im inside checkStatus')
+        console.log(response)
+        if (response.data.status === 'completed') {
+            console.log('completed')
+            // When processing is complete
+            showDownloadButton();
+        } else {
+            // If still processing, check again after some time
+            setTimeout(checkStatus, 5000);
+        }
+    }).catch(error => console.error("Error checking status:", error));
+}
 
-    // create a temporary anchor tag to trigger the download
-    var a = document.createElement('a');
-    a.href = videoUrl;
-    a.download = 'processed_video.mp4';  // the name we want to save the file as
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+function showDownloadButton() {
+    console.log('inside showDownload')
+    var downloadButton = document.getElementById('downloadButton');
+    downloadButton.style.display = 'block'; // Show the download button
+}
+
+function downloadVideo() {
+    // Request the processed video from the backend
+    console.log('inside download')
+    axios.get('/get_video', {
+        responseType: 'blob'  // Important to handle binary data
+    }).then(response => {
+        // Create a URL for the blob
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'test.mp4'); // Specify the download file name
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up and revoke the URL
+        link.parentNode.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    }).catch(error => console.error("Error getting video:", error));
 }
 
