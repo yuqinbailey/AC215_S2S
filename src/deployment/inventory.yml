@@ -1,15 +1,15 @@
 all:
     vars:
-      ansible_user: sa_112110341521566323490
+      ansible_user: sa_108263285082357094794
       ansible_ssh_private_key_file: "../../secrets/ssh-key-deployment"
       gcp_service_account_file: "../../secrets/deployment.json"
-      gcp_service_account_email: "deployment@ac215-project.iam.gserviceaccount.com"
+      gcp_service_account_email: "deployment@ac215project-398818.iam.gserviceaccount.com"
       gcp_auth_kind: "serviceaccount"
       gcp_scopes: "https://www.googleapis.com/auth/compute"
-      gcp_project: "ac215-project"
-      gcp_region: "us-east1"
+      gcp_project: "ac215project-398818"
+      gcp_region: "us-west3"
       gcp_zone: "us-west3-b"
-      docker_network_name: "appnetwork"
+      docker_network_name: "s2s-network"
       persistent_disk_name: "s2s-disk"
       persistent_disk_size: 50
       machine_instance_name: "s2s-demo"
@@ -19,4 +19,4 @@ all:
     children:
         appserver:
             hosts:
-                34.106.213.117;
+                34.106.213.117
