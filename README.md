@@ -17,7 +17,7 @@ Project Organization
       ├── setup.py
       └── src
             ├── secrets
-            ├── workflow
+            ├── workflow                   <- Kubeflow
             │   └── ...
             ├── data_collection            <- Scripts for dataset creation
             │   └── ...
@@ -30,22 +30,42 @@ Project Organization
             ├── api_service                <- Code for model deployment & App backend APIs
             │   ├── api
             │   │   ├── tsn
-            │   │   ├── wavenet_vododer
+            │   │   ├── wavenet_vocoder
+            │   │   ├── config.py
+            │   │   ├── data_utils.py
             │   │   ├── extract_rgb_flow.py
             │   │   ├── extract_mel_spectrogram.py
             │   │   ├── extract_feature.py
+            │   │   ├── criterion.py
             │   │   ├── model.py
+            │   │   ├── test.py
             │   │   ├── api_model.py
             │   │   └── service.py
+            │   ├── requirements.txt
             │   ├── Dockerfile
             │   ├── docker-entrypoint.sh
             │   ├── docker-shell.sh
             │   ├── Pipfile
             │   └── Pipfile.lock
-            └── frontend_simple            <- Code for App frontend
-                ├── js
-                ├── index.html
+            ├── frontend_simple            <- Code for App frontend
+            │   ├── conf
+            │   ├── css
+            │   ├── js
+            │   ├── index.html
+            │   ├── Dockerfile.dev
+            │   ├── Dockerfile
+            │   └── docker-shell.sh
+            └── deployment                 <- Code for App deployment
+                ├── nginx-conf
+                ├── inventory.yml
+                ├── deploy-create-instance.yml
+                ├── deploy-provision-instance.yml
+                ├── deploy-docker-images.yml
+                ├── deploy-setup-containers.yml
+                ├── deploy-setup-webserver.yml
+                ├── deploy-k8s-cluster.yml
                 ├── Dockerfile
+                ├── docker-entrypoint.sh
                 └── docker-shell.sh
 
 
@@ -115,7 +135,7 @@ This container helps manage building and deploying all our app containers. The d
 Here is our deployed app on a single VM instance with T4 GPU in GCP:
 <img src="images/vm.png"  width="800">
 
-To run the container locally:
+To run the containers locally:
 - run api-service container
 ```shell
 sh shell.sh
