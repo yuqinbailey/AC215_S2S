@@ -27,7 +27,12 @@ PROCESSED_VIDEO_DIR = f"./processed_data/{prefix}/video_10s_{fps}fps"
 PROCESSED_AUDIO_DIR = f"./processed_data/{prefix}/audio_10s_{sr}hz"
 FEATURE_DIR = f"./features/{prefix}"
 
+progress_status = "not_started"
+
 def preprocess(test):
+        
+        global progress_status
+
         input_video_path = test + ".mp4"
 
         # start to do the preprocess and feature extraction
@@ -58,6 +63,8 @@ def preprocess(test):
         print("-" * 50)
         print("CHECKPOINT 4")
         print("-" * 50)
+
+        progress_status = "preprocessing_done"
         
         # feature extractions
         os.system(f"python ./api/extract_rgb_flow.py -i {PROCESSED_VIDEO_DIR} -o {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')}")
@@ -82,10 +89,18 @@ def preprocess(test):
         print("Finished extract_feature flow")
         print("*" * 50)
 
+        progress_status = "feature_extraction_done"
+
 
 def make_prediction(test):
+
+    global progress_status
+
+    progress_status = "processing"
       
     preprocess(test)
+
+    progress_status = "inferencing"
 
     os.system(f"CUDA_VISIBLE_DEVICES=0 python ./api/test.py --test_name {test}")
 
@@ -101,39 +116,5 @@ def make_prediction(test):
     # Write the result to a new file
     video_clip.write_videofile(os.path.join('./results/', f'{test}.mp4'), codec='libx264', audio_codec='aac')
     
-
-# def make_prediction_vertexai(image_path):
-#     print("Predict using Vertex AI endpoint")
-
-#     # Get the endpoint
-#     # Endpoint format: endpoint_name="projects/{PROJECT_NUMBER}/locations/us-central1/endpoints/{ENDPOINT_ID}"
-#     endpoint = aiplatform.Endpoint(
-#         "projects/129349313346/locations/us-central1/endpoints/8600804363952193536"
-#     )
-
-#     with open(image_path, "rb") as f:
-#         data = f.read()
-#     b64str = base64.b64encode(data).decode("utf-8")
-#     # The format of each instance should conform to the deployed model's prediction input schema.
-#     instances = [{"bytes_inputs": {"b64": b64str}}]
-
-#     result = endpoint.predict(instances=instances)
-
-#     print("Result:", result)
-#     prediction = result.predictions[0]
-#     print(prediction, prediction.index(max(prediction)))
-
-#     index2label = {0: "oyster", 1: "crimini", 2: "amanita"}
-
-#     prediction_label = index2label[prediction.index(max(prediction))]
-
-#     poisonous = False
-#     if prediction_label == "amanita":
-#         poisonous = True
-
-#     return {
-#         "prediction_label": prediction_label,
-#         "prediction": prediction,
-#         "accuracy": round(np.max(prediction) * 100, 2),
-#         "poisonous": poisonous,
-#     }
+    progress_status = "completed"
+    
