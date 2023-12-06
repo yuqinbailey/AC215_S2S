@@ -71,9 +71,13 @@ def get_status():
 
 @app.get("/get_video")
 def get_video():
-    # print(os.getcwd())
-    video_path = './results/test.mp4'  # Replace with the actual path to your processed video
+    video_path = './results/test.mp4'  # Path to your processed video
     if os.path.exists(video_path):
-        return FileResponse(video_path)
+        # Set the response headers
+        headers = {
+            'Content-Disposition': 'attachment; filename="test.mp4"',
+            'Content-Type': 'video/mp4'
+        }
+        return FileResponse(video_path, headers=headers)
     else:
         return {"message": "File does not exist"}, 404
