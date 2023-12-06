@@ -1,14 +1,18 @@
 Silence to Sound: Generate Visually Aligned Sound for Videos
 ==============================
 
-AC215 - Milestone5
+### Presentation  Video
+* \<Link Here>
+
+### Blog Post Link
+*  \<Link Here>
+---
 
 Project Organization
 ------------
       .
       ├── LICENSE
       ├── README.md
-      ├── notebooks
       ├── references
       ├── setup.py
       └── src
@@ -46,18 +50,34 @@ Project Organization
 
 
 --------
-# AC215 - Milestone5 - Silence to Sound
+# AC215 - Final Project
 
 **Team Members**
-Yuqin (Bailey) Bai, Danning (Danni) Lai, Tiantong Li, Yujan Ting, Yong Zhang, and Hanlin Zhu
+[Yuqin (Bailey) Bai](https://github.com/yuqinbailey), [Danning (Danni) Lai](https://github.com/dl3918), [Tiantong Li](https://github.com/frankli0731), [Yujan Ting](https://github.com/YujanTing), [Yong Zhang](https://github.com/leocheung1001), and [Hanlin Zhu](https://github.com/hzhu98)
 
 **Group Name**
 S2S (*Silence to Sound*)
 
-**Project**
+**Project - Problem Definition**
 
 We aim to develop an application that generates ambient sounds from images or silent videos leveraging computer vision and multimodal models. Our goal is to enrich the general user experience by creating a harmonized visual-audio ecosystem, and facilitate immersive multimedia interactions for individuals with visual impairments.
 
+
+## Data Description 
+
+## Proposed Solution
+
+After completions of building a robust ML Pipeline in our previous milestone we have built a backend api service and frontend app. This will be our user-facing application that ties together the various components built in previous milestones.
+
+**S2S App**
+
+We built a user friendly frontend simple app to generate the sounds from slient videos using convolution-based models from the backend. Using the app a user can upload a short slient video and upload it. The app will generate the sounds for the video and the user can download the generated video. 
+
+<img src="images/frontend1.png"  width="800">
+
+**Kubernetes Deployment**
+
+We deployed our frontend and backend to a kubernetes cluster to take care of load balancing and failover. We used ansible scripts to manage creating and updating the k8s cluster. Ansible helps us manage infrastructure as code and this is very useful to keep track of our app infrastructure as code in GitHub. It helps use setup deployments in a very automated way.
 
 ### Code Structure
 
@@ -67,71 +87,35 @@ The following are the folders from the previous milestones:
 - data_preprocessing
 - feature_extraction
 - train
-- model_deployment
 - workflow
-```
-
-
-## Milestone5
-
-Here is the code structure for this time.
-
-The following are the folders for this milestone:
-```
 - api_service
-- data_collection
-- data_preprocessing
+- frontend_simple
 - deployment
-- feature_extraction
-- frontent_simple
-- train
-- model_deployment
-- workflow
 ```
 
-
-After completions of building a robust ML Pipeline in our previous milestone we have built a backend api service and frontend app. This will be our user-facing application that ties together the various components built in previous milestones.
-
-**Application Design**
-
-Before we start implementing the app we built a detailed design document outlining the application’s architecture. We built a Solution Architecture abd Technical Architecture to ensure all our components work together.
-
-Here is our Solution Architecture:
-<img src="/images/solution_arch.svg"  width="800">
-
-Our solution process begins with the Develop App phase where we can interact with the system via HTTPS/SSH protocols, primarily using VSCode as the integrated development environment. The machine learning pipeline consists of four main components: the Data Collector, Data Processor, Feature Extractor, and Model Training modules, which are interconnected and follow a sequential data flow to process and learn from the data effectively.
-
-In our Frontend component, the S2S Generator Website, which allows for video upload and viewing of results by the end-users, facilitated through HTTP/HTTPS protocols. The Backend is supported by an API Service that handles model serving, ensuring efficient communication between the frontend and the machine learning pipeline.
-
-All components are supported by underlying cloud services, including a Source Control system for code management, a Container Registry for Docker images, and a Model Store hosted on Google Cloud Platform (GCP) to store and retrieve our models. 
-
-Here is our Technical Architecture:
-<img src="/images/technical_arch.svg"  width="800">
-
-Our Technical Architecture is organized to support the application's development and operational needs. For containerization and deployment, images are pulled from Docker Hub, and a Google Cloud Storage (GCS) Bucket is utilized for storing data and models, with secure HTTPS protocol enforced.
-
-We developed four components on Vertex AI, including Data Collector, Data Processor, Feature Extractor, and Model Training, which forms part of the pipeline of our project. The architecture involves an NGINX Container to route traffic, a Frontend Container that serves the user interface, and an API Service Container dedicated to model serving.
-
-Persistent storage is achieved through a Google Compute Engine (GCE) Persistent Volume backed by a Persistent Disk, ensuring data durability and statefulness across sessions. The entire system is designed to ensure seamless integration between development, data handling, and user interaction.
-
-**P.S. Our mentor approved running inference without Vertex AI since Vertex AI can't support our model's long-duration inference. As a workaround, we run inference in the VM.**
 
 ### App backend API container
 
+This container has all the python files to run and expose the backend apis.
+
 We built backend api service using FAST API to expose model functionality to the frontend. We provide the following functions for listening to the front-end. Some user-friendly prompts are also returned to the user while the model is doing the inference, such as progress bar.
 
-<img src="/images/backend1.jpg"  width="800">
+<img src="images/backend1.jpg"  width="800">
+
 
 ### App frontend container
 
-We built a user friendly frontend simple app to generate the sounds from slient videos using convolution-based models from the backend. Using the app a user can upload a short slient video and upload it. The app will generate the sounds for the video and the user can download the generated video. 
+This container contains all the files to develop and build a web app. There are dockerfiles for both development and production.
 
-<img src="/images/frontend1.png"  width="800">
 
 ### Deployment
-Here is our deployed app on a single VM instance with T4 GPU in GCP:
-<img src="/images/vm.png"  width="800">
 
+This container helps manage building and deploying all our app containers. The deployment is to GCP and all docker images go to GCR. 
+
+Here is our deployed app on a single VM instance with T4 GPU in GCP:
+<img src="images/vm.png"  width="800">
+
+To run the container locally:
 - run api-service container
 ```shell
 sh shell.sh
@@ -148,24 +132,7 @@ sudo docker run -d --name frontend -p 3000:80 --network s2s lildanni/s2s-fronten
 sudo docker run -d --name nginx -v $(pwd)/conf/nginx/nginx.conf:/etc/nginx/nginx.conf -p 80:80 --network s2s nginx:stable
 ```
 
-When the user open the website, there will be the function for user to upload a 10s video.
-<img src="/images/frontend_init.png"  width="800">
-<img src="/images/frontend_upload.jpg"  width="800">
-
-After getting the user's video, the frontend will inform the user of the progress, and the backend api will be called and start preprocessing and inference.
-<img src="/images/frontend_processing.jpg"  width="800">
-<img src="/images/backend_api.jpg"  width="650">
-
-When the audio is successfully generated, there will be a link generated for the user to download the new video with sound.
-<img src="/images/frontend_result.jpg"  width="800">
-
-
-### Docker cleanup
-To make sure we do not have any running containers and clear up unused images -
-* Run `docker container ls`
-* Stop any container that is running
-* Run `docker image ls`
-* Run `docker system prune`
+### Deploy using GitHub Actions
 
 
 ### [References](references/README.md)
