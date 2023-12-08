@@ -2,6 +2,7 @@ axios.defaults.baseURL = '/api';
 
 var input_file = document.getElementById("input_file");
 var input_file_view = document.getElementById('input_file_view');
+var videoId = "";  // Store the video ID
 
 function upload_file() {
     input_file_view.src = null;
@@ -13,13 +14,14 @@ function input_file_onchange() {
     input_file_view.src = URL.createObjectURL(file_to_upload);
 
     var formData = new FormData();
-    formData.append("file", input_file.files[0]);
+    formData.append("file", file_to_upload);
     axios.post('/predict', formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
     }).then(function (response) {
         alert("Your video is being processed. You will be notified when it's ready.");
+        videoId = response.data.video_id;  // Save the video ID
         checkStatus();
     }).catch(function (error) {
         console.error("Error during file upload:", error);
@@ -30,22 +32,21 @@ function input_file_onchange() {
 input_file.onchange = input_file_onchange;
 
 function checkStatus() {
-    axios.get('/status').then(response => {
+    if (!videoId) return;  // Check if videoId is set
+
+    axios.get('/status/' + videoId).then(response => {
         const status = response.data.status;
         let progress = 0;
 
         switch(status) {
-            case 'processing':
-                progress = 10;
+            case 'preprocessing':
+                progress = 25;
                 break;
-            case 'preprocessing_done':
-                progress = 20;
-                break;
-            case 'feature_extraction_done':
-                progress = 45;
+            case 'feature extracting':
+                progress = 50;
                 break;
             case 'inferencing':
-                progress = 50;
+                progress = 75;
                 break;
             case 'completed':
                 progress = 100;
@@ -67,14 +68,15 @@ function checkStatus() {
 function showDownloadButton() {
     var downloadButton = document.getElementById('downloadButton');
     downloadButton.style.display = 'block';
+    downloadButton.onclick = function() { downloadVideo(videoId); };  // Update download function
 }
 
-function downloadVideo() {
-    axios.get('/get_video', { responseType: 'blob' }).then(response => {
+function downloadVideo(videoId) {
+    axios.get('/get_video/' + videoId, { responseType: 'blob' }).then(response => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'test.mp4');
+        link.setAttribute('download', `${videoId}.mp4`);
         document.body.appendChild(link);
         link.click();
 
