@@ -49,7 +49,7 @@ jobs:
             -e USE_GKE_GCLOUD_AUTH_PLUGIN=True \
             -e GCP_PROJECT=ac215-project \
             -e GCP_ZONE=us-central1-a \
-            s2s-app-deployment sh TODO.sh
+            s2s-app-deployment sh deploy-app.sh
       - name: Run Data Collector
         if: contains(github.event.head_commit.message, '/run-data-collector')
         run: |-
