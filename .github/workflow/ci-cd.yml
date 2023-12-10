@@ -39,15 +39,13 @@ jobs:
           docker run --rm --name s2s-app-deployment \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v $HOME/.ssh:/home/app/.ssh \
-            -v ${{ github.workspace }}/src/frontend_simple:/frontend_simple \
-            -v ${{ github.workspace }}/src/api_service:/api_service \
-            -v ${{ github.workspace }}/src/data_collection:/data_collection \
-            -v ${{ github.workspace }}/src/data_preprocessing:/data_preprocessing \
+            -v ${{ github.workspace }}/src/frontend_simple:/s2s-frontend_simple \
+            -v ${{ github.workspace }}/src/api_service:/s2s-api_service \
             --volume $GITHUB_WORKSPACE:/workspace \
             --mount type=bind,source=$GOOGLE_APPLICATION_CREDENTIALS,target=/secrets/deployment.json \
             --env GOOGLE_APPLICATION_CREDENTIALS=/secrets/deployment.json \
             -e USE_GKE_GCLOUD_AUTH_PLUGIN=True \
-            -e GCP_PROJECT=ac215-project \
+            -e GCP_PROJECT=ac215project-398818 \
             -e GCP_ZONE=us-central1-a \
             s2s-app-deployment sh deploy-app.sh
       - name: Run Data Collector
