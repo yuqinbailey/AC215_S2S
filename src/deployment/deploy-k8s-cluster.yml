@@ -7,7 +7,7 @@
     cluster_name: "s2s-app-cluster-leo"
     machine_type: "n2d-standard-2"
     machine_disk_size: 30
-    initial_node_count: 2
+    initial_node_count: 1
     servce_account_email : "deployment@ac215project-398818.iam.gserviceaccount.com"
 
   tasks:
