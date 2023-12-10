@@ -28,9 +28,9 @@
       state: "{{ cluster_state }}"
     register: cluster
 
-  - name: "Create a Node Pool"
+  - name: "Create a Node Pool with GPU"
     google.cloud.gcp_container_node_pool:
-      name: default-pool
+      name: gpu-pool
       initial_node_count: "{{ initial_node_count }}"
       cluster: "{{ cluster }}"
       location: "{{ gcp_zone }}"
@@ -47,6 +47,9 @@
           - "https://www.googleapis.com/auth/servicecontrol"
           - "https://www.googleapis.com/auth/service.management.readonly"
           - "https://www.googleapis.com/auth/trace.append"
+        accelerators:
+          - accelerator_count: 1
+            accelerator_type: "nvidia-tesla-t4" 
       autoscaling:
         enabled: "yes"
         min_node_count: "1"
