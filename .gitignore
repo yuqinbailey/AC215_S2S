@@ -148,5 +148,3 @@ src/train/trainer.tar.gz
 persistent_folder/
 src/api_service/features/
 src/api_service/processed_data/
-
-src/model_deployment/model/RegNet
