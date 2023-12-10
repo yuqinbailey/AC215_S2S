@@ -113,7 +113,7 @@ if __name__ == '__main__':
     # parser.add_argument("opts", default=None, nargs=argparse.REMAINDER)
     args = parser.parse_args()
 
-    # config.checkpoint_path = args.pretrained_regnet_path
+    config.checkpoint_path = args.pretrained_regnet_path
     # if args.config_file:
     #     config.merge_from_file(args.config_file)
  
