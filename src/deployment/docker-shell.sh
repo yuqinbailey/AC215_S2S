@@ -23,6 +23,8 @@ docker run --rm --name $IMAGE_NAME -ti \
 -v "$HOME/.ssh":/home/app/.ssh \
 -v "$BASE_DIR/../api_service":/s2s-api-service \
 -v "$BASE_DIR/../frontend_simple":/s2s-frontend-simple \
+-v "$BASE_DIR/../data_collection":/s2s-data-collector \
+-v "$BASE_DIR/../data_preprocessing":/s2s-data-processor \
 -e GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS \
 -e USE_GKE_GCLOUD_AUTH_PLUGIN=True \
 -e GCP_PROJECT=$GCP_PROJECT \
