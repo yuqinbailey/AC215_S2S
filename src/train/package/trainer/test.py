@@ -15,6 +15,7 @@ from tqdm import tqdm
 import soundfile as sf
 
 from .wavenet_vocoder import builder
+import torch.quantization as quantization
 
 def build_wavenet(checkpoint_path=None, device='cuda:0'):
     model = builder.wavenet(
@@ -65,6 +66,12 @@ def test_model():
     torch.manual_seed(config.seed)
     torch.cuda.manual_seed(config.seed)
     model = Regnet()
+    qconfig = quantization.get_default_qat_qconfig('fbgemm')
+    model.qconfig = qconfig
+    
+    # Prepare the model for QAT
+    model = quantization.prepare_qat(model, inplace=True)
+
     valset = RegnetLoader(config.test_files)
     print(len(valset))
     test_loader = DataLoader(valset, num_workers=4, shuffle=False,

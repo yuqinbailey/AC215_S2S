@@ -16,7 +16,7 @@ export ACCELERATOR_COUNT=1
 export GCP_REGION="us-east1" # Adjust region based on you approved quotas for GPUs
 #export PATH=$PATH:/root/.local/bin
 
-export CMDARGS="--experiment_name=experiment_RegNet,--model_name=RegNet_v1,--epochs=30,--lr=0.0002,--wandb_key=$WANDB_KEY"
+export CMDARGS="--experiment_name=experiment_RegNet,--model_name=RegNet_v1,--epochs=5,--batch_size=64,--lr=0.0002,--wandb_key=$WANDB_KEY"
 #export CMDARGS="--model_name=mobilenetv2,--train_base,--epochs=30,--batch_size=32,--wandb_key=$WANDB_KEY"
 #export CMDARGS="--model_name=tfhub_mobilenetv2,--epochs=30,--batch_size=32,--wandb_key=$WANDB_KEY"
 #export CMDARGS="--model_name=tfhub_mobilenetv2,--train_base,--epochs=30,--batch_size=32,--wandb_key=$WANDB_KEY"
