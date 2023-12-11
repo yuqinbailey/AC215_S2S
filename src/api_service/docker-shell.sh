@@ -5,7 +5,7 @@ set -e
 set -x
 
 # Define some environment variables
-export IMAGE_NAME="lildanni/s2s-api-service"
+export IMAGE_NAME="ltt12196394/s2s-api-service:temp"
 export BASE_DIR=$(pwd)
 export SECRETS_DIR=$(pwd)/../../secrets/
 export PERSISTENT_DIR=$(pwd)/../../persistent-folder/

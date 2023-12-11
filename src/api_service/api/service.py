@@ -1,6 +1,6 @@
 from fastapi import FastAPI, File, BackgroundTasks
 from starlette.middleware.cors import CORSMiddleware
-from api import VideoProcessor
+from api import api_model
 import uuid
 from fastapi.responses import FileResponse
 
@@ -24,7 +24,7 @@ async def predict(background_tasks: BackgroundTasks, file: bytes = File(...)):
     with open(video_path, "wb") as output:
         output.write(file)
 
-    processor = VideoProcessor(video_id)
+    processor = api_model.VideoProcessor(video_id)
     processors[video_id] = processor
 
     background_tasks.add_task(processor.make_prediction)
