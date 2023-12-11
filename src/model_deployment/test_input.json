@@ -1,0 +1,9 @@
+{ 
+   "instances": [
+     { 
+       "data": {
+         "b64": "$(echo 'Take away the CGI and the A-list cast aaaand you end up with a film with less punch.' | base64 --wrap=0)"
+       }
+     }
+   ]
+}
