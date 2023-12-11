@@ -1,0 +1,17 @@
+version: "3.9"
+networks:
+    default:
+        name: model-deployment-network
+        external: true
+services:
+    model-deployment:
+        image:  model-deployment-cli:latest
+        container_name: model-deployment
+        volumes:
+            - ../secrets:/secrets
+            - ../model-deployment:/app
+        environment:
+            GOOGLE_APPLICATION_CREDENTIALS: ./model-deployment-leo.json
+            GCP_PROJECT: "ac215-project"
+            GCP_ZONE: "us-central1-a"
+            GCS_BUCKET_NAME: "s2s_data_new"

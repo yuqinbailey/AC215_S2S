@@ -1,0 +1,83 @@
+FROM pytorch/torchserve:latest-gpu
+# FROM pandaczm/torchserve_m1:transformers_4.10.0
+# FROM ppalmes/torchserve:p2.0
+
+# Add any additional dependencies your model or handler needs
+COPY ./requirements.txt /home/model-server/
+RUN pip3 install -r /home/model-server/requirements.txt
+
+# Copy the handler, model and any necessary files
+# COPY ./handler.py /home/model-server/
+# COPY ./config.py /home/model-server/
+# COPY ./criterion.py /home/model-server/
+# COPY ./model.py /home/model-server/
+# COPY ./model/RegNet/ /home/model-server/
+# COPY ./wavenet_vocoder/ /home/model-server/
+COPY . /home/model-server/
+COPY ./extract_feature.py /home/model-server/
+COPY ./extract_mel_spectrogram.py /home/model-server/
+COPY ./extract_rgb_flow.py /home/model-server/
+COPY ./tsn.tar /home/model-server/
+COPY ./wavenet_vocoder.tar /home/model-server/
+COPY ./extract_rgb_flow.py /home/model-server/
+COPY ./wavenet_vocoder/ /home/model-server/wavenet_vocoder/
+WORKDIR /home/model-server/
+
+USER root
+
+# ENV PYTHONPATH="${PYTHONPATH}:/home/model-server/wavenet_vocoder"
+# # COPY wavenet_vocoder wavenet_vocoder
+# RUN pip install /home/model-server/wavenet_vocoder
+
+# Create TorchServe configuration
+RUN printf "\nservice_envelope=json" >> /home/model-server/config.properties
+RUN printf "\ninference_address=http://0.0.0.0:7080" >> /home/model-server/config.properties
+RUN printf "\nmanagement_address=http://0.0.0.0:7081" >> /home/model-server/config.properties
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgl1-mesa-glx \
+    libxrender1 \
+    libsndfile1 \
+    fish \
+    vim \
+    screen \
+    wget && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# # Create the user model-server
+# RUN useradd -ms /bin/bash model-server
+# # Set the directory permissions
+# RUN chown -R model-server:model-server /home/model-server/
+
+# USER model-server
+
+# Expose health and prediction listener ports
+EXPOSE 7080
+EXPOSE 7081
+
+# Create the model archive file
+# Remove unnecessary extra files that are not relevant to your RegNet model
+RUN mkdir -p /home/model-server/model-store
+
+RUN torch-model-archiver -f \
+  --model-name=regnet \
+  --version=1.0 \
+  --serialized-file=/home/model-server/model/RegNet/traced_regnet_model_test.pth \
+  --handler=/home/model-server/handler.py \
+  --extra-files /home/model-server/config.py,/home/model-server/criterion.py,/home/model-server/model.py,/home/model-server/wavenet_vocoder/__init__.py,/home/model-server/wavenet_vocoder/builder.py,/home/model-server/wavenet_vocoder/conv.py,/home/model-server/wavenet_vocoder/mixture.py,/home/model-server/wavenet_vocoder/modules.py,/home/model-server/wavenet_vocoder/util.py,/home/model-server/wavenet_vocoder/wavenet.py,/home/model-server/extract_feature.py,/home/model-server/extract_mel_spectrogram.py,/home/model-server/extract_rgb_flow.py,/home/model-server/tsn.tar,/home/model-server/wavenet_vocoder.tar  \
+  --export-path=/home/model-server/model-store
+
+# Start TorchServe
+CMD ["torchserve", \
+     "--start", \
+     "--ts-config=/home/model-server/config.properties", \
+     "--models", \
+     "regnet=regnet.mar", \
+     "--model-store", \
+     "/home/model-server/model-store"]
