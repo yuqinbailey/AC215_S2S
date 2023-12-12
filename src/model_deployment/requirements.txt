@@ -1,3 +1,7 @@
+pandas
+google-cloud-storage
+python-multipart
+google-cloud-aiplatform
 numba
 librosa
 matplotlib
@@ -11,8 +15,6 @@ numpy
 scipy
 scikit-learn
 tensorboard
-google-cloud-storage
-google-cloud-aiplatform
 wandb
 soundfile
 chardet
@@ -20,4 +22,4 @@ charset_normalizer
 protobuf
 moviepy
 google
-pandas
+nvgpu

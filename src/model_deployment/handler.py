@@ -1,187 +1,135 @@
+# handler.py
 import os
-import requests
-import zipfile
-import tarfile
-import argparse
-from glob import glob
-import numpy as np
+import uuid
 import base64
 import torch
-from tqdm import tqdm
-import sys
-from model import Regnet
-from config import _C as config
-
-package_path = '/home/model-server/wavenet_vocoder'
-sys.path.insert(0, package_path)
-
-# os.system(f"pip install /home/model-server/wavenet_vocoder")
-print("*" * 50)
-os.system(f"pwd")
-# Get the absolute path of the current file
-current_file_path = os.path.abspath(__file__)
-
-# Get the directory name of the current file
-current_directory = os.path.dirname(current_file_path)
-print(current_directory)
-print("*" * 50)
-
-os.system(f"tar -xvf tsn.tar -C {current_directory}")
-os.system(f"tar -xvf wavenet_vocoder.tar -C {current_directory}")
-
-from wavenet_vocoder import builder
-from ts.torch_handler.base_handler import BaseHandler
 from io import BytesIO
-import os
-from moviepy.editor import VideoFileClip
+from ts.torch_handler.base_handler import BaseHandler
+from moviepy.editor import VideoFileClip, AudioFileClip
 
-
-TARGET_MODEL_NAME = "traced_regnet_model_test.pth"
+# Constants from your api_model.py
 fps = 21.5
 prefix = "playing_bongo"
 t = 0  # trimming from the beginning
-
-temp_video_file = '/home/model-server/temp_video.mp4'
-input_video_path = temp_video_file  # Define this
-test = "giao" # name of user input video
 sr = 22050  # Sample rate for audio
 
-PROCESSED_VIDEO_DIR = f"/home/model-server/processed_data/{prefix}/video_10s_{fps}fps"
-PROCESSED_AUDIO_DIR = f"/home/model-server/processed_data/{prefix}/audio_10s_{sr}hz"
-FEATURE_DIR = f"/home/model-server/features/{prefix}"
+# We use /workspace as a writable directory for TorchServe
+PROCESSED_VIDEO_DIR = f"/workspace/processed_data/{prefix}/video_10s_{fps}fps"
+PROCESSED_AUDIO_DIR = f"/workspace/processed_data/{prefix}/audio_10s_{sr}hz"
+FEATURE_DIR = f"/workspace/features/{prefix}"
+RESULTS_DIR = "/workspace/results"
+os.makedirs(PROCESSED_VIDEO_DIR, exist_ok=True)
+os.makedirs(PROCESSED_AUDIO_DIR, exist_ok=True)
+os.makedirs(FEATURE_DIR, exist_ok=True)
+os.makedirs(RESULTS_DIR, exist_ok=True)
 
-class RegNetHandler(BaseHandler):
-    """
-    The handler takes an input string and returns the classification text 
-    based on the serialized transformers checkpoint.
-    """
-    def __init__(self):
-        super(RegNetHandler, self).__init__()
+class MyModelHandler(BaseHandler):
+
+    def initialize(self, context):
+
+        print("*"*50,"Initializing","*"*50)
+
         self.initialized = False
-
-    def initialize(self, ctx):
-        """ Loads the model.pt file and initializes the model object.
-        Instantiates Tokenizer for preprocessor to use
-        Loads labels to name mapping file for post-processing inference response
-        """
-        self.manifest = ctx.manifest
-
-        properties = ctx.system_properties
-        model_dir = properties.get("model_dir")
-        self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
-
-        # Read model serialize/pt file
-        serialized_file = self.manifest["model"]["serializedFile"]
-        model_pt_path = os.path.join(model_dir, serialized_file)
-        if not os.path.isfile(model_pt_path):
-            raise RuntimeError("Missing the model.pt or pytorch_model.bin file")
-        
-        # Load model
-        self.model = torch.jit.load(f"/home/model-server/model/RegNet/{TARGET_MODEL_NAME}", map_location=self.device)
-        self.model.eval()
+        # Model initialization here, if needed
+        self.model = None  # Replace with actual model loading if applicable
         self.initialized = True
+        self.unique_id = str(uuid.uuid4())
 
 
     def preprocess(self, data):
-        print("-" * 50)
-        print("CHECKPOINT 1")
-        print("-" * 50)
-        # read the video data
-        base64_video = data[0].get("data")
-        # print(f"input data video bytes: {base64_video}")
-        video_buffer = BytesIO(base64_video)
 
-        # save it as a temporary mp4 file
-        with open(temp_video_file, 'wb') as f:
+        print("*"*50,"Preprocessing","*"*50)
+
+        try:
+            # Decode base64 data
+            
+            base64_video = data[0]['body']['file']
+            # base64_video = data[0]['body']['instances'][0]['data']['b64']
+            if base64_video is None:
+                raise ValueError("No data provided")
+            video_buffer = BytesIO(base64.b64decode(base64_video))
+        except (KeyError, IndexError, TypeError, base64.binascii.Error) as e:
+            raise ValueError("Invalid input format or base64 decode error") from e
+        
+        temp_video_path = f'/workspace/{self.unique_id}.mp4'
+        with open(temp_video_path, "wb") as f:
             f.write(video_buffer.getbuffer())
 
-        # start to do the preprocess and feature extraction
+        self._preprocess()
+        return []
+
+    def _preprocess(self):
+        test = self.unique_id
+
+        input_video_path = f'/workspace/{test}.mp4'
+    
+        if not os.path.exists(input_video_path) or os.path.getsize(input_video_path) == 0:
+            raise ValueError("Video file not found or is empty")
+    
+        # Adapting preprocessing logic from api_model.py
+        input_video_path = f'/workspace/{test}.mp4'
         os.makedirs(PROCESSED_VIDEO_DIR, exist_ok=True)
         os.makedirs(PROCESSED_AUDIO_DIR, exist_ok=True)
         os.makedirs(FEATURE_DIR, exist_ok=True)
 
-        print("-" * 50)
-        print("CHECKPOINT 2")
-        print("-" * 50)
-
-        # preprocess
+        # Preprocess the video
         clip = VideoFileClip(input_video_path)
-
         output_video_path = os.path.join(PROCESSED_VIDEO_DIR, f'{test}.mp4')
         output_audio_path = os.path.join(PROCESSED_AUDIO_DIR, f'{test}.wav')
-
-        print("-" * 50)
-        print("CHECKPOINT 3")
-        print("-" * 50)
 
         trimmed_clip = clip.subclip(t, min(t + 10, clip.duration))
         audio_clip = trimmed_clip.audio
 
-        trimmed_clip.write_videofile(output_video_path, fps=fps, threads=8, logger=None, codec="libx264", audio_codec="aac", ffmpeg_params=['-b:a', '98k'])
+        # Write the processed video and audio to files
+        trimmed_clip.write_videofile(output_video_path, fps=fps, threads=4, logger=None, codec="libx264", audio_codec="aac", ffmpeg_params=['-b:a', '98k'])
         audio_clip.write_audiofile(output_audio_path, fps=sr, logger=None, ffmpeg_params=['-ac', '1', '-ab', '16k'])
 
-        print("-" * 50)
-        print("CHECKPOINT 4")
-        print("-" * 50)
+        # Feature extraction commands
+        self._extract_features()
+
+    def _extract_features(self):
+        test = self.unique_id
+
+        print("*"*50,"Extracting features","*"*50)
+
+        # Run feature extraction scripts as system commands
+        os.system(f"python /workspace/src/extract_rgb_flow.py -i {PROCESSED_VIDEO_DIR} -o {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')}")
+        os.system(f"python /workspace/src/extract_mel_spectrogram.py -i {PROCESSED_AUDIO_DIR} -o {os.path.join(FEATURE_DIR, f'melspec_10s_{sr}hz')}")
         
-        print("*" * 50)
-        os.system(f"pwd")
-        # Get the absolute path of the current file
-        current_file_path = os.path.abspath(__file__)
+        # Extract RGB and Flow features
+        os.system(f"CUDA_VISIBLE_DEVICES=0 python /workspace/src/extract_feature.py -f {test} -j 0 -m RGB -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_rgb_bninception_dim1024_{fps}fps')}")
+        os.system(f"CUDA_VISIBLE_DEVICES=0 python /workspace/src/extract_feature.py -f {test}  -j 0 -m Flow -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_flow_bninception_dim1024_{fps}fps')}")
 
-        # Get the directory name of the current file
-        current_directory = os.path.dirname(current_file_path)
-        print(current_directory)
-        print("*" * 50)
+    def inference(self, data):
+        # Since the prediction is done within the make_prediction function, we call it directly
 
-        # feature extractions
-        os.system(f"python extract_rgb_flow.py -i {PROCESSED_VIDEO_DIR} -o {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')}")
-        print("*" * 50)
-        print("Finished extract_rgb_flow")
-        print("*" * 50)
+        print("*"*50,"Inferencing","*"*50)
+        self._make_prediction()
+        return []
+
+    def _make_prediction(self):
+        test = self.unique_id
+
+        # Inference logic from api_model.py
+        os.system(f"CUDA_VISIBLE_DEVICES=0 python /workspace/src/test.py --test_name {test}")
         
-        os.system(f"python extract_mel_spectrogram.py -i {PROCESSED_AUDIO_DIR} -o {os.path.join(FEATURE_DIR, f'melspec_10s_{sr}hz')}")
-        print("*" * 50)
-        print("Finished extract_mel_spectrogram")
-        print("*" * 50)
-
-        # Extract RGB features
-        os.system(f"CUDA_VISIBLE_DEVICES=0 python extract_feature.py  -f {test} -m RGB -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_rgb_bninception_dim1024_{fps}fps')}")
-        print("*" * 50)
-        print("Finished extract_feature RGB")
-        print("*" * 50)
-
-        # Extract Flow features
-        # os.system(f"CUDA_VISIBLE_DEVICES=0 python extract_feature.py  -f {test} -m Flow -i {os.path.join(FEATURE_DIR, f'OF_10s_{fps}fps')} -o {os.path.join(FEATURE_DIR, f'feature_flow_bninception_dim1024_{fps}fps')}")
-
-
-        # the rest of this part is yet to be deleted
-        sequence_length = 215  # number of sequences or frames
-        feature_dimension = 2048  # feature dimension per sequence
-        mel_features = 80  
-        time_steps = 860
-        dummy_input = torch.rand(1, sequence_length, feature_dimension)
-        dummy_realB = torch.rand(1, mel_features, time_steps)
-        
-        # inputs = torch.tensor(data[0]['data']).reshape(1, 215, 2048).to(self.device)
-        # real_B = torch.tensor(data[1]['data']).reshape(1, 80, 860).to(self.device)
-        inputs = dummy_input
-        real_B = dummy_realB
-        # print(f"preprocess input {inputs}")
-        # print(f"preprocess real_B {real_B}")
-        return inputs, real_B
-
-
-    def inference(self, inputs):
-        # """ Predict the class of a text using a trained transformer model.
-        # """
-        inputs, real_B = inputs
-        # print(f"inference input {inputs}")
-        # print(f"inference real_B {real_B}")
-        # with torch.no_grad():
-        #     fake_B, _ = self.model(inputs, real_B)
-        # return [fake_B.cpu().numpy()]
-        return ["Testing the inference side - Leo"]
+        # Combine video and audio back to a single file
+        video_clip = VideoFileClip(os.path.join(PROCESSED_VIDEO_DIR, f'{test}.mp4'))
+        audio_clip = AudioFileClip(os.path.join(RESULTS_DIR, f'{test}.wav'))
+        video_clip = video_clip.set_audio(audio_clip)
+        video_clip.write_videofile(os.path.join(RESULTS_DIR, f'{test}.mp4'), codec='libx264', audio_codec='aac')
 
     def postprocess(self, inference_output):
-        return inference_output
+        # Path to the processed video file
+        video_file_path = f'/workspace/results/{self.unique_id}.mp4'
+        
+        # Encode the video file in base64
+        with open(video_file_path, 'rb') as f:
+            video_data = f.read()
+        base64_encoded_video = base64.b64encode(video_data).decode('utf-8')
+        
+        # Return a list of dictionaries with the base64 encoded video string
+        return [{"video": base64_encoded_video, "status": "success"}]
+
+
+
