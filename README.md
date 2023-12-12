@@ -148,6 +148,7 @@ Here is our deployed app on a single VM instance with T4 GPU in GCP:
 To run the containers locally:
 - run api-service container
 ```shell
+cd src/api_service
 sh shell.sh
 ```
 
@@ -163,6 +164,12 @@ sudo docker run -d --name nginx -v $(pwd)/conf/nginx/nginx.conf:/etc/nginx/nginx
 ```
 
 ### Deploy using Ansible Playbooks
+This section outlines using Ansible playbooks for efficient automation of API service and Frontend deployment. The process involves the following steps: 
+1) Set up GCP service accounts for deployment and write the credentials into an inventory YAML file. 
+2) Push API and Frontend images to GCP's container registry (GCR). 
+3) Create and provision a VM instance with necessary settings (e.g., pip, curl, Docker). 
+4) Pull images from GCR to the instance. 
+5) Start the containers and NGINX web server. The above steps are all executed via YAML files. This approach allows for quick and efficient deployment with all necessary requirements, highlighting the effectiveness and speed of Ansible Playbooks.
 
 
 ### CI/CD with GitHub Actions
