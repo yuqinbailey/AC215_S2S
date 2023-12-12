@@ -27,7 +27,11 @@ Project Organization
             │   └── ...
             ├── train                      <- Model training, evaluation, and prediction code
             │   └── ...
-            ├── api_service                <- Code for model deployment & App backend APIs
+            ├── model_deployment           <- Model deployment using VM
+            │   ├── tsn
+            │   ├── wavenet_vocoder
+            │   └── ...
+            ├── api_service                <- Code for App backend APIs
             │   ├── api
             │   │   ├── tsn
             │   │   ├── wavenet_vocoder
@@ -80,10 +84,15 @@ S2S (*Silence to Sound*)
 
 **Project - Problem Definition**
 
-We aim to develop an application that generates ambient sounds from images or silent videos leveraging computer vision and multimodal models. Our goal is to enrich the general user experience by creating a harmonized visual-audio ecosystem, and facilitate immersive multimedia interactions for individuals with visual impairments.
+We aim to develop an application that generates sounds from images or silent videos leveraging computer vision and multimodal models. Our goal is to enrich the general user experience by creating a harmonized visual-audio ecosystem, and facilitate immersive multimedia interactions for individuals with visual impairments.
 
 
 ## Data Description 
+
+We use a public dataset from the Visual Geometry Group at the University of Oxford: VGG-Sound[<sup>[1]</sup>](references/README.md#1) is a large-scale dataset containing 200k+ audio-visual short clips for 300+ types of sound. With each clip approximately 10s long, this is equivalent to 550+ hours of videos. The combination of audio and visual data is highly relevant for multimodal research.
+
+<img src="images/vggsound_examples.png"  width="800">
+
 
 ## Proposed Solution
 
@@ -107,6 +116,7 @@ The following are the folders from the previous milestones:
 - data_preprocessing
 - feature_extraction
 - train
+- model_deployment
 - workflow
 - api_service
 - frontend_simple
@@ -152,7 +162,19 @@ sudo docker run -d --name frontend -p 3000:80 --network s2s lildanni/s2s-fronten
 sudo docker run -d --name nginx -v $(pwd)/conf/nginx/nginx.conf:/etc/nginx/nginx.conf -p 80:80 --network s2s nginx:stable
 ```
 
-### Deploy using GitHub Actions
+### Deploy using Ansible Playbooks
+
+
+### CI/CD with GitHub Actions
+To integrate our code changes (e.g. model architecture optimization or bug fixes) into the current deployment, we enable GitHub actions to automatically trigger the deployment or the whole machine learning workflow pipeline if necessary. 
+
+To enable continuous integration and continuous deployment with GitHub Actions, we 
+1. Set the credentials using deployment.json in GitHub settings.
+2. Add ./github/workflows/ci-cd.yml, which is the file to indicate what kind of actions we need to perform upon receiving the commit message.
+
+Below is a successful CI/CD action that we have acted after a commit was pushed to GitHub:
+
+<img src="images/successful_cicd_action.png"  width="800">
 
 
 ### [References](references/README.md)
