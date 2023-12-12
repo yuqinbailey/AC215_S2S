@@ -5,7 +5,7 @@ Silence to Sound: Generate Visually Aligned Sound for Videos
 * \<Link Here>
 
 ### Blog Post Link
-*  \<Link Here>
+*  https://medium.com/@yuqinbailey/1171a65272c0
 ---
 
 Project Organization
@@ -125,6 +125,8 @@ The following are the folders from the previous milestones:
 - frontend_simple
 - deployment
 ```
+
+### Model Deployment Container
 
 
 ### App API Service Container
