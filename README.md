@@ -127,7 +127,7 @@ The following are the folders from the previous milestones:
 ```
 
 
-### App backend API container
+### App API Service Container
 
 This container has all the python files to run and expose the backend apis.
 
@@ -136,37 +136,12 @@ We built backend api service using FAST API to expose model functionality to the
 <img src="images/backend1.jpg"  width="800">
 
 
-### App frontend container
+### App Frontend Container
 
 This container contains all the files to develop and build a web app. There are dockerfiles for both development and production.
 
 
-### Deployment
-
-This container helps manage building and deploying all our app containers. The deployment is to GCP and all docker images go to GCR. 
-
-Here is our deployed app on a single VM instance with T4 GPU in GCP:
-<img src="images/vm.png"  width="800">
-
-To run the containers locally:
-- run api-service container
-```shell
-cd src/api_service
-sh shell.sh
-```
-
-- run frontend container
-```shell
-sudo docker pull lildanni/s2s-frontend
-sudo docker run -d --name frontend -p 3000:80 --network s2s lildanni/s2s-frontend
-```
-
-- run NGINX web server
-```shell
-sudo docker run -d --name nginx -v $(pwd)/conf/nginx/nginx.conf:/etc/nginx/nginx.conf -p 80:80 --network s2s nginx:stable
-```
-
-**Deployment Container**
+### Deployment Container
 This container helps manage building and deploying all our app containers. The deployment is to GCP and all docker images go to GCR. 
 
 To run the container locally:
