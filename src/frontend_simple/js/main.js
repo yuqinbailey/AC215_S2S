@@ -2,7 +2,6 @@ axios.defaults.baseURL = '/api';
 
 var input_file = document.getElementById("input_file");
 var input_file_view = document.getElementById('input_file_view');
-var videoId = "";  // Store the video ID
 
 function upload_file() {
     input_file_view.src = null;
@@ -14,14 +13,13 @@ function input_file_onchange() {
     input_file_view.src = URL.createObjectURL(file_to_upload);
 
     var formData = new FormData();
-    formData.append("file", file_to_upload);
+    formData.append("file", input_file.files[0]);
     axios.post('/predict', formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
     }).then(function (response) {
         alert("Your video is being processed. You will be notified when it's ready.");
-        videoId = response.data.video_id;  // Save the video ID
         checkStatus();
     }).catch(function (error) {
         console.error("Error during file upload:", error);
@@ -32,24 +30,33 @@ function input_file_onchange() {
 input_file.onchange = input_file_onchange;
 
 function checkStatus() {
-    if (!videoId) return;  // Check if videoId is set
-
-    axios.get('/status/' + videoId).then(response => {
+    axios.get('/status').then(response => {
         const status = response.data.status;
         let progress = 0;
+        const labels = document.getElementsByClassName('label');
 
+        // Reset all labels to default style
+        for (let i = 0; i < labels.length; i++) {
+            labels[i].classList.remove('visible-label');
+        }
+
+        // Update progress and highlight the current label
         switch(status) {
-            case 'preprocessing':
-                progress = 25;
+            case 'processing':
+                progress = 0;
+                labels[0].classList.add('visible-label');
                 break;
-            case 'feature extracting':
-                progress = 50;
+            case 'preprocessing_done':
+                progress = 30;
+                labels[1].classList.add('visible-label');
                 break;
-            case 'inferencing':
-                progress = 75;
+            case 'feature_extraction_done':
+                progress = 65;
+                labels[2].classList.add('visible-label');
                 break;
             case 'completed':
                 progress = 100;
+                labels[3].classList.add('visible-label');
                 showDownloadButton();
                 break;
             default:
@@ -68,15 +75,14 @@ function checkStatus() {
 function showDownloadButton() {
     var downloadButton = document.getElementById('downloadButton');
     downloadButton.style.display = 'block';
-    downloadButton.onclick = function() { downloadVideo(videoId); };  // Update download function
 }
 
-function downloadVideo(videoId) {
-    axios.get('/get_video/' + videoId, { responseType: 'blob' }).then(response => {
+function downloadVideo() {
+    axios.get('/get_video', { responseType: 'blob' }).then(response => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `${videoId}.mp4`);
+        link.setAttribute('download', 'test.mp4');
         document.body.appendChild(link);
         link.click();
 

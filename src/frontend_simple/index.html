@@ -37,8 +37,8 @@
 	</div>
 
     <div class="container text-center" >
-		<div class="row justify-content-center" >
-			<div class="col-6" id="left" style="background: #fffefe">
+		<div class="row justify-content-center" style="padding-top: 10vh">
+			<div class="col-5" id="left" style="background: #fffefe">
                 <div class="mdc-card mdc-card--outlined" style="min-height: 400px;">
                     <div class="dropzone" onclick="upload_file()">
                         <input type="file" id="input_file" accept="video/*" name="input_file" on autocomplete="off" tabindex="-1" style="display: none;">
@@ -51,8 +51,8 @@
                 </div>
 			</div>
             
-            <div class="svg-container">
-                <svg width="70" height="300">
+            <div class="svg-container col-2">
+                <svg width="70%" height="300">
                     <defs>
                         <marker id="arrowhead" markerWidth="7" markerHeight="7" 
                         refX="0" refY="3.5" orient="auto">
@@ -64,20 +64,24 @@
                 </svg>
             </div>
             
-			<div class="col-6" id="right" >
+			<div class="col-5" id="right" >
                 <div class="mdc-card mdc-card--outlined" >
                 </div>
                 <br>
                 <br>
-                <div id="progressBarContainer" style="width: 100%; background-color: #ddd;">
+                <div id="progressBarContainer" style="width: 90%; background-color: #ddd;">
                     <div id="progressBar" style="height: 30px; width: 0%; background-color: #4CAF50;"></div>
                 </div>
+                <div class="progress-labels">
+                    <span class="label">Preprocessing</span>
+                    <span class="label">Feature-Extracting</span>
+                    <span class="label">Inferencing</span>
+                    <span class="label">Completed</span>
+                </div>                
                 <br>
                 <!-- Download Button -->
                 <button id="downloadButton" style="display: none;" onclick="downloadVideo()">Download Video</button>
-            
 			</div>
-		</div>
 	</div>
     
     <!-- Content -->

@@ -73,19 +73,22 @@ body, html {
 }
 
 
+.content-container {
+    padding-left: 50px; /* Apply padding to align all content */
+    width: 90%; /* Adjust width as needed */
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .mdc-card {
     /* Size adjustments */
     min-height: 400px; 
-    width: 90%; 
     height: auto; 
     margin-bottom: 30px;
 
-    /* Position adjustments */
-    position: relative; 
-    left: 50px; 
-    top: 50px; 
+    /* Styling */
     background-color: #f0f0f0;
-    border: 1px solid #ccc; /* Adds a light grey border */
+    border: 1px solid #ccc;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -106,12 +109,11 @@ body, html {
 
 
 .svg-container {
-    position: absolute;
-    left: 51.5%; /* Adjust this value */
-    top: 75%; /* Adjust this value */
-    transform: translate(-50%, -50%);
-    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
 
 #arrowhead polygon {
     fill: #2ebede; 
@@ -120,4 +122,54 @@ body, html {
 
 .col-6 {
     z-index: 1;
+}
+
+.dropzone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%; /* Adjust as needed */
+    text-align: center;
+}
+
+#progressBarContainer {
+    width: 90%;
+    position: relative;
+    left: 50px; /* Match the left position of .mdc-card */
+    margin-bottom: 20px; /* Adjust as needed for spacing below the progress bar */
+    background-color: #ddd;
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    padding-left: 0; /* Align with the start of the progress bar */
+    padding-right: 0; /* Align with the end of the progress bar */
+    list-style: none; /* Remove if using <li> elements */
+    margin-left: 0; /* Remove default margin if using <ul> or <ol> */
+    width: 100%; /* Same width as progressBarContainer */
+}
+
+.label {
+    visibility: hidden; /* Hide labels initially */
+    color: white; /* Labels are initially hidden */
+    /* Alternatively, you can use visibility: hidden; */
+    flex-grow: 1; /* Allows the label to grow if necessary */
+    text-align: center; /* Center text by default */
+}
+
+.label:first-child {
+    flex-grow: 0; /* Prevent the first label from growing */
+    text-align: left; /* Align text to the left */
+}
+
+.label:last-child {
+    text-align: right; /* Align text to the right */
+}
+
+.visible-label {
+    visibility: visible; /* Show label when this class is added */
+    color: black; /* Labels turn black when visible */
+    /* Alternatively, you can use visibility: visible; */
 }
