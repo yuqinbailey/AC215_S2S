@@ -108,6 +108,9 @@ We built a user friendly frontend simple app to generate the sounds from slient 
 
 We deployed our frontend and backend to a kubernetes cluster to take care of load balancing and failover. We used ansible scripts to manage creating and updating the k8s cluster. Ansible helps us manage infrastructure as code and this is very useful to keep track of our app infrastructure as code in GitHub. It helps use setup deployments in a very automated way.
 
+<img src="images/k8_s2s_app_cluster.jpg" width="800">
+
+
 ### Code Structure
 
 The following are the folders from the previous milestones:
