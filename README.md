@@ -145,7 +145,7 @@ This container contains all the files to develop and build a web app. There are 
 This container helps manage building and deploying all our app containers. The deployment is to GCP and all docker images go to GCR. 
 
 To run the container locally:
-- Open a terminal and go to the location where `awesome-app/src/deployment`
+- Open a terminal and go to the location where `/src/deployment`
 - Run `sh docker-shell.sh`
 - Build and Push Docker Containers to GCR (Google Container Registry)
 ```
