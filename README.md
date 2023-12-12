@@ -166,6 +166,27 @@ sudo docker run -d --name frontend -p 3000:80 --network s2s lildanni/s2s-fronten
 sudo docker run -d --name nginx -v $(pwd)/conf/nginx/nginx.conf:/etc/nginx/nginx.conf -p 80:80 --network s2s nginx:stable
 ```
 
+**Deployment Container**
+This container helps manage building and deploying all our app containers. The deployment is to GCP and all docker images go to GCR. 
+
+To run the container locally:
+- Open a terminal and go to the location where `awesome-app/src/deployment`
+- Run `sh docker-shell.sh`
+- Build and Push Docker Containers to GCR (Google Container Registry)
+```
+ansible-playbook deploy-docker-images.yml -i inventory.yml
+```
+
+- Create & Deploy Cluster
+```
+ansible-playbook deploy-k8s-cluster.yml -i inventory.yml --extra-vars cluster_state=present
+```
+
+- View the App
+* Copy the `nginx_ingress_ip` from the terminal from the create cluster command
+* Go to `http://<YOUR INGRESS IP>.sslip.io`
+
+
 ### Deploy using Ansible Playbooks
 This section outlines using Ansible playbooks for efficient automation of API service and Frontend deployment. The process involves the following steps: 
 1) Set up GCP service accounts for deployment and write the credentials into an inventory YAML file. 
