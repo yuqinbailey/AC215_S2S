@@ -1,11 +1,9 @@
 Silence to Sound: Generate Visually Aligned Sound for Videos
 ==============================
 
-### Presentation  Video
-* \<Link Here>
+### [Presentation  Video](https://drive.google.com/drive/folders/1O6IWiO2xedFX0hfqyc53CUdfiqGF92pr)
 
-### Blog Post Link
-*  https://medium.com/@yuqinbailey/1171a65272c0
+### [Blog Post Link](https://medium.com/@yuqinbailey/1171a65272c0)
 ---
 
 Project Organization
