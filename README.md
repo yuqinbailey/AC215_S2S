@@ -181,9 +181,8 @@ This container contains all the files to develop and build a web app. There are 
 To run the container locally:
 - Open a terminal and go to the location where `/src/frontend_simple`
 - Run `sh docker-shell.sh`
-- Once inside the docker container run `http-server`
-- Go to http://localhost:9000 to access the app locally
-- ...```
+- Once inside the docker container, run `http-server`
+- Go to http://localhost:8080/experiments.html to access the app locally
 
 ### Deployment Container (Kubernetes for frontend and api service)
 This container helps manage building and deploying all our app containers. The deployment is to GCP and all docker images go to GCR. 
