@@ -33,12 +33,12 @@ echo "Container is running!!!"
 
 # Function to run the Uvicorn server for development
 uvicorn_server() {
-    python -m uvicorn api.service:app --host 0.0.0.0 --port 9000 --log-level debug --reload --reload-dir api/ "$@"
+    python -m uvicorn api.service:app --host 0.0.0.0 --port 9000 --timeout-keep-alive 5000 --log-level debug --reload --reload-dir api/ "$@"
 }
 
 # Function to run the Uvicorn server for production
 uvicorn_server_production() {
-    python -m uvicorn api.service:app --host 0.0.0.0 --port 9000 --lifespan on
+    python -m uvicorn api.service:app --host 0.0.0.0 --port 9000 --timeout-keep-alive 5000 --lifespan on
 }
 
 export -f uvicorn_server
