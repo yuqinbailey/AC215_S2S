@@ -158,15 +158,34 @@ This container has all the python files to run and expose the backend apis.
 
 We built backend api service using FAST API to expose model functionality to the frontend. We provide the following functions for listening to the front-end. Some user-friendly prompts are also returned to the user while the model is doing the inference, such as progress bar.
 
+To run the container locally:
+
+- Open a terminal and go to the location where `/src/- api-service`
+- Run `sh docker-shell.sh`
+- Once inside the docker container run `uvicorn_server`
+- To view and test APIs go to http://localhost:9000/docs
+
 <img src="images/backend1.jpg"  width="800">
 
 
 ### App Frontend Container
 
-This container contains all the files to develop and build a web app. There are dockerfiles for both development and production.
+This container contains all the files to develop and build a web app. There are dockerfiles for both development and production. Also, the following directories and file:
+ - **conf directory**: Holds configuration for nginx.
+ - **css directory**: Holds the formatting/styling file for the JavaScripts.
+ - **img directory**: Holds images used by .js and .html.
+ - **js directory**: Holds the JavaScript files.
+ - **index.html**: The file to open the web interface.
 
 
-### Deployment Container
+To run the container locally:
+- Open a terminal and go to the location where `/src/frontend_simple`
+- Run `sh docker-shell.sh`
+- Once inside the docker container run `http-server`
+- Go to http://localhost:9000 to access the app locally
+- ...```
+
+### Deployment Container (Kubernetes for frontend and api service)
 This container helps manage building and deploying all our app containers. The deployment is to GCP and all docker images go to GCR. 
 
 To run the container locally:
