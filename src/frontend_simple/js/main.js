@@ -2,6 +2,8 @@ axios.defaults.baseURL = '/api';
 
 var input_file = document.getElementById("input_file");
 var input_file_view = document.getElementById('input_file_view');
+var generateButton = document.getElementById('generateButton');
+var uploadedFile = null; // Variable to store the uploaded file
 
 function upload_file() {
     input_file_view.src = null;
@@ -9,11 +11,22 @@ function upload_file() {
 }
 
 function input_file_onchange() {
-    var file_to_upload = input_file.files[0];
-    input_file_view.src = URL.createObjectURL(file_to_upload);
+    uploadedFile = input_file.files[0];
+    input_file_view.src = URL.createObjectURL(uploadedFile);
+    alert("Video successfully uploaded.");
+}
+
+input_file.onchange = input_file_onchange;
+
+generateButton.addEventListener('click', function() {
+    if (!uploadedFile) {
+        alert("Please upload a video first.");
+        return;
+    }
 
     var formData = new FormData();
-    formData.append("file", input_file.files[0]);
+    formData.append("file", uploadedFile);
+
     axios.post('/predict', formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
@@ -25,9 +38,7 @@ function input_file_onchange() {
         console.error("Error during file upload:", error);
         alert("There was an error uploading your video.");
     });
-}
-
-input_file.onchange = input_file_onchange;
+});
 
 function checkStatus() {
     axios.get('/status').then(response => {
