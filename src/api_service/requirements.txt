@@ -24,3 +24,4 @@ charset_normalizer
 protobuf
 moviepy
 google
+aiohttp

@@ -1,22 +1,12 @@
-from fastapi import FastAPI, File, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks
 from starlette.middleware.cors import CORSMiddleware
-import asyncio
-# from api.tracker import TrackerService
-import pandas as pd
-import os
-from fastapi import File
-from tempfile import TemporaryDirectory
-from api import api_model
-import uuid
 from fastapi.responses import FileResponse
+import aiohttp
+import os
+import uuid
 
-# Initialize Tracker Service
-# tracker_service = TrackerService()
-
-# Setup FastAPI app
 app = FastAPI(title="API Server", description="API Server", version="v1")
 
-# Enable CORSMiddleware
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=False,
@@ -25,21 +15,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Global variable to hold the status
 video_processing_status = "not_started"
-
-
-def process_video(video_path):
-    global video_processing_status
-    # video_processing_status = "processing"
-    # api_model.make_prediction('test')
-    video_processing_status = "completed"
 
 @app.on_event("startup")
 async def startup():
-    print("Startup tasks")
-    # Initialize video_processing_status
     global video_processing_status
     video_processing_status = "not_started"
 
@@ -48,36 +27,35 @@ async def get_index():
     return {"message": "Welcome to the API Service"}
 
 @app.post("/predict")
-async def predict(background_tasks: BackgroundTasks, file: bytes = File(...)):
+async def predict(file: UploadFile = File(...)):
     global video_processing_status
+    video_processing_status = "processing"
+    unique_filename = f"{uuid.uuid4()}.mp4"
 
-    video_path = './test.mp4'
-    with open(video_path, "wb") as output:
-        output.write(file)
+    async with aiohttp.ClientSession() as session:
+        file_content = await file.read()
+        async with session.post("http://34.106.213.117:8080/predictions/s2s", data={"file": file_content}) as response:
+            if response.status == 200:
+                with open(f'./results/{unique_filename}', 'wb') as f:
+                    f.write(await response.read())
+                video_processing_status = "completed"
+            else:
+                video_processing_status = "error"
+                print("Error processing video:", await response.text())
 
-    # Reset the status when a new video is uploaded
-    video_processing_status = "not_started"
-
-    # Start the video processing in a background task
-    background_tasks.add_task(process_video, video_path)
-
-    return {"message": "Video processing started"}
+    return {"message": "Video processing started", "filename": unique_filename}
 
 @app.get("/status")
 def get_status():
-    global video_processing_status
     return {"status": video_processing_status}
 
-
-@app.get("/get_video")
-def get_video():
-    video_path = './results/test.mp4'  # Path to your processed video
+@app.get("/get_video/{filename}")
+def get_video(filename: str):
+    video_path = f'./results/{filename}'
     if os.path.exists(video_path):
-        # Set the response headers
         headers = {
-            'Content-Disposition': 'attachment; filename="test.mp4"',
+            'Content-Disposition': f'attachment; filename="{filename}"',
             'Content-Type': 'video/mp4'
         }
         return FileResponse(video_path, headers=headers)
-    else:
-        return {"message": "File does not exist"}, 404
+    return {"message": "File does not exist"}, 404
