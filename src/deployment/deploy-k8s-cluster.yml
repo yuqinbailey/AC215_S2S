@@ -4,10 +4,11 @@
   gather_facts: false
 
   vars:
-    cluster_name: "mushroom-app-cluster"
+    cluster_name: "s2s-app-cluster-leo-cpu"
     machine_type: "n2d-standard-2"
     machine_disk_size: 30
     initial_node_count: 2
+    servce_account_email : "deployment@ac215project-398818.iam.gserviceaccount.com"
 
   tasks:
   - name: "Create a GKE cluster"
@@ -21,13 +22,15 @@
       ip_allocation_policy:
         use_ip_aliases: "yes"
       auth_kind: "{{ gcp_auth_kind }}"
+      node_config:
+        service_account: "{{ servce_account_email }}"
       service_account_file: "{{ gcp_service_account_file }}"
       state: "{{ cluster_state }}"
     register: cluster
-  
-  - name: "Create a Node Pool"
+
+  - name: "Create a Node Pool with GPU"
     google.cloud.gcp_container_node_pool:
-      name: default-pool
+      name: gpu-pool
       initial_node_count: "{{ initial_node_count }}"
       cluster: "{{ cluster }}"
       location: "{{ gcp_zone }}"
@@ -36,6 +39,7 @@
         machine_type: "{{ machine_type }}"
         image_type: "cos_containerd"
         disk_size_gb: "{{ machine_disk_size }}"
+        service_account: "{{ servce_account_email }}"
         oauth_scopes:
           - "https://www.googleapis.com/auth/devstorage.read_only"
           - "https://www.googleapis.com/auth/logging.write"
@@ -43,6 +47,9 @@
           - "https://www.googleapis.com/auth/servicecontrol"
           - "https://www.googleapis.com/auth/service.management.readonly"
           - "https://www.googleapis.com/auth/trace.append"
+        # accelerators:
+        #   - accelerator_count: 1
+        #     accelerator_type: "nvidia-tesla-t4" 
       autoscaling:
         enabled: "yes"
         min_node_count: "1"
@@ -150,7 +157,7 @@
                 run: frontend
             spec:
               containers:
-              - image: "gcr.io/{{ gcp_project }}/mushroom-app-frontend-react:{{ tag.stdout}}"
+              - image: "gcr.io/{{ gcp_project }}/s2s-app-frontend-simple:{{ tag.stdout}}"
                 imagePullPolicy: IfNotPresent
                 name: frontend
                 ports:
@@ -185,7 +192,7 @@
                   secret:
                     secretName: gcp-service-key
               containers:
-              - image: gcr.io/{{ gcp_project }}/mushroom-app-api-service:{{ tag.stdout}}
+              - image: gcr.io/{{ gcp_project }}/s2s-app-api-service:{{ tag.stdout}}
                 imagePullPolicy: IfNotPresent
                 name: api
                 ports:

@@ -73,6 +73,9 @@
         zone: "{{ gcp_zone }}"
         project: "{{ gcp_project }}"
         state: "{{ cluster_state }}"
+        guest_accelerators:
+          - accelerator_type: "nvidia-tesla-t4"
+            accelerator_count: 1
       register: instance
 
     # Remove Persistent Disk

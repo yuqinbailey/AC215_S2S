@@ -223,7 +223,7 @@ if __name__ == '__main__':
     type=str,
     help="Model name")
     parser.add_argument("--epochs", dest="epochs", default=50, type=int, help="Number of epochs.")
-    parser.add_argument("--batch_size", dest="batch_size", default=1, type=int, help="Size of a batch.")
+    parser.add_argument("--batch_size", dest="batch_size", default=64, type=int, help="Size of a batch.")
     parser.add_argument("--lr", dest="lr", default=0.0002, type=float, help="Learning rate.")
     parser.add_argument("--experiment_name", dest="experiment_name", default='experiment_regnet', type=str, help="Experiment's name on W&B.")
     args = parser.parse_args()
