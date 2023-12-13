@@ -17,6 +17,8 @@ import soundfile as sf
 
 from wavenet_vocoder import builder
 
+import torch.quantization as quantization
+
 def build_wavenet(checkpoint_path=None, device='cuda:0'):
     model = builder.wavenet(
         out_channels=30,
@@ -66,6 +68,12 @@ def test_model():
     torch.manual_seed(config.seed)
     torch.cuda.manual_seed(config.seed)
     model = Regnet()
+    qconfig = quantization.get_default_qat_qconfig('fbgemm')
+    model.qconfig = qconfig
+    
+    # Prepare the model for QAT
+    model = quantization.prepare_qat(model, inplace=True)
+
     valset = RegnetLoader(args.test_name)
     print(len(valset))
     test_loader = DataLoader(valset, num_workers=4, shuffle=False,
@@ -119,7 +127,7 @@ if __name__ == '__main__':
     bucket = storage_client.get_bucket("s2s_data_new")
     # Download the Regnet and Wavenet weights from GCS
     if not os.path.exists("./ckpt/"):
-        os.makedirs("./ckpt/dog_barking/")
+        os.makedirs("./ckpt/bongo/")
         os.makedirs("./ckpt/drum_wavenet/")
 
     # prefix = 'checkpoint_latest'
@@ -127,10 +135,10 @@ if __name__ == '__main__':
     # blob.download_to_filename(f"./ckpt/bongo/{prefix}_netG")
     # blob = bucket.blob(f"ckpt/bongo/{prefix}_netD")
     # blob.download_to_filename(f"./ckpt/bongo/{prefix}_netD")
-    blob = bucket.blob(f"ckpt/dog_barking/checkpoint_041000/checkpoint_041000_netG")
-    blob.download_to_filename(f"./ckpt/dog_barking/checkpoint_041000_netG")
-    blob = bucket.blob(f"ckpt/dog_barking/checkpoint_041000/checkpoint_041000_netD")
-    blob.download_to_filename(f"./ckpt/dog_barking/checkpoint_041000_netD")
+    blob = bucket.blob(f"ckpt/bongo/checkpoint_latest_netG")
+    blob.download_to_filename(f"./ckpt/bongo/checkpoint_latest_netG")
+    blob = bucket.blob(f"ckpt/bongo/checkpoint_latest_netD")
+    blob.download_to_filename(f"./ckpt/bongo/checkpoint_latest_netD")
 
     # wavenet
     blob = bucket.blob(f"ckpt/drum_wavenet/drum_checkpoint_step000160000_ema.pth")

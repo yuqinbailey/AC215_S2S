@@ -11,8 +11,7 @@ _C.dist_url = "tcp://localhost:54321"
 _C.cudnn_enabled = True
 _C.cudnn_benchmark = False
 _C.save_dir = './results'
-# _C.checkpoint_path = _C.BASE_DATA_PATH + 'ckpt/bongo/checkpoint_latest'
-_C.checkpoint_path = './ckpt/dog_barking/checkpoint_041000'
+_C.checkpoint_path = './ckpt/bongo/checkpoint_latest'
 
 _C.epoch_count = 0
 _C.exclude_dirs = ['ckpt', 'data']

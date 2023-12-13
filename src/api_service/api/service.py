@@ -1,7 +1,7 @@
 from fastapi import FastAPI, File, BackgroundTasks
 from starlette.middleware.cors import CORSMiddleware
 from api import api_model
-import uuid
+import os
 from fastapi.responses import FileResponse
 
 app = FastAPI(title="API Server", description="API Server", version="v1")
@@ -14,34 +14,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-processors = {}
+@app.on_event("startup")
+async def startup():
+    print("Startup tasks")
+    api_model.progress_status = "not_started"
+
+@app.get("/")
+async def get_index():
+    return {"message": "Welcome to the API Service"}
 
 @app.post("/predict")
 async def predict(background_tasks: BackgroundTasks, file: bytes = File(...)):
-    video_id = str(uuid.uuid4())
-    video_path = f"./{video_id}.mp4"
-
+    video_path = './test.mp4'
     with open(video_path, "wb") as output:
         output.write(file)
+    
+    background_tasks.add_task(api_model.make_prediction, 'test')
 
-    processor = api_model.VideoProcessor(video_id)
-    processors[video_id] = processor
+    return {"message": "Video processing started"}
 
-    background_tasks.add_task(processor.make_prediction)
+@app.get("/status")
+def get_status():
+    return {"status": api_model.progress_status}
 
-    return {"message": "Video processing started", "video_id": video_id}
-
-@app.get("/status/{video_id}")
-def get_status(video_id: str):
-    if video_id in processors:
-        return {"status": processors[video_id].get_status()}
-    return {"status": "Video ID not found"}
-
-@app.get("/get_video/{video_id}")
-def get_video(video_id: str):
-    video_path = f"./results/{video_id}.mp4"
+@app.get("/get_video")
+def get_video():
+    video_path = './results/test.mp4'
     if os.path.exists(video_path):
-        headers = {'Content-Disposition': f'attachment; filename="{video_id}.mp4"', 'Content-Type': 'video/mp4'}
+        headers = {
+            'Content-Disposition': 'attachment; filename="test.mp4"',
+            'Content-Type': 'video/mp4'
+        }
         return FileResponse(video_path, headers=headers)
     else:
         return {"message": "File does not exist"}, 404
