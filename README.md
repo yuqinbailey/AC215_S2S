@@ -28,22 +28,19 @@ Project Organization
             ├── train                      <- Model training, evaluation, and prediction code
             │   └── ...
             ├── model_deployment           <- Model deployment using VM
-            │   ├── tsn
-            │   ├── wavenet_vocoder
+            |   ├── src
+            │   │   ├── tsn
+            │   │   ├── wavenet_vocoder
+            │   │   ├── model.py
+            │   │   ├── test.py
+            |   |   └── ...
+            |   ├── model_sotre
+            │   ├── handler.py
+            │   ├── docker-shell.sh
+            │   ├── config.properties            
             │   └── ...
             ├── api_service                <- Code for App backend APIs
             │   ├── api
-            │   │   ├── tsn
-            │   │   ├── wavenet_vocoder
-            │   │   ├── config.py
-            │   │   ├── data_utils.py
-            │   │   ├── extract_rgb_flow.py
-            │   │   ├── extract_mel_spectrogram.py
-            │   │   ├── extract_feature.py
-            │   │   ├── criterion.py
-            │   │   ├── model.py
-            │   │   ├── test.py
-            │   │   ├── api_model.py
             │   │   └── service.py
             │   ├── requirements.txt
             │   ├── Dockerfile
@@ -128,6 +125,32 @@ The following are the folders from the previous milestones:
 
 ### Model Deployment Container
 
+This container deploys our model as an endpoint hosted on a Google Cloud VM using TorchServe. It includes two main components:
+
+1. **src directory**: Houses all the supporting files necessary for the model's operation.
+2. **handler.py**: A custom script within the container that orchestrates the model's lifecycle, including data preprocessing, feature extraction, inference, and post-processing.
+
+**Setting Up the Endpoint**  
+To set up the endpoint on a VM, follow these steps:
+
+1. **Run the Docker Container**:
+   ```
+   sudo docker run -it --entrypoint /bin/bash -p 8080:8080 -p 8081:8081 -m 16g --shm-size=8gb --gpus all --sysctl net.ipv4.tcp_keepalive_time=600 --sysctl net.ipv4.tcp_keepalive_intvl=60 --sysctl net.ipv4.tcp_retries2=20 --sysctl net.ipv4.tcp_keepalive_probes=20 hzhu98/my-torchserve-image
+   ```
+
+2. **Start TorchServe**:
+   ```
+   torchserve --start --ncs --model-store model_store --ts-config /workspace/config.properties --models s2s.mar
+   ```
+
+**Using the Endpoint**  
+To interact with the model via the command line, use the following curl command as an example:
+```
+curl -X POST http://34.106.213.117:8080/predictions/s2s \
+     -H "Content-Type: application/json" \
+     -d @input_payload.json
+```
+In this command, `input_payload.json` should contain a base64-encoded video, formatted as: `[{'file': 'base64_encoded_video_string'}]`.
 
 ### App API Service Container
 
